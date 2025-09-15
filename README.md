@@ -1,30 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Website Wiradoor Sumatera Barat
+
+Ini adalah proyek pengembangan website profil perusahaan dan e-katalog untuk MR Konstruktor, distributor resmi Wiradoor di Sumatera Barat. Proyek ini dibuat menggunakan Next.js dan terhubung dengan database MongoDB.
+
+## Tech Stack
+
+* **Framework:** [Next.js](https://nextjs.org/) (dengan App Router)
+* **Bahasa:** [TypeScript](https://www.typescriptlang.org/)
+* **UI:** [Tailwind CSS](https://tailwindcss.com/) & [shadcn/ui](https://ui.shadcn.com/)
+* **Ikon:** [Heroicons](https://heroicons.com/)
+* **Database:** [MongoDB](https://www.mongodb.com/) (via MongoDB Atlas)
+* **ORM:** [Prisma](https://www.prisma.io/)
+* **Package Manager:** [pnpm](https://pnpm.io/)
+
+---
 
 ## Getting Started
 
-First, run the development server:
+Berikut adalah panduan untuk menyiapkan dan menjalankan proyek ini di lingkungan lokal.
 
-```bash
-pnpm dev
-```
+### Prasyarat
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Pastikan Anda sudah menginstal perangkat lunak berikut di komputer Anda:
+* [Node.js](https://nodejs.org/) (v18 atau lebih baru)
+* [pnpm](https://pnpm.io/installation)
+* [Git](https://git-scm.com/)
+* Akun [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register) (tier gratis sudah cukup)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Instalasi & Konfigurasi
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1.  **Clone repository ini:**
+    ```bash
+    git clone https://github.com/Drenzzz/mitra-wiradoor-sumbar.git
+    cd mitra-wiradoor-sumbar
+    ```
 
-## Learn More
+2.  **Instal semua dependencies:**
+    ```bash
+    pnpm install
+    ```
 
-To learn more about Next.js, take a look at the following resources:
+3.  **Siapkan file environment:**
+    Buat salinan dari file `.env.example` dan beri nama `.env`.
+    ```bash
+    cp .env.example .env
+    ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4.  **Hubungkan ke Database MongoDB:**
+    * Login ke akun MongoDB Atlas Anda dan dapatkan **Connection String** untuk cluster Anda.
+    * Buka file `.env` dan ganti `DATABASE_URL` dengan *connection string* yang sudah Anda salin. Jangan lupa untuk mengganti `<password>` dengan password database user Anda.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5.  **Sinkronisasi Skema Database:**
+    Perintah ini akan membaca file `prisma/schema.prisma` dan memastikan Prisma Client Anda sinkron.
+    ```bash
+    pnpm prisma generate
+    ```
 
-## Deploy on Vercel
+6.  **Jalankan Server Pengembangan:**
+    ```bash
+    pnpm dev
+    ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Sekarang, buka [http://localhost:3000](http://localhost:3000) di browser Anda untuk melihat hasilnya.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 📜 Skrip yang Tersedia
+
+* `pnpm dev`: Menjalankan aplikasi dalam mode pengembangan.
+* `pnpm build`: Membangun aplikasi untuk mode produksi.
+* `pnpm start`: Menjalankan aplikasi yang sudah di-build.
