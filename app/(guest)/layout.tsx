@@ -1,0 +1,16 @@
+import { MainNav } from "@/components/guest/main-nav";
+import { SiteFooter } from "@/components/guest/site-footer";
+
+export default function GuestLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <MainNav />
+      <main className="flex-grow">{children}</main>
+      <SiteFooter />
+    </div>
+  );
+}
