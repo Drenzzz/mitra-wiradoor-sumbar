@@ -12,9 +12,11 @@ import {
 } from "@/components/ui/sheet";
 import { Bars3Icon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
+import { useSession, signOut } from 'next-auth/react';
 
 export function MainNav() {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: session, status } = useSession();
 
   return (
     <header className="bg-white/80 backdrop-blur-sm sticky top-0 z-50 border-b">
@@ -33,11 +35,18 @@ export function MainNav() {
         </nav>
         
         <div className="flex items-center gap-4">
-          {/* Tombol Hubungi Kami untuk Desktop */}
+          {/* Tombol Hubungi Kami atau Status Login untuk Desktop */}
           <div className="hidden md:block">
-            <Button asChild>
-              <Link href="/kontak">Hubungi Kami</Link>
-            </Button>
+            {status === 'authenticated' ? (
+              <div className="flex items-center gap-4">
+                <span>{session.user?.name}</span>
+                <Button variant="outline" onClick={() => signOut()}>Logout</Button>
+              </div>
+            ) : (
+              <Button asChild>
+                <Link href="/login">Login</Link>
+              </Button>
+            )}
           </div>
 
           {/* Tombol Menu Hamburger untuk Mobile (hanya tampil di layar kecil) */}
