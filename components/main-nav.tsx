@@ -10,7 +10,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Bars3Icon } from '@heroicons/react/24/outline';
+import { Menu } from 'lucide-react';
 import { useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 
@@ -54,7 +54,7 @@ export function MainNav() {
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon">
-                  <Bars3Icon className="h-6 w-6" />
+                  <Menu className="h-6 w-6" />
                   <span className="sr-only">Buka menu</span>
                 </Button>
               </SheetTrigger>

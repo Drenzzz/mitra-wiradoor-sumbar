@@ -1,22 +1,22 @@
 // components/sections/features-section.tsx
-import { CubeTransparentIcon, WrenchScrewdriverIcon, CheckBadgeIcon } from '@heroicons/react/24/outline';
+import { BadgeCheck, Box, Wrench } from 'lucide-react';
 
 const features = [
   {
     name: 'Kualitas Pabrikasi',
     description: 'Diproduksi dengan teknologi tinggi, presisi, dan proses oven untuk daya tahan maksimal terhadap cuaca.',
-    icon: CheckBadgeIcon,
+    icon: BadgeCheck,
   },
   {
     name: 'Desain Kustom',
     description: 'Wujudkan pintu impian Anda. Kami melayani pesanan khusus sesuai desain, bentuk, dan ukiran yang Anda inginkan.',
-    icon: CubeTransparentIcon,
+    icon: Box,
   },
   {
     name: 'Layanan Instalasi Profesional',
     description: 'Tim aplikator kami memastikan pintu Anda terpasang dengan sempurna untuk fungsionalitas dan keamanan terbaik.',
-    icon: WrenchScrewdriverIcon,
-  },
+    icon: Wrench,
+  }
 ];
 
 export function FeaturesSection() {
