@@ -37,6 +37,8 @@ export function Sidebar() {
     { href: "/admin/inquiries", label: "Pesan Masuk", icon: Mail },
   ]
 
+  const settingsItem = { href: "/admin/settings", label: "Settings", icon: Settings };
+
   return (
     <div className="hidden border-r bg-muted/40 md:block">
       <div className="flex h-full max-h-screen flex-col gap-2">
@@ -61,6 +63,16 @@ export function Sidebar() {
                 {item.label}
               </Link>
             ))}
+            <Link
+              href={settingsItem.href}
+              className={cn(
+                "mt-4 flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                 pathname === settingsItem.href && "bg-muted text-primary"
+              )}
+            >
+              <settingsItem.icon className="h-4 w-4" />
+              {settingsItem.label}
+            </Link>
           </nav>
         </div>
       </div>
