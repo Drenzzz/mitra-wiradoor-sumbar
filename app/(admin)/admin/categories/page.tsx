@@ -1,4 +1,5 @@
 import { CreateCategoryButton } from "@/components/admin/categories/create-category-button";
+import { CategoryTable } from "@/components/admin/categories/category-table";
 import { Separator } from "@/components/ui/separator";
 
 export default function CategoryManagementPage() {
@@ -15,10 +16,7 @@ export default function CategoryManagementPage() {
       </div>
       <Separator />
 
-      {/* Tabel untuk menampilkan daftar kategori akan kita buat di commit selanjutnya */}
-      <div className="border-2 border-dashed border-muted-foreground/50 rounded-lg h-96 flex items-center justify-center">
-          <p className="text-muted-foreground">Tabel data kategori akan muncul di sini.</p>
-      </div>
+      <CategoryTable />
     </div>
   );
 }
