@@ -34,7 +34,7 @@ const formSchema = z.object({
   description: z.string().optional(),
 });
 
-export function CreateCategoryButton() {
+export function CreateCategoryButton({ onSuccess }: { onSuccess: () => void }) {
   const [open, setOpen] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -48,7 +48,6 @@ export function CreateCategoryButton() {
   const { isSubmitting } = form.formState; 
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    // sonner punya cara yang lebih elegan untuk promise
     toast.promise(
       fetch('/api/categories', {
         method: 'POST',
@@ -56,23 +55,23 @@ export function CreateCategoryButton() {
         body: JSON.stringify(values),
       }).then(response => {
         if (!response.ok) {
-          throw new Error('Gagal menambahkan kategori');
+          // Ambil pesan error dari body jika ada
+          return response.json().then(err => { throw new Error(err.error || 'Gagal menambahkan kategori') });
         }
         return response.json();
       }),
       {
         loading: 'Menambahkan kategori...',
         success: () => {
-          form.reset();
-          setOpen(false);
-          // Di sini kita bisa menambahkan logika untuk refresh data tabel
-          return 'Kategori berhasil ditambahkan!';
+            form.reset();
+            setOpen(false);
+            onSuccess(); // Panggil fungsi onSuccess yang dikirim dari parent
+            return 'Kategori berhasil ditambahkan!';
         },
-        error: 'Terjadi kesalahan.',
+        error: (err) => err.message || 'Terjadi kesalahan.',
       }
     );
   };
-
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

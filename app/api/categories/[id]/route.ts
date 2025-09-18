@@ -48,11 +48,14 @@ export async function DELETE(
   
   try {
     const id = params.id;
-    await prisma.category.delete({
+    await prisma.category.update({
       where: { id: id },
+      data: {
+        deletedAt: new Date(),
+      },
     });
 
-    return NextResponse.json({ message: "Kategori berhasil dihapus" }, { status: 200 });
+    return NextResponse.json({ message: "Kategori berhasil dipindahkan ke sampah" }, { status: 200 });
   } catch (error) {
     console.error("Error deleting category:", error);
     // Handle kasus jika kategori masih memiliki produk terkait

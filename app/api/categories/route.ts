@@ -1,9 +1,8 @@
-// app/api/categories/route.ts
-
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import prisma from "@/lib/prisma";
+import { NextRequest } from "next/server";
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -26,6 +25,7 @@ export async function POST(request: Request) {
       data: {
         name,
         description,
+        deletedAt: null, 
       },
     });
 
@@ -39,16 +39,34 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session || !session.user) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
+  const { searchParams } = new URL(request.url);
+  const status = searchParams.get('status');
+
   try {
+    let whereClause = {};
+
+    if (status === 'trashed') {
+      whereClause = { 
+        deletedAt: { 
+          not: null 
+        } 
+      };
+    } else {
+      whereClause = { 
+        deletedAt: null 
+      };
+    }
+
     const categories = await prisma.category.findMany({
+      where: whereClause,
       orderBy: {
-        name: 'asc' // Urutkan berdasarkan nama
+        name: 'asc'
       }
     });
     return NextResponse.json(categories);

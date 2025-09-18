@@ -67,6 +67,7 @@ model Category {
   name        String    @unique
   description String?
   products    Product[]
+  deletedAt   DateTime?
 }
 
 // Model produk
