@@ -1,20 +1,23 @@
-'use client'
+'use client';
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { toast } from "sonner";
-import { Category } from "@/types";
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { toast } from 'sonner';
+import { PlusCircle } from 'lucide-react';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter,
+  SheetClose
+} from '@/components/ui/sheet';
 import {
   Form,
   FormControl,
@@ -22,50 +25,45 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 const formSchema = z.object({
   name: z.string().min(3, { message: "Nama kategori minimal 3 karakter." }),
   description: z.string().optional(),
 });
 
-interface UpdateCategoryFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  category: Category;
+interface CreateCategorySheetProps {
+  onSuccess: () => void;
 }
 
-export function UpdateCategoryForm({ isOpen, onClose, category }: UpdateCategoryFormProps) {
+export function CreateCategorySheet({ onSuccess }: CreateCategorySheetProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { // <-- Mengisi form dengan data yang ada
-      name: category.name,
-      description: category.description || "",
-    },
+    defaultValues: { name: '', description: '' },
   });
 
   const { isSubmitting } = form.formState;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     toast.promise(
-      fetch(`/api/categories/${category.id}`, { // <-- Menggunakan ID kategori
-        method: 'PATCH', // <-- Menggunakan metode PATCH
+      fetch('/api/categories', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),
       }).then(response => {
-        if (!response.ok) {
-          throw new Error('Gagal memperbarui kategori');
-        }
+        if (!response.ok) throw new Error('Gagal menambahkan kategori');
         return response.json();
       }),
       {
-        loading: 'Memperbarui kategori...',
+        loading: 'Menambahkan kategori...',
         success: () => {
-          onClose(); // Tutup dialog setelah berhasil
-          // Nanti kita akan refresh data tabel di sini
-          return 'Kategori berhasil diperbarui!';
+          onSuccess();
+          form.reset();
+          setIsOpen(false);
+          return 'Kategori berhasil ditambahkan!';
         },
         error: 'Terjadi kesalahan.',
       }
@@ -73,14 +71,20 @@ export function UpdateCategoryForm({ isOpen, onClose, category }: UpdateCategory
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Edit Kategori</DialogTitle>
-          <DialogDescription>
-            Ubah detail kategori Anda di sini.
-          </DialogDescription>
-        </DialogHeader>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <SheetTrigger asChild>
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Tambah Kategori
+        </Button>
+      </SheetTrigger>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>Tambah Kategori Baru</SheetTitle>
+          <SheetDescription>
+            Isi detail untuk kategori produk baru Anda.
+          </SheetDescription>
+        </SheetHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
             <FormField
@@ -113,15 +117,17 @@ export function UpdateCategoryForm({ isOpen, onClose, category }: UpdateCategory
                 </FormItem>
               )}
             />
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>Batal</Button>
+            <SheetFooter className="pt-4">
+              <SheetClose asChild>
+                <Button type="button" variant="outline">Batal</Button>
+              </SheetClose>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
+                {isSubmitting ? "Menyimpan..." : "Simpan Kategori"}
               </Button>
-            </DialogFooter>
+            </SheetFooter>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }

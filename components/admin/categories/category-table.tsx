@@ -1,7 +1,8 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { Category } from '@/types';
-import { MoreHorizontal, Trash2, Undo } from 'lucide-react';
+import { MoreHorizontal, Trash2, Undo, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,12 +22,26 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+    },
+  },
+};
+
 interface CategoryTableProps {
   variant: 'active' | 'trashed';
   categories: Category[];
   isLoading: boolean;
   error: string | null;
+  searchTerm: string;
   onRefresh: () => void;
+  onEditClick: (category: Category) => void;
 }
 
 export function CategoryTable({
@@ -34,17 +49,18 @@ export function CategoryTable({
   categories,
   isLoading,
   error,
+  searchTerm,
   onRefresh,
+  onEditClick,
 }: CategoryTableProps) {
   
-  // Fungsi untuk melakukan soft delete
   const handleSoftDelete = (categoryId: string) => {
     toast.promise(
       fetch(`/api/categories/${categoryId}`, { method: 'DELETE' }),
       {
         loading: 'Memindahkan ke sampah...',
         success: () => {
-          onRefresh(); // Panggil onRefresh untuk memuat ulang data
+          onRefresh();
           return 'Kategori berhasil dipindahkan ke sampah.';
         },
         error: (err) => err.message || 'Gagal memindahkan kategori.',
@@ -81,38 +97,42 @@ export function CategoryTable({
   };
 
   if (isLoading) {
-    return <div>Memuat data...</div>;
+    return <div className="text-center p-8 text-muted-foreground">Memuat data...</div>;
   }
 
   if (error) {
-    return <div className="text-red-500">Error: {error}</div>;
+    return <div className="text-center p-8 text-destructive">Error: {error}</div>;
   }
 
   return (
-    <div className="rounded-md border">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Nama Kategori</TableHead>
-            <TableHead>Deskripsi</TableHead>
-            {variant === 'trashed' && <TableHead>Dihapus Pada</TableHead>}
-            <TableHead>
-              <span className="sr-only">Aksi</span>
-            </TableHead>
+          {/* PERUBAHAN: Style header diubah agar lebih profesional */}
+          <TableRow className="border-b-0">
+            <TableHead className="w-[40%] text-xs uppercase tracking-wider text-muted-foreground">Nama Kategori</TableHead>
+            <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Deskripsi</TableHead>
+            {variant === 'trashed' && <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Dihapus Pada</TableHead>}
+            <TableHead className="text-right text-xs uppercase tracking-wider text-muted-foreground">Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {categories.length > 0 ? (
             categories.map((category) => (
-              <TableRow key={category.id}>
-                <TableCell className="font-medium">{category.name}</TableCell>
-                <TableCell>{category.description || '-'}</TableCell>
+              <motion.tr
+                key={category.id}
+                variants={itemVariants}
+                layout
+                className="hover:bg-muted/50"
+              >
+                {/* PERUBAHAN: Padding dan tipografi dipertegas */}
+                <TableCell className="font-semibold text-foreground py-4">{category.name}</TableCell>
+                <TableCell className="text-muted-foreground py-4">{category.description || '–'}</TableCell>
                 {variant === 'trashed' && (
-                   <TableCell>
-                    {category.deletedAt ? new Date(category.deletedAt).toLocaleDateString('id-ID') : '-'}
+                   <TableCell className="text-muted-foreground py-4">
+                    {category.deletedAt ? new Date(category.deletedAt).toLocaleDateString('id-ID') : '–'}
                   </TableCell>
                 )}
-                <TableCell>
+                <TableCell className="text-right py-4">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button aria-haspopup="true" size="icon" variant="ghost">
@@ -120,16 +140,18 @@ export function CategoryTable({
                         <span className="sr-only">Toggle menu</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    {/* PERUBAHAN: Efek glassmorphism/blur ditambahkan di sini */}
+                    <DropdownMenuContent align="end" className="bg-background/80 backdrop-blur-sm">
                       <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       {variant === 'active' ? (
                         <>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onSelect={() => onEditClick(category)}>
+                            <Pencil className="mr-2 h-4 w-4" />
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            className="text-red-600"
+                            className="text-red-600 focus:text-red-600 focus:bg-red-500/10"
                             onSelect={() => handleSoftDelete(category.id)}
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
@@ -143,7 +165,7 @@ export function CategoryTable({
                             Pulihkan
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            className="text-red-600"
+                            className="text-red-600 focus:text-red-600 focus:bg-red-500/10"
                             onSelect={() => handlePermanentDelete(category.id)}
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
@@ -154,17 +176,18 @@ export function CategoryTable({
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
-              </TableRow>
+              </motion.tr>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={variant === 'active' ? 3 : 4} className="h-24 text-center">
-                {variant === 'active' ? 'Belum ada kategori.' : 'Tidak ada kategori di sampah.'}
+              <TableCell colSpan={variant === 'active' ? 3 : 4} className="h-24 text-center text-muted-foreground">
+                {searchTerm ? `Tidak ditemukan kategori dengan nama "${searchTerm}".` : 
+                 (variant === 'active' ? 'Belum ada kategori.' : 'Tidak ada kategori di sampah.')
+                }
               </TableCell>
             </TableRow>
           )}
         </TableBody>
       </Table>
-    </div>
   );
 }
