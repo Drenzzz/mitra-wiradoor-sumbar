@@ -47,28 +47,37 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url);
   const status = searchParams.get('status');
+  const search = searchParams.get('search'); 
+  const sort = searchParams.get('sort');
 
   try {
-    let whereClause = {};
-
+    const whereClause: any = {};
+    
+    // Logika filter status
     if (status === 'trashed') {
-      whereClause = { 
-        deletedAt: { 
-          not: null 
-        } 
-      };
+      whereClause.deletedAt = { not: null };
     } else {
-      whereClause = { 
-        deletedAt: null 
+      whereClause.deletedAt = null;
+    }
+
+    if (search) {
+      whereClause.name = {
+        contains: search,
+        mode: 'insensitive',
       };
+    }
+    
+    let orderByClause = {};
+    const [sortField, sortOrder] = sort?.split('-') || ['name', 'asc'];
+    if (['name', 'createdAt'].includes(sortField)) {
+        orderByClause = { [sortField]: sortOrder };
     }
 
     const categories = await prisma.category.findMany({
       where: whereClause,
-      orderBy: {
-        name: 'asc'
-      }
+      orderBy: orderByClause,
     });
+    
     return NextResponse.json(categories);
   } catch (error) {
     console.error("Error fetching categories:", error);

@@ -2,6 +2,16 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { Category } from '@/types';
+import { useDebounce } from '@/hooks/use-debounce';
+
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CreateCategoryButton } from '@/components/admin/categories/create-category-button';
 import { CategoryTable } from '@/components/admin/categories/category-table';
@@ -13,16 +23,26 @@ export default function CategoryManagementPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('name-asc');
+  
+  const debouncedSearchTerm = useDebounce(searchTerm, 500); 
+
   const fetchCategories = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const activeRes = await fetch('/api/categories?status=active');
+      const query = new URLSearchParams({
+        search: debouncedSearchTerm,
+        sort: sortBy,
+      });
+
+      const activeRes = await fetch(`/api/categories?status=active&${query.toString()}`);
       if (!activeRes.ok) throw new Error('Gagal memuat kategori aktif');
       const activeData = await activeRes.json();
       setActiveCategories(activeData);
 
-      const trashedRes = await fetch('/api/categories?status=trashed');
+      const trashedRes = await fetch(`/api/categories?status=trashed&${query.toString()}`);
       if (!trashedRes.ok) throw new Error('Gagal memuat kategori sampah');
       const trashedData = await trashedRes.json();
       setTrashedCategories(trashedData);
@@ -32,7 +52,7 @@ export default function CategoryManagementPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [debouncedSearchTerm, sortBy]);
 
   useEffect(() => {
     fetchCategories();
@@ -49,6 +69,28 @@ export default function CategoryManagementPage() {
         </div>
         <CreateCategoryButton onSuccess={fetchCategories} />
       </div>
+
+      {/* --- UI UNTUK FILTER & SEARCH --- */}
+      <div className="flex items-center gap-4">
+        <Input
+          placeholder="Cari nama kategori..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm"
+        />
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Urutkan berdasarkan" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="name-asc">Nama (A-Z)</SelectItem>
+            <SelectItem value="name-desc">Nama (Z-A)</SelectItem>
+            <SelectItem value="createdAt-desc">Terbaru</SelectItem>
+            <SelectItem value="createdAt-asc">Terlama</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
       <Separator />
 
       <Tabs defaultValue="active" className="w-full">
@@ -57,7 +99,6 @@ export default function CategoryManagementPage() {
           <TabsTrigger value="trashed">Sampah</TabsTrigger>
         </TabsList>
         <TabsContent value="active">
-          {/* Tabel untuk kategori AKTIF */}
           <CategoryTable
             variant="active"
             categories={activeCategories}
@@ -67,7 +108,6 @@ export default function CategoryManagementPage() {
           />
         </TabsContent>
         <TabsContent value="trashed">
-           {/* Tabel untuk kategori di SAMPAH */}
            <CategoryTable
             variant="trashed"
             categories={trashedCategories}

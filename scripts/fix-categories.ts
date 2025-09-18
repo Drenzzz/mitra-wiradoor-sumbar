@@ -2,20 +2,44 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Mencari kategori lama yang tidak memiliki field `deletedAt`...');
+  const now = new Date();
+  console.log('Memulai perbaikan data kategori lama...');
 
-  const result = await prisma.category.updateMany({
+  const oldCategories = await prisma.category.findMany({
     where: {
-      deletedAt: {
-        isSet: false 
-      }
+      createdAt: {
+        equals: undefined,
+      },
     },
-    data: {
-      deletedAt: null
-    }
+    select: {
+      id: true,
+    },
   });
 
-  console.log(`Selesai! ${result.count} kategori telah diperbarui.`);
+  if (oldCategories.length === 0) {
+    console.log('Tidak ada kategori lama yang perlu diperbaiki. Semua data sudah konsisten.');
+    return;
+  }
+
+  console.log(`Menemukan ${oldCategories.length} kategori lama yang akan diperbarui.`);
+
+  const idsToUpdate = oldCategories.map((cat) => cat.id);
+
+  // Lakukan update pada semua ID yang ditemukan
+  const result = await prisma.category.updateMany({
+    where: {
+      id: {
+        in: idsToUpdate,
+      },
+    },
+    data: {
+      deletedAt: null,
+      createdAt: now,
+      updatedAt: now,
+    },
+  });
+
+  console.log(`\nSelesai! ${result.count} kategori telah berhasil diperbaiki.`);
 }
 
 main()
@@ -26,3 +50,4 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+
