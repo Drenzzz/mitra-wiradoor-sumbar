@@ -6,7 +6,6 @@ import { MoreHorizontal, Trash2, Undo, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox'; 
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +22,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
 
 const itemVariants = {
   hidden: { y: 20, opacity: 0 },
@@ -64,19 +62,11 @@ export function CategoryTable({
 }: CategoryTableProps) {
   
   const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedRowKeys(categories.map(cat => cat.id));
-    } else {
-      setSelectedRowKeys([]);
-    }
+    setSelectedRowKeys(checked ? categories.map(cat => cat.id) : []);
   };
 
   const handleRowSelect = (id: string, checked: boolean) => {
-    if (checked) {
-      setSelectedRowKeys(prev => [...prev, id]);
-    } else {
-      setSelectedRowKeys(prev => prev.filter(key => key !== id));
-    }
+    setSelectedRowKeys(prev => checked ? [...prev, id] : prev.filter(key => key !== id));
   };
 
   const handleSoftDelete = (categoryId: string) => {
@@ -88,35 +78,39 @@ export function CategoryTable({
           onRefresh();
           return 'Kategori berhasil dipindahkan ke sampah.';
         },
-        error: (err) => err.message || 'Gagal memindahkan kategori.',
+        error: (err) => (err as Error).message || 'Gagal memindahkan kategori.',
       }
     );
   };
-
+  
   const handleRestore = (categoryId: string) => {
     toast.promise(
-      fetch(`/api/categories/${categoryId}/restore`, { method: 'PATCH' }),
+      fetch(`/api/categories/${categoryId}`, { 
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'restore' })
+      }),
       {
         loading: 'Memulihkan kategori...',
         success: () => {
           onRefresh();
           return 'Kategori berhasil dipulihkan.';
         },
-        error: (err) => err.message || 'Gagal memulihkan kategori.',
+        error: (err) => (err as Error).message || 'Gagal memulihkan kategori.',
       }
     );
   };
   
   const handlePermanentDelete = (categoryId: string) => {
      toast.promise(
-      fetch(`/api/categories/${categoryId}/force`, { method: 'DELETE' }),
+      fetch(`/api/categories/${categoryId}?force=true`, { method: 'DELETE' }),
       {
         loading: 'Menghapus permanen...',
         success: () => {
           onRefresh();
           return 'Kategori berhasil dihapus permanen.';
         },
-        error: (err) => err.message || 'Gagal menghapus kategori.',
+        error: (err) => (err as Error).message || 'Gagal menghapus kategori.',
       }
     );
   };

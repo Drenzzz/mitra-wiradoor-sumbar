@@ -1,98 +1,40 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import prisma from "@/lib/prisma";
-import { NextRequest } from "next/server";
+import * as categoryService from "@/lib/services/category.service";
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
-  if (!session || !session.user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
+  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   try {
     const body = await request.json();
-    const { name, description } = body;
-
-    if (!name) {
-      return NextResponse.json(
-        { error: "Nama kategori wajib diisi" },
-        { status: 400 }
-      );
+    if (!body.name) {
+      return NextResponse.json({ error: "Nama kategori wajib diisi" }, { status: 400 });
     }
-
-    const newCategory = await prisma.category.create({
-      data: {
-        name,
-        description,
-        deletedAt: null, 
-      },
-    });
-
+    const newCategory = await categoryService.createCategory(body);
     return NextResponse.json(newCategory, { status: 201 });
   } catch (error) {
-    console.error("Error creating category:", error);
-    return NextResponse.json(
-      { error: "Terjadi kesalahan pada server" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Terjadi kesalahan pada server" }, { status: 500 });
   }
 }
 
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session || !session.user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
-
-  const { searchParams } = new URL(request.url);
-  const status = searchParams.get('status');
-  const search = searchParams.get('search');
-  const sort = searchParams.get('sort');
-  const page = parseInt(searchParams.get('page') || '1', 10);
-  const limit = parseInt(searchParams.get('limit') || '10', 10);
-  const skip = (page - 1) * limit;
+  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   try {
-    const whereClause: any = {};
-    if (status === 'trashed') {
-      whereClause.deletedAt = { not: null };
-    } else {
-      whereClause.deletedAt = null;
-    }
-
-    if (search) {
-      whereClause.name = {
-        contains: search,
-        mode: 'insensitive',
-      };
-    }
-
-    let orderByClause = {};
-    const [sortField, sortOrder] = sort?.split('-') || ['name', 'asc'];
-    if (['name', 'createdAt'].includes(sortField)) {
-      orderByClause = { [sortField]: sortOrder };
-    }
-
-    const [categories, totalCount] = await prisma.$transaction([
-      prisma.category.findMany({
-        where: whereClause,
-        orderBy: orderByClause,
-        skip: skip,
-        take: limit,
-      }),
-      prisma.category.count({
-        where: whereClause,
-      }),
-    ]);
-
-    // PERUBAHAN: Kembalikan data beserta totalCount
-    return NextResponse.json({ data: categories, totalCount });
+    const { searchParams } = new URL(request.url);
+    const options = {
+      status: searchParams.get('status') as 'active' | 'trashed' | undefined,
+      search: searchParams.get('search') || undefined,
+      sort: searchParams.get('sort') || undefined,
+      page: parseInt(searchParams.get('page') || '1', 10),
+      limit: parseInt(searchParams.get('limit') || '10', 10),
+    };
+    const result = await categoryService.getCategories(options);
+    return NextResponse.json(result);
   } catch (error) {
-    console.error("Error fetching categories:", error);
-    return NextResponse.json(
-      { error: "Terjadi kesalahan pada server" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Terjadi kesalahan pada server" }, { status: 500 });
   }
 }
