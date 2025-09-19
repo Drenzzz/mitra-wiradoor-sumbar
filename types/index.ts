@@ -4,3 +4,18 @@ export type Category = {
   description: string | null;
   deletedAt: Date | null;
 };
+
+export type Product = {
+  id: string;
+  name: string;
+  description: string;
+  specifications: string;
+  imageUrl: string;
+  deletedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  categoryId: string;
+  category: {
+    name: string;
+  };
+};
