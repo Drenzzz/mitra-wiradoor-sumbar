@@ -5,6 +5,8 @@ import { Category } from '@/types';
 import { MoreHorizontal, Trash2, Undo, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox'; 
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+
 
 const itemVariants = {
   hidden: { y: 20, opacity: 0 },
@@ -42,6 +45,9 @@ interface CategoryTableProps {
   searchTerm: string;
   onRefresh: () => void;
   onEditClick: (category: Category) => void;
+  selectedRowKeys: string[];
+  setSelectedRowKeys: React.Dispatch<React.SetStateAction<string[]>>;
+
 }
 
 export function CategoryTable({
@@ -52,8 +58,27 @@ export function CategoryTable({
   searchTerm,
   onRefresh,
   onEditClick,
+  selectedRowKeys,
+  setSelectedRowKeys,
+
 }: CategoryTableProps) {
   
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedRowKeys(categories.map(cat => cat.id));
+    } else {
+      setSelectedRowKeys([]);
+    }
+  };
+
+  const handleRowSelect = (id: string, checked: boolean) => {
+    if (checked) {
+      setSelectedRowKeys(prev => [...prev, id]);
+    } else {
+      setSelectedRowKeys(prev => prev.filter(key => key !== id));
+    }
+  };
+
   const handleSoftDelete = (categoryId: string) => {
     toast.promise(
       fetch(`/api/categories/${categoryId}`, { method: 'DELETE' }),
@@ -104,11 +129,21 @@ export function CategoryTable({
     return <div className="text-center p-8 text-destructive">Error: {error}</div>;
   }
 
+  const numSelected = selectedRowKeys.length;
+  const rowCount = categories.length;
+
   return (
       <Table>
         <TableHeader>
           {/* PERUBAHAN: Style header diubah agar lebih profesional */}
           <TableRow className="border-b-0">
+            <TableHead className="w-12">
+              <Checkbox
+                checked={numSelected === rowCount && rowCount > 0}
+                indeterminate={numSelected > 0 && numSelected < rowCount}
+                onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
+              />
+            </TableHead>
             <TableHead className="w-[40%] text-xs uppercase tracking-wider text-muted-foreground">Nama Kategori</TableHead>
             <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Deskripsi</TableHead>
             {variant === 'trashed' && <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Dihapus Pada</TableHead>}
@@ -124,7 +159,12 @@ export function CategoryTable({
                 layout
                 className="hover:bg-muted/50"
               >
-                {/* PERUBAHAN: Padding dan tipografi dipertegas */}
+                <TableCell className="py-4">
+                   <Checkbox
+                    checked={selectedRowKeys.includes(category.id)}
+                    onCheckedChange={(checked) => handleRowSelect(category.id, Boolean(checked))}
+                  />
+                </TableCell>
                 <TableCell className="font-semibold text-foreground py-4">{category.name}</TableCell>
                 <TableCell className="text-muted-foreground py-4">{category.description || '–'}</TableCell>
                 {variant === 'trashed' && (

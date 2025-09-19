@@ -47,13 +47,14 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url);
   const status = searchParams.get('status');
-  const search = searchParams.get('search'); 
+  const search = searchParams.get('search');
   const sort = searchParams.get('sort');
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const limit = parseInt(searchParams.get('limit') || '10', 10);
+  const skip = (page - 1) * limit;
 
   try {
     const whereClause: any = {};
-    
-    // Logika filter status
     if (status === 'trashed') {
       whereClause.deletedAt = { not: null };
     } else {
@@ -66,19 +67,27 @@ export async function GET(request: NextRequest) {
         mode: 'insensitive',
       };
     }
-    
+
     let orderByClause = {};
     const [sortField, sortOrder] = sort?.split('-') || ['name', 'asc'];
     if (['name', 'createdAt'].includes(sortField)) {
-        orderByClause = { [sortField]: sortOrder };
+      orderByClause = { [sortField]: sortOrder };
     }
 
-    const categories = await prisma.category.findMany({
-      where: whereClause,
-      orderBy: orderByClause,
-    });
-    
-    return NextResponse.json(categories);
+    const [categories, totalCount] = await prisma.$transaction([
+      prisma.category.findMany({
+        where: whereClause,
+        orderBy: orderByClause,
+        skip: skip,
+        take: limit,
+      }),
+      prisma.category.count({
+        where: whereClause,
+      }),
+    ]);
+
+    // PERUBAHAN: Kembalikan data beserta totalCount
+    return NextResponse.json({ data: categories, totalCount });
   } catch (error) {
     console.error("Error fetching categories:", error);
     return NextResponse.json(
