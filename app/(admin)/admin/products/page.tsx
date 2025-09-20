@@ -1,30 +1,41 @@
-  "use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { Product } from "@/types";
+import { useState, useEffect } from 'react';
+import { Product } from '@/types';
+import { toast } from 'sonner';
+
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CreateProductButton } from "@/components/admin/products/create-product-button";
-import { ProductTable } from "@/components/admin/products/product-table";
-import { ProductDetailDialog } from "@/components/admin/products/product-detail-dialog";
-import { Card, CardContent } from "@/components/ui/card";
+import { ProductTable } from '@/components/admin/products/product-table';
+import { ProductDetailDialog } from '@/components/admin/products/product-detail-dialog';
 import { EditProductDialog } from '@/components/admin/products/edit-product-dialog';
 
 export default function ProductManagementPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [activeProducts, setActiveProducts] = useState<Product[]>([]);
+  const [trashedProducts, setTrashedProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const fetchProducts = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/products");
-      if (!response.ok) throw new Error("Gagal memuat data produk");
-      const data = await response.json();
-      setProducts(data.data);
+      const [activeRes, trashedRes] = await Promise.all([
+        fetch('/api/products?status=active'),
+        fetch('/api/products?status=trashed')
+      ]);
+      if (!activeRes.ok || !trashedRes.ok) throw new Error('Gagal memuat data produk');
+
+      const activeData = await activeRes.json();
+      const trashedData = await trashedRes.json();
+
+      setActiveProducts(activeData.data);
+      setTrashedProducts(trashedData.data);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -36,18 +47,16 @@ export default function ProductManagementPage() {
     fetchProducts();
   }, []);
 
-  const handleSuccess = () => {
-    fetchProducts();
-  };
+  const handleSuccess = () => fetchProducts();
 
   const handleViewClick = (product: Product) => {
     setSelectedProduct(product);
     setIsDetailOpen(true);
   };
-  
+
   const handleEditClick = (product: Product) => {
-      setSelectedProduct(product);
-      setIsEditOpen(true);
+    setSelectedProduct(product);
+    setIsEditOpen(true);
   };
 
   return (
@@ -63,30 +72,46 @@ export default function ProductManagementPage() {
           </div>
         </div>
 
-        <Card>
-          <CardContent className="p-0">
-            <ProductTable 
-                products={products} 
-                isLoading={isLoading} 
-                error={error} 
-                onEditClick={handleEditClick} 
-                onViewClick={handleViewClick} 
-            />
-          </CardContent>
-        </Card>
+        <Tabs defaultValue="active" className="w-full">
+          <TabsList>
+            <TabsTrigger value="active">Aktif ({activeProducts.length})</TabsTrigger>
+            <TabsTrigger value="trashed">Sampah ({trashedProducts.length})</TabsTrigger>
+          </TabsList>
+          <TabsContent value="active" className="mt-4">
+            <Card>
+              <CardContent className="p-0">
+                <ProductTable 
+                    variant="active"
+                    products={activeProducts} 
+                    isLoading={isLoading} 
+                    error={error} 
+                    onEditClick={handleEditClick} 
+                    onViewClick={handleViewClick}
+                    onRefresh={fetchProducts}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="trashed" className="mt-4">
+            <Card>
+              <CardContent className="p-0">
+                <ProductTable 
+                    variant="trashed"
+                    products={trashedProducts} 
+                    isLoading={isLoading} 
+                    error={error} 
+                    onEditClick={handleEditClick} 
+                    onViewClick={handleViewClick}
+                    onRefresh={fetchProducts}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
 
-      <ProductDetailDialog 
-        isOpen={isDetailOpen} 
-        onClose={() => setIsDetailOpen(false)} 
-        product={selectedProduct} 
-      />
-      <EditProductDialog
-        isOpen={isEditOpen}
-        onClose={() => setIsEditOpen(false)}
-        product={selectedProduct}
-        onSuccess={handleSuccess}
-      />
+      <ProductDetailDialog isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} product={selectedProduct} />
+      <EditProductDialog isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} product={selectedProduct} onSuccess={handleSuccess} />
     </>
   );
 }
