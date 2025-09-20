@@ -25,12 +25,12 @@ export function ProductDetailDialog({ product, isOpen, onClose }: ProductDetailD
         </DialogHeader>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
           <div className="relative aspect-square">
-            {/* <Image
+            <Image
               src={product.imageUrl}
               alt={product.name}
               fill
               className="rounded-md object-cover"
-            /> */}
+            />
           </div>
           <div className="space-y-4">
             <div>
