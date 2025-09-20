@@ -1,4 +1,3 @@
-// components/admin/products/product-table.tsx
 'use client';
 
 import Image from 'next/image';
@@ -61,13 +60,13 @@ export function ProductTable({ products, isLoading, error, onEditClick, onViewCl
             <motion.tr key={product.id} variants={itemVariants} layout>
               <TableCell><Checkbox /></TableCell>
               <TableCell>
-                {/* <Image
+                <Image
                   src={product.imageUrl}
                   alt={product.name}
                   width={64}
                   height={64}
                   className="rounded-md object-cover"
-                /> */}
+                />
               </TableCell>
               <TableCell className="font-semibold">{product.name}</TableCell>
               <TableCell>
