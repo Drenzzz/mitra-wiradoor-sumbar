@@ -15,6 +15,7 @@ import { ProductDetailDialog } from "@/components/admin/products/product-detail-
 import { EditProductDialog } from '@/components/admin/products/edit-product-dialog';
 import { motion, AnimatePresence } from "framer-motion";
 import { Undo, Trash2 } from "lucide-react";
+import { PageWrapper } from "@/components/admin/page-wrapper";
 
 export default function ProductManagementPage() {
   const [products, setProducts] = useState<{ active: Product[], trashed: Product[] }>({ active: [], trashed: [] });
@@ -127,6 +128,7 @@ export default function ProductManagementPage() {
     const totalPages = Math.ceil(totalCount / rowsPerPage);
 
     return (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <Card>
             <CardHeader>
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
@@ -222,10 +224,12 @@ export default function ProductManagementPage() {
                 </CardFooter>
             )}
         </Card>
+        </motion.div>
     );
   };
 
   return (
+    <PageWrapper>
     <>
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -249,5 +253,6 @@ export default function ProductManagementPage() {
       <ProductDetailDialog isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} product={selectedProduct} />
       <EditProductDialog isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} product={selectedProduct} onSuccess={handleSuccess} />
     </>
+    </PageWrapper>
   );
 }
