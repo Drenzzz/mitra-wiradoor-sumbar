@@ -15,11 +15,12 @@ export type GetProductsOptions = {
   sort?: string;
   page?: number;
   limit?: number;
+  categoryId?: string;
 };
 
 
 export const getProducts = async (options: GetProductsOptions = {}) => {
-  const { status = 'active', search, sort, page = 1, limit = 10 } = options;
+  const { status = 'active', search, sort, page = 1, limit = 10, categoryId } = options;
   const skip = (page - 1) * limit;
 
   const whereClause: Prisma.ProductWhereInput = {};
@@ -29,17 +30,17 @@ export const getProducts = async (options: GetProductsOptions = {}) => {
     whereClause.name = { contains: search, mode: 'insensitive' };
   }
 
+  if (categoryId) {
+    whereClause.categoryId = categoryId;
+  }
+
   const [sortField, sortOrder] = sort?.split('-') || ['name', 'asc'];
   const orderByClause = { [sortField]: sortOrder };
 
   const [products, totalCount] = await prisma.$transaction([
     prisma.product.findMany({
       where: whereClause,
-      include: { // Sertakan data kategori
-        category: {
-          select: { name: true },
-        },
-      },
+      include: { category: { select: { name: true } } },
       orderBy: orderByClause,
       skip,
       take: limit,
