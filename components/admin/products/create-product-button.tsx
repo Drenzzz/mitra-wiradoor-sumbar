@@ -6,7 +6,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
 import { PlusCircle } from 'lucide-react';
-
+import { useEffect } from 'react';
+import { Category } from '@/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -17,6 +19,8 @@ const formSchema = z.object({
   name: z.string().min(2, { message: 'Nama produk minimal 2 karakter.' }),
   description: z.string().min(5, { message: 'Deskripsi minimal 5 karakter.' }),
   specifications: z.string().min(5, { message: 'Spesifikasi minimal 5 karakter.' }),
+  categoryId: z.string({ required_error: "Kategori wajib dipilih." }),
+
 });
 
 interface CreateProductButtonProps {
@@ -25,11 +29,28 @@ interface CreateProductButtonProps {
 
 export function CreateProductButton({ onSuccess }: CreateProductButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
-  
+    const [categories, setCategories] = useState<Category[]>([]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: '', description: '', specifications: '' },
+    defaultValues: { name: '', description: '', specifications: '', categoryId: '' },
   });
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/categories?status=active'); // Ambil hanya kategori aktif
+        const data = await response.json();
+        setCategories(data.data);
+      } catch (error) {
+        toast.error('Gagal memuat daftar kategori.');
+      }
+    };
+
+    if (isOpen) {
+      fetchCategories();
+    }
+  }, [isOpen]);
 
   const { isSubmitting } = form.formState;
 
@@ -37,7 +58,6 @@ export function CreateProductButton({ onSuccess }: CreateProductButtonProps) {
     const payload = {
         ...values,
         imageUrl: 'dummy_url',
-        categoryId: '68ccf7bf314cf874c53f0e63'
     };
     
     toast.promise(
@@ -88,6 +108,30 @@ export function CreateProductButton({ onSuccess }: CreateProductButtonProps) {
                   <FormMessage />
                 </FormItem>
               )}
+            />
+            <FormField
+                control={form.control}
+                name="categoryId"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Kategori Produk</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                        <SelectTrigger>
+                        <SelectValue placeholder="Pilih kategori untuk produk ini" />
+                        </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                            {category.name}
+                        </SelectItem>
+                        ))}
+                    </SelectContent>
+                    </Select>
+                    <FormMessage />
+                </FormItem>
+                )}
             />
             <FormField
               control={form.control}
