@@ -5,8 +5,8 @@ import * as productService from "@/lib/services/product.service";
 
 // GET
 export async function GET(request: Request, { params }: { params: { id: string } }) {
-  const { id } = params;
   try {
+    const { id } = params;
     const product = await productService.getProductById(id);
     if (!product) {
       return NextResponse.json({ error: "Produk tidak ditemukan" }, { status: 404 });
@@ -23,7 +23,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   try {
-    const { id } = params; 
+    const { id } = params;
     const body = await request.json();
 
     if (body.action === 'restore') {
