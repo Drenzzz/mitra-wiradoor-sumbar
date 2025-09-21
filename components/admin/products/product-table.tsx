@@ -1,6 +1,7 @@
 // components/admin/products/product-table.tsx
 'use client';
 
+import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Product } from '@/types';
@@ -27,7 +28,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 
-const itemVariants = {
+const itemVariants: any = {
   hidden: { y: 20, opacity: 0 },
   visible: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 100 } },
 };
@@ -90,8 +91,17 @@ export function ProductTable({ variant, products, isLoading, error, onEditClick,
   if (isLoading) return <div className="text-center p-8 text-muted-foreground">Memuat data produk...</div>;
   if (error) return <div className="text-center p-8 text-destructive">Error: {error}</div>;
 
+  const headerCheckboxRef = useRef<HTMLButtonElement>(null); // Buat ref
+
   const numSelected = selectedRowKeys.length;
   const rowCount = products.length;
+  const isIndeterminate = numSelected > 0 && numSelected < rowCount;
+
+  useEffect(() => {
+    if (headerCheckboxRef.current) {
+      headerCheckboxRef.current.dataset.state = isIndeterminate ? 'indeterminate' : (numSelected === rowCount && rowCount > 0 ? 'checked' : 'unchecked');
+    }
+  }, [isIndeterminate, numSelected, rowCount]);
 
   return (
     <Table>
@@ -99,8 +109,8 @@ export function ProductTable({ variant, products, isLoading, error, onEditClick,
         <TableRow className="border-b-0">
             <TableHead className="w-12 pl-6">
                 <Checkbox
+                    ref={headerCheckboxRef} // Pasang ref di sini
                     checked={numSelected === rowCount && rowCount > 0}
-                    indeterminate={numSelected > 0 && numSelected < rowCount}
                     onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
                 />
             </TableHead>

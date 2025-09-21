@@ -10,7 +10,7 @@ const pageVariants = {
 
 const pageTransition = {
   type: 'tween',
-  ease: 'anticipate',
+  ease: 'easeInOut',
   duration: 0.4,
 };
 
@@ -21,7 +21,7 @@ export function PageWrapper({ children, className }: { children: React.ReactNode
       animate="animate"
       exit="exit"
       variants={pageVariants}
-      transition={pageTransition}
+      transition={pageTransition as any}
       className={className}
     >
       {children}

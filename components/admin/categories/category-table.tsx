@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Category } from '@/types';
 import { MoreHorizontal, Trash2, Undo, Pencil } from 'lucide-react';
@@ -23,7 +24,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-const itemVariants = {
+const itemVariants: any = {
   hidden: { y: 20, opacity: 0 },
   visible: {
     y: 0,
@@ -123,8 +124,17 @@ export function CategoryTable({
     return <div className="text-center p-8 text-destructive">Error: {error}</div>;
   }
 
+  const headerCheckboxRef = useRef<HTMLButtonElement>(null); // Buat ref untuk checkbox header
+
   const numSelected = selectedRowKeys.length;
   const rowCount = categories.length;
+  const isIndeterminate = numSelected > 0 && numSelected < rowCount;
+
+  useEffect(() => {
+    if (headerCheckboxRef.current) {
+      headerCheckboxRef.current.dataset.state = isIndeterminate ? 'indeterminate' : (numSelected === rowCount && rowCount > 0 ? 'checked' : 'unchecked');
+    }
+  }, [isIndeterminate, numSelected, rowCount]);
 
   return (
       <Table>
@@ -133,8 +143,8 @@ export function CategoryTable({
           <TableRow className="border-b-0">
             <TableHead className="w-12">
               <Checkbox
+                ref={headerCheckboxRef} // Pasang ref di sini
                 checked={numSelected === rowCount && rowCount > 0}
-                indeterminate={numSelected > 0 && numSelected < rowCount}
                 onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
               />
             </TableHead>
