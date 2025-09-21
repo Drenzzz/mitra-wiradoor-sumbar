@@ -3,12 +3,15 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as categoryService from "@/lib/services/category.service";
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   try {
-    const { id } = params; 
+    const { id } = await context.params; 
     const body = await request.json();
 
     if (body.action === 'restore') {
@@ -23,12 +26,15 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   try {
-    const { id } = params;
+    const { id } = await context.params;
     const { searchParams } = new URL(request.url);
     const force = searchParams.get('force') === 'true';
 

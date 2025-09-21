@@ -4,9 +4,12 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as productService from "@/lib/services/product.service";
 
 // GET
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = params;
+    const { id } = await context.params;
     const product = await productService.getProductById(id);
     if (!product) {
       return NextResponse.json({ error: "Produk tidak ditemukan" }, { status: 404 });
@@ -18,12 +21,15 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 // PATCH
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   try {
-    const { id } = params;
+    const { id } = await context.params;
     const body = await request.json();
 
     if (body.action === 'restore') {
@@ -39,12 +45,15 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 }
 
 // DELETE
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   try {
-    const { id } = params;
+    const { id } = await context.params;
     const { searchParams } = new URL(request.url);
     const force = searchParams.get('force') === 'true';
 
