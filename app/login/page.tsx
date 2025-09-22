@@ -107,10 +107,13 @@ export default function LoginPage() {
                       required
                        className="bg-zinc-800/50 border-zinc-700 text-white focus:ring-offset-zinc-900"
                     />
+                      <Button variant="link" asChild className="p-0 h-auto text-xs text-zinc-400">
+                          <Link href="/forgot-password">Lupa Password?</Link>
+                      </Button>
                   </div>
                    {error && <p className="text-sm text-red-500 text-center pt-2">{error}</p>}
                 </CardContent>
-                <CardFooter className="flex flex-col gap-4 pt-8">
+                <CardFooter className="flex flex-col gap-4 pt-4">
                   <Button type="submit" className="w-full bg-white text-black hover:bg-zinc-200" disabled={isLoading}>
                     {isLoading ? "Memverifikasi..." : "Login"}
                   </Button>
