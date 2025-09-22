@@ -3,16 +3,28 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+
+import { AuroraBackground } from '@/components/ui/aurora-background';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import LoginImage from '@/public/foto_mitra_usaha.jpg';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
     const result = await signIn('credentials', {
       redirect: false,
@@ -20,58 +32,97 @@ export default function LoginPage() {
       password,
     });
 
+    setIsLoading(false);
+
     if (result?.error) {
-      setError(result.error);
+      setError("Email atau password salah. Silakan coba lagi.");
     } else {
-      router.push('/'); // Arahkan ke halaman utama setelah berhasil login
+      router.push('/admin');
     }
   };
 
   return (
-    <div className="flex justify-center items-center mt-20">
-      <div className="w-full max-w-xs p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-center">Login</h1>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+    <AuroraBackground>
+      <motion.div
+        initial={{ opacity: 0.0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{
+          delay: 0.3,
+          duration: 0.8,
+          ease: "easeInOut",
+        }}
+        className="relative flex flex-col gap-4 items-center justify-center px-4 w-full h-full"
+      >
+        <div className="w-full max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-2xl grid md:grid-cols-2 bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-60">
+          {/* Kolom Kiri: Gambar dan Quote */}
+          <div className="relative hidden md:block">
+            <Image
+              src={LoginImage}
+              alt="Elegant interior with a modern door"
+              layout="fill"
+              objectFit="cover"
+              className="opacity-90"
             />
+            <div className="absolute inset-0 bg-black/60 flex items-end p-8">
+              <div className="text-white">
+                <p className="text-xl italic">
+                  "temp quotes wak."
+                </p>
+                <p className="mt-4 font-semibold">- Manajemen WiraDoor</p>
+              </div>
+            </div>
           </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
+
+          {/* Kolom Kanan: Form Login */}
+          <div className="flex items-center justify-center p-8 bg-zinc-900/80">
+            <Card className="w-full max-w-md bg-transparent border-0 text-white shadow-none">
+              <CardHeader className="text-center">
+                <CardTitle className="text-3xl font-bold">Selamat Datang Kembali</CardTitle>
+                <CardDescription className="text-zinc-400 pt-2">
+                  Masuk ke Panel Admin Wiradoor Sumbar
+                </CardDescription>
+              </CardHeader>
+              <form onSubmit={handleSubmit}>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="admin@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="bg-zinc-800/50 border-zinc-700 text-white focus:ring-offset-zinc-900"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                       className="bg-zinc-800/50 border-zinc-700 text-white focus:ring-offset-zinc-900"
+                    />
+                  </div>
+                   {error && <p className="text-sm text-red-500 text-center pt-2">{error}</p>}
+                </CardContent>
+                <CardFooter className="flex flex-col gap-4 pt-8">
+                  <Button type="submit" className="w-full bg-white text-black hover:bg-zinc-200" disabled={isLoading}>
+                    {isLoading ? "Memverifikasi..." : "Login"}
+                  </Button>
+                   <Button variant="link" asChild className="text-zinc-400">
+                      <Link href="/">Kembali ke Halaman Utama</Link>
+                    </Button>
+                </CardFooter>
+              </form>
+            </Card>
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <div>
-            <button
-              type="submit"
-              className="w-full px-4 py-2 font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Sign In
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        </div>
+      </motion.div>
+    </AuroraBackground>
   );
 }
