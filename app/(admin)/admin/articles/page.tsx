@@ -7,10 +7,9 @@ import { useArticleCategoryManagement } from '@/hooks/use-article-category-manag
 import { CreateArticleCategoryButton } from '@/components/admin/article-categories/create-article-category-button';
 import { ArticleCategoryTable } from '@/components/admin/article-categories/article-category-table';
 import { EditArticleCategoryDialog } from '@/components/admin/article-categories/edit-article-category-dialog';
+import { CreateArticleDialog } from '@/components/admin/articles/create-article-dialog';
 import { ArticleCategory } from '@/types';
 import { toast } from 'sonner';
-
-// import { useArticleManagement } from '@/hooks/use-article-management';
 
 export default function ArticleManagementPage() { 
   const {
@@ -26,6 +25,10 @@ export default function ArticleManagementPage() {
     setSelectedCategory(category);
     setIsEditDialogOpen(true);
   };
+  
+  const fetchArticles = () => {
+      console.log("Refreshing articles...");
+  }
 
   return (
     <PageWrapper className="space-y-6">
@@ -34,7 +37,22 @@ export default function ArticleManagementPage() {
         <p className="text-muted-foreground">Kelola kategori dan konten artikel untuk website Anda di sini.</p>
       </div>
 
-      {/* Card untuk Manajemen Kategori Artikel */}
+      <Card>
+         <CardHeader className="flex-row items-center justify-between">
+           <div>
+             <CardTitle>Daftar Artikel</CardTitle>
+             <CardDescription>Tulis, edit, dan publikasikan artikel Anda.</CardDescription>
+           </div>
+           {/* === GANTI TOMBOL LAMA DENGAN KOMPONEN DIALOG BARU === */}
+           <CreateArticleDialog onSuccess={fetchArticles} />
+         </CardHeader>
+         <CardContent>
+           <p className="text-center text-muted-foreground py-8">
+             (Tabel Daftar Artikel akan ditampilkan di sini pada tahap selanjutnya)
+           </p>
+         </CardContent>
+      </Card>
+
       <Card>
         <CardHeader className="flex-row items-center justify-between">
           <div>
@@ -56,19 +74,6 @@ export default function ArticleManagementPage() {
             searchTerm=""
           />
         </CardContent>
-      </Card>
-
-      {/* Placeholder untuk Card Manajemen Artikel */}
-      <Card>
-         <CardHeader>
-           <CardTitle>Daftar Artikel</CardTitle>
-           <CardDescription>Tulis, edit, dan publikasikan artikel Anda.</CardDescription>
-         </CardHeader>
-         <CardContent>
-           <p className="text-center text-muted-foreground py-8">
-             (Tabel Daftar Artikel akan ditampilkan di sini pada tahap selanjutnya)
-           </p>
-         </CardContent>
       </Card>
 
       <EditArticleCategoryDialog
