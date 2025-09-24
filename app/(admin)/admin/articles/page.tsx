@@ -10,26 +10,30 @@ import { EditArticleCategoryDialog } from '@/components/admin/article-categories
 import { CreateArticleDialog } from '@/components/admin/articles/create-article-dialog';
 import { ArticleCategory } from '@/types';
 import { toast } from 'sonner';
+import { useArticleManagement } from '@/hooks/use-article-management';
+import { ArticleTable } from '@/components/admin/articles/article-table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function ArticleManagementPage() { 
-  const {
-    categories,
-    isLoading: isCategoriesLoading,
-    fetchCategories,
-  } = useArticleCategoryManagement();
+  const { categories: articleCategories, fetchCategories } = useArticleCategoryManagement();
 
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const {
+    articles,
+    totals,
+    isLoading: isArticlesLoading,
+    activeTab,
+    setActiveTab,
+    fetchArticles,
+  } = useArticleManagement();
+
+  const [isCategoryEditDialogOpen, setIsCategoryEditDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<ArticleCategory | null>(null);
 
-  const handleEditClick = (category: ArticleCategory) => {
+  const handleEditCategoryClick = (category: ArticleCategory) => {
     setSelectedCategory(category);
-    setIsEditDialogOpen(true);
+    setIsCategoryEditDialogOpen(true);
   };
   
-  const fetchArticles = () => {
-      console.log("Refreshing articles...");
-  }
-
   return (
     <PageWrapper className="space-y-6">
       <div>
@@ -37,22 +41,51 @@ export default function ArticleManagementPage() {
         <p className="text-muted-foreground">Kelola kategori dan konten artikel untuk website Anda di sini.</p>
       </div>
 
-      <Card>
-         <CardHeader className="flex-row items-center justify-between">
-           <div>
-             <CardTitle>Daftar Artikel</CardTitle>
-             <CardDescription>Tulis, edit, dan publikasikan artikel Anda.</CardDescription>
-           </div>
-           {/* === GANTI TOMBOL LAMA DENGAN KOMPONEN DIALOG BARU === */}
-           <CreateArticleDialog onSuccess={fetchArticles} />
-         </CardHeader>
-         <CardContent>
-           <p className="text-center text-muted-foreground py-8">
-             (Tabel Daftar Artikel akan ditampilkan di sini pada tahap selanjutnya)
-           </p>
-         </CardContent>
-      </Card>
+      {/* --- KARTU MANAJEMEN ARTIKEL YANG DIPERBARUI --- */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <div className="flex items-center justify-between">
+          <TabsList>
+            <TabsTrigger value="active">Aktif ({totals.active})</TabsTrigger>
+            <TabsTrigger value="trashed">Sampah ({totals.trashed})</TabsTrigger>
+          </TabsList>
+          <CreateArticleDialog onSuccess={fetchArticles} />
+        </div>
+        <TabsContent value="active">
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle>Daftar Artikel Aktif</CardTitle>
+              <CardDescription>Tulis, edit, dan publikasikan artikel Anda.</CardDescription>
+              {/* Nanti di sini bisa ditambahkan filter */}
+            </CardHeader>
+            <CardContent>
+              <ArticleTable 
+                variant="active"
+                articles={articles.active}
+                isLoading={isArticlesLoading}
+                onRefresh={fetchArticles}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="trashed">
+           <Card className="mt-4">
+            <CardHeader>
+              <CardTitle>Artikel di Sampah</CardTitle>
+              <CardDescription>Daftar artikel yang telah dihapus.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ArticleTable 
+                variant="trashed"
+                articles={articles.trashed}
+                isLoading={isArticlesLoading}
+                onRefresh={fetchArticles}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
+      {/* Kartu untuk Kategori Artikel */}
       <Card>
         <CardHeader className="flex-row items-center justify-between">
           <div>
@@ -64,11 +97,11 @@ export default function ArticleManagementPage() {
         <CardContent>
           <ArticleCategoryTable
             variant="active"
-            categories={categories.active}
-            isLoading={isCategoriesLoading}
+            categories={articleCategories.active}
+            isLoading={false}
             error={null}
             onRefresh={fetchCategories}
-            onEditClick={handleEditClick}
+            onEditClick={handleEditCategoryClick}
             selectedRowKeys={[]}
             setSelectedRowKeys={() => {}}
             searchTerm=""
@@ -77,8 +110,8 @@ export default function ArticleManagementPage() {
       </Card>
 
       <EditArticleCategoryDialog
-        isOpen={isEditDialogOpen}
-        onClose={() => setIsEditDialogOpen(false)}
+        isOpen={isCategoryEditDialogOpen}
+        onClose={() => setIsCategoryEditDialogOpen(false)}
         category={selectedCategory}
         onSuccess={() => {
           fetchCategories();
