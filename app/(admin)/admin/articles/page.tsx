@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { useArticleManagement } from '@/hooks/use-article-management';
 import { ArticleTable } from '@/components/admin/articles/article-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { EditArticleDialog } from '@/components/admin/articles/edit-article-dialog';
 
 export default function ArticleManagementPage() { 
   const { categories: articleCategories, fetchCategories } = useArticleCategoryManagement();
@@ -26,6 +27,8 @@ export default function ArticleManagementPage() {
     fetchArticles,
   } = useArticleManagement();
 
+  const [isArticleEditDialogOpen, setIsArticleEditDialogOpen] = useState(false);
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [isCategoryEditDialogOpen, setIsCategoryEditDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<ArticleCategory | null>(null);
 
@@ -34,6 +37,11 @@ export default function ArticleManagementPage() {
     setIsCategoryEditDialogOpen(true);
   };
   
+  const handleEditArticleClick = (article: Article) => {
+    setSelectedArticle(article);
+    setIsArticleEditDialogOpen(true);
+  };
+
   return (
     <PageWrapper className="space-y-6">
       <div>
@@ -63,6 +71,7 @@ export default function ArticleManagementPage() {
                 articles={articles.active}
                 isLoading={isArticlesLoading}
                 onRefresh={fetchArticles}
+                onEditClick={handleEditArticleClick}
               />
             </CardContent>
           </Card>
@@ -79,6 +88,7 @@ export default function ArticleManagementPage() {
                 articles={articles.trashed}
                 isLoading={isArticlesLoading}
                 onRefresh={fetchArticles}
+                onEditClick={handleEditArticleClick} 
               />
             </CardContent>
           </Card>
@@ -108,6 +118,13 @@ export default function ArticleManagementPage() {
           />
         </CardContent>
       </Card>
+
+      <EditArticleDialog
+        isOpen={isArticleEditDialogOpen}
+        onClose={() => setIsArticleEditDialogOpen(false)}
+        article={selectedArticle}
+        onSuccess={fetchArticles}
+      />
 
       <EditArticleCategoryDialog
         isOpen={isCategoryEditDialogOpen}

@@ -15,9 +15,10 @@ interface ArticleTableProps {
   articles: Article[];
   isLoading: boolean;
   onRefresh: () => void;
+  onEditClick: (article: Article) => void;
 }
 
-export function ArticleTable({ variant, articles, isLoading, onRefresh }: ArticleTableProps) {
+export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditClick }: ArticleTableProps) {
   if (isLoading) return <div className="text-center p-8 text-muted-foreground">Memuat data artikel...</div>;
   if (articles.length === 0) return <div className="text-center p-8 text-muted-foreground">{variant === 'active' ? 'Belum ada artikel.' : 'Tidak ada artikel di sampah.'}</div>;
 
@@ -58,9 +59,10 @@ export function ArticleTable({ variant, articles, isLoading, onRefresh }: Articl
                 <DropdownMenuTrigger asChild><Button size="icon" variant="ghost"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-                  {/* Aksi Edit dan Delete akan ditambahkan di commit selanjutnya */}
                   <DropdownMenuItem><Eye className="mr-2 h-4 w-4" />Lihat</DropdownMenuItem>
-                  <DropdownMenuItem><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => onEditClick(article)}>
+                      <Pencil className="mr-2 h-4 w-4" />Edit
+                  </DropdownMenuItem>
                   <DropdownMenuItem className="text-red-500"><Trash2 className="mr-2 h-4 w-4" />Hapus</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
