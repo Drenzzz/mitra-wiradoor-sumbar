@@ -8,7 +8,7 @@ import { CreateArticleCategoryButton } from '@/components/admin/article-categori
 import { ArticleCategoryTable } from '@/components/admin/article-categories/article-category-table';
 import { EditArticleCategoryDialog } from '@/components/admin/article-categories/edit-article-category-dialog';
 import { CreateArticleDialog } from '@/components/admin/articles/create-article-dialog';
-import { ArticleCategory } from '@/types';
+import { ArticleCategory, Article } from '@/types';
 import { toast } from 'sonner';
 import { useArticleManagement } from '@/hooks/use-article-management';
 import { ArticleTable } from '@/components/admin/articles/article-table';
@@ -42,6 +42,39 @@ export default function ArticleManagementPage() {
     setIsArticleEditDialogOpen(true);
   };
 
+  const handleAction = async (actionPromise: Promise<Response>, messages: { loading: string; success: string; error: string; }) => {
+    toast.promise(actionPromise, {
+      loading: messages.loading,
+      success: (res) => {
+        fetchArticles();
+        return messages.success;
+      },
+      error: (err) => err.message || messages.error,
+    });
+  };
+
+  const handleSoftDelete = (articleId: string) => {
+    handleAction(
+      fetch(`/api/articles/${articleId}`, { method: 'DELETE' }),
+      { loading: 'Memindahkan ke sampah...', success: 'Artikel berhasil dipindahkan ke sampah.', error: 'Gagal memindahkan artikel.' }
+    );
+  };
+
+  const handleRestore = (articleId: string) => {
+    handleAction(
+      fetch(`/api/articles/${articleId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'restore' }) }),
+      { loading: 'Memulihkan artikel...', success: 'Artikel berhasil dipulihkan.', error: 'Gagal memulihkan artikel.' }
+    );
+  };
+
+  const handleForceDelete = (articleId: string) => {
+    if (!window.confirm('Anda yakin? Aksi ini tidak dapat dibatalkan.')) return;
+    handleAction(
+      fetch(`/api/articles/${articleId}?force=true`, { method: 'DELETE' }),
+      { loading: 'Menghapus permanen...', success: 'Artikel berhasil dihapus permanen.', error: 'Gagal menghapus artikel.' }
+    );
+  };
+
   return (
     <PageWrapper className="space-y-6">
       <div>
@@ -49,7 +82,6 @@ export default function ArticleManagementPage() {
         <p className="text-muted-foreground">Kelola kategori dan konten artikel untuk website Anda di sini.</p>
       </div>
 
-      {/* --- KARTU MANAJEMEN ARTIKEL YANG DIPERBARUI --- */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex items-center justify-between">
           <TabsList>
@@ -72,6 +104,9 @@ export default function ArticleManagementPage() {
                 isLoading={isArticlesLoading}
                 onRefresh={fetchArticles}
                 onEditClick={handleEditArticleClick}
+                onDeleteClick={handleSoftDelete} // <-- Hubungkan fungsi baru
+                onRestoreClick={handleRestore}
+                onForceDeleteClick={handleForceDelete}
               />
             </CardContent>
           </Card>
@@ -88,7 +123,10 @@ export default function ArticleManagementPage() {
                 articles={articles.trashed}
                 isLoading={isArticlesLoading}
                 onRefresh={fetchArticles}
-                onEditClick={handleEditArticleClick} 
+                onEditClick={handleEditArticleClick}
+                onDeleteClick={handleSoftDelete}
+                onRestoreClick={handleRestore}
+                onForceDeleteClick={handleForceDelete}
               />
             </CardContent>
           </Card>

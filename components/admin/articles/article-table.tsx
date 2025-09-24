@@ -7,7 +7,7 @@ import { MoreHorizontal, Pencil, Trash2, Eye, Undo } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface ArticleTableProps {
@@ -16,9 +16,12 @@ interface ArticleTableProps {
   isLoading: boolean;
   onRefresh: () => void;
   onEditClick: (article: Article) => void;
+  onDeleteClick: (articleId: string) => void;
+  onRestoreClick: (articleId: string) => void;
+  onForceDeleteClick: (articleId: string) => void;
 }
 
-export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditClick }: ArticleTableProps) {
+export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditClick, onDeleteClick, onRestoreClick, onForceDeleteClick }: ArticleTableProps) {
   if (isLoading) return <div className="text-center p-8 text-muted-foreground">Memuat data artikel...</div>;
   if (articles.length === 0) return <div className="text-center p-8 text-muted-foreground">{variant === 'active' ? 'Belum ada artikel.' : 'Tidak ada artikel di sampah.'}</div>;
 
@@ -59,11 +62,26 @@ export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditCl
                 <DropdownMenuTrigger asChild><Button size="icon" variant="ghost"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-                  <DropdownMenuItem><Eye className="mr-2 h-4 w-4" />Lihat</DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => onEditClick(article)}>
-                      <Pencil className="mr-2 h-4 w-4" />Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-red-500"><Trash2 className="mr-2 h-4 w-4" />Hapus</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  {variant === 'active' ? (
+                    <>
+                      <DropdownMenuItem onSelect={() => onEditClick(article)}>
+                        <Pencil className="mr-2 h-4 w-4" />Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-red-500" onSelect={() => onDeleteClick(article.id)}>
+                        <Trash2 className="mr-2 h-4 w-4" />Hapus
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuItem onSelect={() => onRestoreClick(article.id)}>
+                        <Undo className="mr-2 h-4 w-4" />Pulihkan
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-red-500" onSelect={() => onForceDeleteClick(article.id)}>
+                        <Trash2 className="mr-2 h-4 w-4" />Hapus Permanen
+                      </DropdownMenuItem>
+                    </>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </TableCell>
