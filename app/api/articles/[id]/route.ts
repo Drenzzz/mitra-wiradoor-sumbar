@@ -3,9 +3,12 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as articleService from "@/lib/services/article.service";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) { // Changed from `context: { params: Promise<{ id: string }> }` to `context: { params: { id: string } }`
     try {
-        const article = await articleService.getArticleById(params.id);
+        const article = await articleService.getArticleById((await context.params).id);
         if (!article) {
             return NextResponse.json({ error: "Artikel tidak ditemukan" }, { status: 404 });
         }
@@ -15,24 +18,31 @@ export async function GET(request: Request, { params }: { params: { id: string }
     }
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   try {
+    const { id } = await context.params;
     const body = await request.json();
     if (body.action === 'restore') {
-      await articleService.restoreArticleById(params.id);
+      await articleService.restoreArticleById(id);
       return NextResponse.json({ message: "Artikel berhasil dipulihkan" });
     }
-    const updatedArticle = await articleService.updateArticleById(params.id, body);
+    const updatedArticle = await articleService.updateArticleById(id, body);
     return NextResponse.json(updatedArticle);
   } catch (error) {
     return NextResponse.json({ error: "Gagal memperbarui artikel" }, { status: 500 });
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
@@ -40,11 +50,12 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const { searchParams } = new URL(request.url);
     const force = searchParams.get('force') === 'true';
 
+    const { id } = await context.params;
     if (force) {
-      await articleService.permanentDeleteArticleById(params.id);
+      await articleService.permanentDeleteArticleById(id);
       return NextResponse.json({ message: "Artikel berhasil dihapus permanen" });
     } else {
-      await articleService.softDeleteArticleById(params.id);
+      await articleService.softDeleteArticleById(id);
       return NextResponse.json({ message: "Artikel berhasil dipindahkan ke sampah" });
     }
   } catch (error) {
