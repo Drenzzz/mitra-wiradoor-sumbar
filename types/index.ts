@@ -19,3 +19,33 @@ export type Product = {
     name: string;
   };
 };
+
+export type ArticleCategory = {
+  id: string;
+  name: string;
+  description: string | null;
+  deletedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type Article = {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  featuredImageUrl: string;
+  status: 'PUBLISHED' | 'DRAFT';
+  deletedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  
+  categoryId: string;
+  category: {
+    name: string;
+  };
+  authorId: string;
+  author: {
+    name: string | null;
+  };
+};
