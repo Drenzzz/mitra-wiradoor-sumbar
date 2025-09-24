@@ -7,6 +7,7 @@ import { useArticleCategoryManagement } from '@/hooks/use-article-category-manag
 import { CreateArticleCategoryButton } from '@/components/admin/article-categories/create-article-category-button';
 import { ArticleCategoryTable } from '@/components/admin/article-categories/article-category-table';
 import { EditArticleCategoryDialog } from '@/components/admin/article-categories/edit-article-category-dialog';
+import { ArticleDetailDialog } from '@/components/admin/articles/article-detail-dialog'; 
 import { CreateArticleDialog } from '@/components/admin/articles/create-article-dialog';
 import { ArticleCategory, Article } from '@/types';
 import { toast } from 'sonner';
@@ -49,6 +50,7 @@ export default function ArticleManagementPage() {
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [isCategoryEditDialogOpen, setIsCategoryEditDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<ArticleCategory | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const handleEditCategoryClick = (category: ArticleCategory) => {
     setSelectedCategory(category);
@@ -58,6 +60,11 @@ export default function ArticleManagementPage() {
   const handleEditArticleClick = (article: Article) => {
     setSelectedArticle(article);
     setIsArticleEditDialogOpen(true);
+  };
+
+  const handleViewClick = (article: Article) => {
+    setSelectedArticle(article);
+    setIsDetailOpen(true);
   };
 
   const handleAction = async (actionPromise: Promise<Response>, messages: { loading: string; success: string; error: string; }) => {
@@ -210,6 +217,7 @@ export default function ArticleManagementPage() {
             isLoading={isArticlesLoading}
             onRefresh={fetchArticles}
             onEditClick={handleEditArticleClick}
+            onViewClick={handleViewClick} 
             onDeleteClick={handleSoftDelete}
             onRestoreClick={handleRestore}
             onForceDeleteClick={handleForceDelete}
@@ -276,6 +284,11 @@ export default function ArticleManagementPage() {
           />
         </CardContent>
       </Card>
+      <ArticleDetailDialog
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        article={selectedArticle}
+      />
       <EditArticleDialog
         isOpen={isArticleEditDialogOpen}
         onClose={() => setIsArticleEditDialogOpen(false)}

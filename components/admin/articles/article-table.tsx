@@ -93,6 +93,9 @@ export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditCl
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => onViewClick(article)}>
+                    <Eye className="mr-2 h-4 w-4" />Lihat Detail
+                  </DropdownMenuItem>
                   {variant === 'active' ? (
                     <>
                       <DropdownMenuItem onSelect={() => onEditClick(article)}>
