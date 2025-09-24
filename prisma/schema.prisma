@@ -102,6 +102,17 @@ model Inquiry {
   createdAt   DateTime      @default(now())
 }
 
+// Model Kategori Artikel
+model ArticleCategory {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String    @unique
+  description String?
+  articles    Article[]
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
 // Model artikel
 model Article {
   id               String        @id @default(auto()) @map("_id") @db.ObjectId
@@ -113,11 +124,17 @@ model Article {
   publishedAt      DateTime?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
-  
-  // Kunci relasi ke User (penulis)
+  deletedAt        DateTime?
+
+  // Kunci relasi ke User
   authorId String @db.ObjectId
   author   User   @relation(fields: [authorId], references: [id])
+
+  // Kunci relasi ke Kategori Artikel
+  categoryId String          @db.ObjectId
+  category   ArticleCategory @relation(fields: [categoryId], references: [id])
 }
+
 
 // ENUM untuk Role Pengguna
 enum Role {
