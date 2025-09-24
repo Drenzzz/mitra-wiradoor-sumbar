@@ -18,10 +18,11 @@ export type GetArticlesOptions = {
   page?: number;
   limit?: number;
   categoryId?: string;
+  statusFilter?: string;
 };
 
 export const getArticles = async (options: GetArticlesOptions = {}) => {
-  const { status = 'active', search, sort, page = 1, limit = 10, categoryId } = options;
+  const { status = 'active', search, sort, page = 1, limit = 10, categoryId, statusFilter } = options;
   const skip = (page - 1) * limit;
 
   const whereClause: Prisma.ArticleWhereInput = {};
@@ -30,9 +31,11 @@ export const getArticles = async (options: GetArticlesOptions = {}) => {
   if (search) {
     whereClause.title = { contains: search, mode: 'insensitive' };
   }
-
   if (categoryId) {
     whereClause.categoryId = categoryId;
+  }
+  if (statusFilter && status === 'active') {
+    whereClause.status = statusFilter as 'DRAFT' | 'PUBLISHED';
   }
 
   const [sortField, sortOrder] = sort?.split('-') || ['createdAt', 'desc'];

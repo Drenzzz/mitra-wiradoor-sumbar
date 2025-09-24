@@ -14,10 +14,13 @@ export function useArticleManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('createdAt-desc');
   const [filterByCategory, setFilterByCategory] = useState('');
+  const [filterByStatus, setFilterByStatus] = useState('');
   const [activeTab, setActiveTab] = useState('active');
   
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
@@ -34,6 +37,7 @@ export function useArticleManagement() {
         });
         if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
         if (filterByCategory) params.append('categoryId', filterByCategory);
+        if (filterByStatus) params.append('statusFilter', filterByStatus);
         
         const response = await fetch(`/api/articles?${params.toString()}`);
         if (!response.ok) throw new Error(`Gagal memuat artikel ${status}`);
@@ -54,7 +58,7 @@ export function useArticleManagement() {
     } finally {
       setIsLoading(false);
     }
-  }, [debouncedSearchTerm, sortBy, filterByCategory, currentPage, rowsPerPage, activeTab]);
+  }, [debouncedSearchTerm, sortBy, filterByCategory, currentPage, rowsPerPage, activeTab, filterByStatus]);
 
   useEffect(() => {
     fetchArticles();
@@ -62,7 +66,8 @@ export function useArticleManagement() {
   
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearchTerm, sortBy, filterByCategory, activeTab]);
+    setSelectedRowKeys([]);
+  }, [debouncedSearchTerm, sortBy, filterByCategory, activeTab, filterByStatus]);
 
   return {
     articles,
@@ -77,9 +82,14 @@ export function useArticleManagement() {
     setActiveTab,
     filterByCategory,
     setFilterByCategory,
+    filterByStatus,
+    setFilterByStatus,
     currentPage,
     setCurrentPage,
     rowsPerPage,
     fetchArticles,
+    setRowsPerPage,
+    selectedRowKeys,
+    setSelectedRowKeys,
   };
 }

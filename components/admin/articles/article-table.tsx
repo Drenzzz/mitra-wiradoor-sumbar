@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Article } from '@/types';
 import { MoreHorizontal, Pencil, Trash2, Eye, Undo } from 'lucide-react';
@@ -16,22 +17,45 @@ interface ArticleTableProps {
   isLoading: boolean;
   onRefresh: () => void;
   onEditClick: (article: Article) => void;
+  onViewClick: (article: Article) => void;
   onDeleteClick: (articleId: string) => void;
   onRestoreClick: (articleId: string) => void;
   onForceDeleteClick: (articleId: string) => void;
+  selectedRowKeys: string[];
+  setSelectedRowKeys: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditClick, onDeleteClick, onRestoreClick, onForceDeleteClick }: ArticleTableProps) {
+export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditClick, onDeleteClick, onRestoreClick, onForceDeleteClick, selectedRowKeys, setSelectedRowKeys, onViewClick }: ArticleTableProps) {
   if (isLoading) return <div className="text-center p-8 text-muted-foreground">Memuat data artikel...</div>;
   if (articles.length === 0) return <div className="text-center p-8 text-muted-foreground">{variant === 'active' ? 'Belum ada artikel.' : 'Tidak ada artikel di sampah.'}</div>;
 
   const formatDate = (dateString: Date) => new Date(dateString).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
 
+  const numSelected = selectedRowKeys.length;
+  const rowCount = articles.length;
+
+  const handleSelectAll = (checked: boolean) => {
+    setSelectedRowKeys(checked ? articles.map(a => a.id) : []);
+  };
+
+  const handleRowSelect = (id: string, checked: boolean) => {
+    setSelectedRowKeys(prev => checked ? [...prev, id] : prev.filter(key => key !== id));
+  };
+
+  if (isLoading) return <div className="text-center p-8 text-muted-foreground">Memuat data artikel...</div>;
+  if (articles.length === 0) return <div className="text-center p-8 text-muted-foreground">{variant === 'active' ? 'Belum ada artikel.' : 'Tidak ada artikel di sampah.'}</div>;
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-12 pl-4"><Checkbox /></TableHead>
+          <TableHead className="w-12 pl-4">
+            <Checkbox
+              checked={rowCount > 0 && numSelected === rowCount ? true : (numSelected > 0 ? 'indeterminate' : false)}
+              onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
+              aria-label="Select all"
+            />
+          </TableHead>
           <TableHead className="w-[80px]">Gambar</TableHead>
           <TableHead>Judul</TableHead>
           <TableHead>Kategori</TableHead>
@@ -44,7 +68,13 @@ export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditCl
       <TableBody>
         {articles.map((article) => (
           <motion.tr key={article.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
-            <TableCell className="pl-4"><Checkbox /></TableCell>
+            <TableCell className="pl-4">
+              <Checkbox
+                checked={selectedRowKeys.includes(article.id)}
+                onCheckedChange={(checked) => handleRowSelect(article.id, Boolean(checked))}
+                aria-label="Select row"
+              />
+            </TableCell>
             <TableCell>
               <Image src={article.featuredImageUrl} alt={article.title} width={64} height={64} className="rounded-md object-cover aspect-square" />
             </TableCell>

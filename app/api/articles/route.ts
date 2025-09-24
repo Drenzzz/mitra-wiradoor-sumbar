@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
       page: parseInt(searchParams.get('page') || '1', 10),
       limit: parseInt(searchParams.get('limit') || '10', 10),
       categoryId: searchParams.get('categoryId') || undefined,
+      statusFilter: searchParams.get('statusFilter') || undefined,
     };
     const result = await articleService.getArticles(options);
     return NextResponse.json(result);
