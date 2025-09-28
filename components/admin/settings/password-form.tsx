@@ -4,14 +4,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { toast } from "sonner"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter
-} from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,7 +12,6 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "@/component
 
 const passwordFormSchema = z.object({
     currentPassword: z.string().min(1, { message: "Password saat ini wajib diisi." }),
-    newPassword: z.string().min(8, { message: "Password baru minimal 8 karakter." }),
 })
 
 type PasswordFormValues = z.infer<typeof passwordFormSchema>
@@ -27,10 +19,7 @@ type PasswordFormValues = z.infer<typeof passwordFormSchema>
 export function PasswordForm() {
   const form = useForm<PasswordFormValues>({
     resolver: zodResolver(passwordFormSchema),
-    defaultValues: {
-      currentPassword: "",
-      newPassword: "",
-    },
+    defaultValues: { currentPassword: "" },
   })
 
   const onSubmit = async (data: PasswordFormValues) => {
@@ -42,15 +31,15 @@ export function PasswordForm() {
       }).then(async (res) => {
         if (!res.ok) {
           const errorData = await res.json();
-          throw new Error(errorData.error || "Gagal memperbarui password");
+          throw new Error(errorData.error || "Gagal mengirim email verifikasi");
         }
         return res.json();
       }),
       {
-        loading: "Memperbarui password...",
-        success: () => {
+        loading: "Mengirim email verifikasi...",
+        success: (res) => {
           form.reset();
-          return "Password berhasil diperbarui!";
+          return res.message;
         },
         error: (err: Error) => err.message,
       }
@@ -62,7 +51,7 @@ export function PasswordForm() {
       <CardHeader>
         <CardTitle>Ganti Password</CardTitle>
         <CardDescription>
-          Pastikan Anda menggunakan password yang kuat untuk menjaga keamanan akun.
+          Masukkan password Anda saat ini untuk memulai proses penggantian password.
         </CardDescription>
       </CardHeader>
        <Form {...form}>
@@ -81,23 +70,10 @@ export function PasswordForm() {
                         </FormItem>
                     )}
                 />
-                 <FormField
-                    control={form.control}
-                    name="newPassword"
-                    render={({ field }) => (
-                        <FormItem>
-                            <Label>Password Baru</Label>
-                            <FormControl>
-                                <Input type="password" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
             </CardContent>
             <CardFooter className="border-t px-6 py-4">
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                    {form.formState.isSubmitting ? "Menyimpan..." : "Ganti Password"}
+                    {form.formState.isSubmitting ? "Memverifikasi..." : "Kirim Link Verifikasi"}
                 </Button>
             </CardFooter>
         </form>

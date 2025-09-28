@@ -19,9 +19,26 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
     html: `
       <h1>Reset Password Anda</h1>
       <p>Anda menerima email ini karena Anda (atau orang lain) meminta untuk mereset password akun Anda.</p>
-      <p>Klik link di bawah ini, atau salin dan tempel ke browser Anda untuk menyelesaikan proses:</p>
+      <p>Klik link di bawah ini untuk menyelesaikan proses:</p>
       <a href="${resetLink}" target="_blank">${resetLink}</a>
-      <p>Jika Anda tidak meminta ini, silakan abaikan email ini dan password Anda akan tetap tidak berubah.</p>
+      <p>Jika Anda tidak meminta ini, silakan abaikan email ini.</p>
+    `,
+  });
+};
+
+export const sendPasswordChangeEmail = async (email: string, token: string) => {
+  const changeLink = `${process.env.NEXTAUTH_URL}/change-password/${token}`;
+
+  await transporter.sendMail({
+    from: process.env.EMAIL_FROM,
+    to: email,
+    subject: 'Konfirmasi Perubahan Password Akun Wiradoor Sumbar',
+    html: `
+      <h1>Konfirmasi Perubahan Password</h1>
+      <p>Kami menerima permintaan untuk mengubah password akun Anda.</p>
+      <p>Klik link di bawah ini untuk melanjutkan ke halaman penggantian password:</p>
+      <a href="${changeLink}" target="_blank">${changeLink}</a>
+      <p>Link ini hanya valid selama 1 jam. Jika Anda tidak merasa meminta ini, abaikan email ini.</p>
     `,
   });
 };

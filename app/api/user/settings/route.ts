@@ -3,48 +3,36 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import prisma from "@/lib/prisma";
 import * as bcrypt from "bcrypt";
-import * as z from "zod";
-
-const nameSchema = z.object({
-  name: z.string().min(3, "Nama minimal 3 karakter."),
-});
-
-const passwordSchema = z.object({
-  currentPassword: z.string(),
-  newPassword: z.string().min(8, "Password baru minimal 8 karakter."),
-});
+import crypto from "crypto";
+import { sendPasswordChangeEmail } from "@/lib/mail";
 
 export async function PATCH(request: Request) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
-
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Tidak terautentikasi" }, { status: 401 });
+    }
+
     const body = await request.json();
     const userId = session.user.id;
 
-    if ('name' in body) {
-      const validation = nameSchema.safeParse(body);
-      if (!validation.success) {
-        return NextResponse.json({ error: validation.error.issues[0].message }, { status: 400 });
+    if ('name' in body && !('currentPassword' in body)) {
+      const { name } = body;
+      if (typeof name !== 'string' || name.length < 3) {
+        return NextResponse.json({ error: "Nama minimal 3 karakter." }, { status: 400 });
       }
-      await prisma.user.update({ where: { id: userId }, data: { name: validation.data.name } });
+      await prisma.user.update({ where: { id: userId }, data: { name } });
       return NextResponse.json({ message: "Nama berhasil diperbarui" });
-    }
-
-    if ('currentPassword' in body && 'newPassword' in body) {
-      const validation = passwordSchema.safeParse(body);
-      if (!validation.success) {
-        return NextResponse.json({ error: validation.error.issues[0].message }, { status: 400 });
+    
+    } else if ('currentPassword' in body) {
+      const { currentPassword } = body;
+      if (typeof currentPassword !== 'string' || currentPassword.length === 0) {
+        return NextResponse.json({ error: "Password saat ini wajib diisi." }, { status: 400 });
       }
       
-      const { currentPassword, newPassword } = validation.data;
-
       const user = await prisma.user.findUnique({ where: { id: userId } });
       if (!user || !user.password) {
-        return NextResponse.json({ error: "Pengguna tidak ditemukan atau tidak memiliki password." }, { status: 404 });
+        return NextResponse.json({ error: "Pengguna tidak ditemukan." }, { status: 404 });
       }
 
       const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
@@ -52,19 +40,24 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ error: "Password saat ini yang Anda masukkan salah." }, { status: 400 });
       }
 
-      const hashedNewPassword = await bcrypt.hash(newPassword, 12);
+      const changeToken = crypto.randomBytes(32).toString("hex");
+      const passwordChangeToken = crypto.createHash("sha256").update(changeToken).digest("hex");
+      const passwordChangeExpires = new Date(Date.now() + 3600000);
+
       await prisma.user.update({
         where: { id: userId },
-        data: { password: hashedNewPassword },
+        data: { passwordChangeToken, passwordChangeExpires },
       });
-      
-      return NextResponse.json({ message: "Password berhasil diperbarui." });
+
+      await sendPasswordChangeEmail(session.user.email, changeToken);
+
+      return NextResponse.json({ message: "Link verifikasi telah dikirim ke email Anda." });
     }
 
     return NextResponse.json({ error: "Data permintaan tidak valid" }, { status: 400 });
 
   } catch (error) {
-    console.error("Error updating user settings:", error);
+    console.error("Error in settings API:", error);
     return NextResponse.json({ error: "Terjadi kesalahan pada server" }, { status: 500 });
   }
 }

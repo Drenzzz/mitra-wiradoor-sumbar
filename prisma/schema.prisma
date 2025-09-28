@@ -25,6 +25,9 @@ model User {
   passwordResetToken  String?
   passwordResetExpires DateTime?
   @@unique([passwordResetToken])
+  passwordChangeToken   String?   
+  passwordChangeExpires DateTime?
+  @@unique([passwordChangeToken])
 }
 
 model Account {
