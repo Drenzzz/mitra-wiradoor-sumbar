@@ -33,10 +33,28 @@ export function PasswordForm() {
     },
   })
 
-  const onSubmit = (data: PasswordFormValues) => {
-    toast.info("Fungsi ganti password akan diimplementasikan pada commit berikutnya.", {
-        description: "Password baru yang akan dikirim (setelah validasi): " + data.newPassword,
-    })
+  const onSubmit = async (data: PasswordFormValues) => {
+    toast.promise(
+      fetch('/api/user/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      }).then(async (res) => {
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || "Gagal memperbarui password");
+        }
+        return res.json();
+      }),
+      {
+        loading: "Memperbarui password...",
+        success: () => {
+          form.reset();
+          return "Password berhasil diperbarui!";
+        },
+        error: (err: Error) => err.message,
+      }
+    );
   }
 
   return (
