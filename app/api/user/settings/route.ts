@@ -2,71 +2,41 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import prisma from "@/lib/prisma";
-import * as bcrypt from "bcrypt";
+import * as z from "zod";
 
-// Handler untuk metode PATCH/PUT (untuk update)
+const nameSchema = z.object({
+  name: z.string().min(3, "Nama minimal 3 karakter."),
+});
+
 export async function PATCH(request: Request) {
+  const session = await getServerSession(authOptions);
 
-    const session = await getServerSession(authOptions);
-
-  if (!session || !session.user) {
-    return NextResponse.json(
-      { error: "Not authenticated" },
-      { status: 401 }
-    );
+  if (!session?.user) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const body = await request.json();
-  const { name, currentPassword, newPassword } = body;
-
-  // @ts-ignore
-  const userId = session.user.id;
-
   try {
-    if (name) {
-      const updatedUser = await prisma.user.update({
-        where: { id: userId },
-        data: { name: name },
-      });
-      return NextResponse.json({ message: "Nama berhasil diperbarui", user: updatedUser });
-    }
+    const body = await request.json();
+    const userId = session.user.id;
 
-    if (currentPassword && newPassword) {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-      });
-
-      if (!user || !user.password) {
-        return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if ('name' in body && Object.keys(body).length === 1) {
+      const validation = nameSchema.safeParse(body);
+      if (!validation.success) {
+        return NextResponse.json({ error: validation.error.issues[0].message }, { status: 400 });
       }
-
-      const isPasswordValid = await bcrypt.compare(
-        currentPassword,
-        user.password
-      );
-
-      if (!isPasswordValid) {
-        return NextResponse.json({ error: "Password saat ini salah" }, { status: 400 });
-      }
-
-      const hashedNewPassword = await bcrypt.hash(newPassword, 12);
 
       await prisma.user.update({
         where: { id: userId },
-        data: { password: hashedNewPassword },
+        data: { name: validation.data.name },
       });
 
-      return NextResponse.json({ message: "Password berhasil diperbarui" });
+      return NextResponse.json({ message: "Nama berhasil diperbarui" });
     }
-
-    // Jika tidak ada data yang sesuai untuk diupdate
-    return NextResponse.json({ error: "Data tidak valid untuk pembaruan" }, { status: 400 });
+        
+    return NextResponse.json({ error: "Data permintaan tidak valid" }, { status: 400 });
 
   } catch (error) {
     console.error("Error updating user settings:", error);
-    return NextResponse.json(
-      { error: "Terjadi kesalahan pada server" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Terjadi kesalahan pada server" }, { status: 500 });
   }
 }

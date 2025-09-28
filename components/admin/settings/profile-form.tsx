@@ -25,20 +25,38 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>
 
 export function ProfileForm() {
-  const { data: session, status } = useSession()
+  const { data: session, status, update } = useSession()
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
-    defaultValues: {
-      name: session?.user?.name || "",
+    values: {
+      name: session?.user?.name ?? "",
     },
     disabled: status === 'loading',
   })
 
-  const onSubmit = (data: ProfileFormValues) => {
-    toast.info("Fungsi update profil akan diimplementasikan pada commit berikutnya.", {
-      description: `Data yang akan dikirim: ${JSON.stringify(data)}`,
-    })
+  const onSubmit = async (data: ProfileFormValues) => {
+    toast.promise(
+      fetch('/api/user/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: data.name }),
+      }).then(async (res) => {
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || "Gagal memperbarui profil");
+        }
+        return res.json();
+      }),
+      {
+        loading: "Menyimpan perubahan...",
+        success: async () => {
+          await update();
+          return "Profil berhasil diperbarui!";
+        },
+        error: (err: Error) => err.message,
+      }
+    );
   }
 
   return (
@@ -77,7 +95,7 @@ export function ProfileForm() {
             </div>
           </CardContent>
           <CardFooter className="border-t px-6 py-4">
-            <Button type="submit" disabled={form.formState.isSubmitting}>
+            <Button type="submit" disabled={form.formState.isSubmitting || !form.formState.isDirty}>
               {form.formState.isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
             </Button>
           </CardFooter>

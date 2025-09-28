@@ -1,8 +1,7 @@
-
 import NextAuth, { AuthOptions } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
-import prisma from "@/lib/prisma"; // Pastikan path ini benar
+import prisma from "@/lib/prisma";
 import * as bcrypt from "bcrypt";
 
 export const authOptions: AuthOptions = {
@@ -18,24 +17,19 @@ export const authOptions: AuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email and password are required");
         }
-
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
-
         if (!user || !user.password) {
           throw new Error("Invalid credentials");
         }
-
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
           user.password
         );
-
         if (!isPasswordValid) {
           throw new Error("Invalid credentials");
         }
-
         return {
             id: user.id,
             email: user.email,
@@ -49,26 +43,36 @@ export const authOptions: AuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
-        // @ts-ignore
         token.role = user.role;
+        token.name = user.name;
       }
+
+      if (trigger === "update") {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id },
+        });
+        if (dbUser) {
+          token.name = dbUser.name;
+          token.role = dbUser.role;
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
         if (session.user) {
-            // @ts-ignore
             session.user.id = token.id;
-            // @ts-ignore
             session.user.role = token.role;
+            session.user.name = token.name;
         }
         return session;
     },
   },
   pages: {
-    signIn: "/login", // Redirect ke halaman login kustom
+    signIn: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
