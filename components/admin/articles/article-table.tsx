@@ -49,7 +49,7 @@ export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditCl
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-12 pl-4">
+          <TableHead className="w-12 pl-2">
             <Checkbox
               checked={rowCount > 0 && numSelected === rowCount ? true : (numSelected > 0 ? 'indeterminate' : false)}
               onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
@@ -62,13 +62,13 @@ export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditCl
           <TableHead>Status</TableHead>
           <TableHead>Penulis</TableHead>
           <TableHead>{variant === 'trashed' ? 'Dihapus Pada' : 'Diterbitkan Pada'}</TableHead>
-          <TableHead className="text-right pr-4">Aksi</TableHead>
+          <TableHead className="text-right pr-2">Aksi</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {articles.map((article) => (
           <motion.tr key={article.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
-            <TableCell className="pl-4">
+            <TableCell className="pl-2">
               <Checkbox
                 checked={selectedRowKeys.includes(article.id)}
                 onCheckedChange={(checked) => handleRowSelect(article.id, Boolean(checked))}

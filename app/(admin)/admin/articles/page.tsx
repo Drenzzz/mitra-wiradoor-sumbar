@@ -1,17 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PageWrapper } from '@/components/admin/page-wrapper';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { useArticleCategoryManagement } from '@/hooks/use-article-category-management';
 import { CreateArticleCategoryButton } from '@/components/admin/article-categories/create-article-category-button';
 import { ArticleCategoryTable } from '@/components/admin/article-categories/article-category-table';
 import { EditArticleCategoryDialog } from '@/components/admin/article-categories/edit-article-category-dialog';
-import { ArticleDetailDialog } from '@/components/admin/articles/article-detail-dialog'; 
+import { ArticleDetailDialog } from '@/components/admin/articles/article-detail-dialog';
 import { CreateArticleDialog } from '@/components/admin/articles/create-article-dialog';
 import { ArticleCategory, Article } from '@/types';
 import { toast } from 'sonner';
 import { useArticleManagement } from '@/hooks/use-article-management';
+import { useArticleCategoryManagement } from '@/hooks/use-article-category-management';
 import { ArticleTable } from '@/components/admin/articles/article-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EditArticleDialog } from '@/components/admin/articles/edit-article-dialog';
@@ -20,10 +20,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Undo, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useDebounce } from '@/hooks/use-debounce';
 
-export default function ArticleManagementPage() { 
+export default function ArticleManagementPage() {
   const { categories: articleCategories, fetchCategories } = useArticleCategoryManagement();
-
   const {
     articles,
     totals,
@@ -46,6 +46,13 @@ export default function ArticleManagementPage() {
     setSelectedRowKeys,
   } = useArticleManagement();
 
+  const [localSearchInput, setLocalSearchInput] = useState('');
+  const debouncedLocalSearch = useDebounce(localSearchInput, 400);
+
+  useEffect(() => {
+    setSearchTerm(debouncedLocalSearch);
+  }, [debouncedLocalSearch, setSearchTerm]);
+
   const [isArticleEditDialogOpen, setIsArticleEditDialogOpen] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [isCategoryEditDialogOpen, setIsCategoryEditDialogOpen] = useState(false);
@@ -56,7 +63,7 @@ export default function ArticleManagementPage() {
     setSelectedCategory(category);
     setIsCategoryEditDialogOpen(true);
   };
-  
+
   const handleEditArticleClick = (article: Article) => {
     setSelectedArticle(article);
     setIsArticleEditDialogOpen(true);
@@ -108,22 +115,21 @@ export default function ArticleManagementPage() {
         return Promise.reject('Invalid action');
     }));
 
-    const messages = {
-      delete: { loading: `Menghapus ${selectedRowKeys.length} artikel...`, success: 'Artikel berhasil dihapus.', error: 'Gagal menghapus beberapa artikel.' },
-      restore: { loading: `Memulihkan ${selectedRowKeys.length} artikel...`, success: 'Artikel berhasil dipulihkan.', error: 'Gagal memulihkan beberapa artikel.' },
-      forceDelete: { loading: `Menghapus permanen ${selectedRowKeys.length} artikel...`, success: 'Artikel berhasil dihapus permanen.', error: 'Gagal menghapus beberapa artikel.' },
+    const endpoints = {
+        delete: (id: string) => fetch(`/api/articles/${id}`, { method: 'DELETE' }),
+        restore: (id: string) => fetch(`/api/articles/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'restore' }) }),
+        forceDelete: (id: string) => fetch(`/api/articles/${id}?force=true`, { method: 'DELETE' }),
     };
-    
-    if (action === 'forceDelete' && !window.confirm(`Anda yakin ingin menghapus ${selectedRowKeys.length} artikel ini secara permanen? Aksi ini tidak dapat dibatalkan.`)) return;
-
-    toast.promise(actionPromise, {
+    const messages = {
+        delete: { loading: `Menghapus ${selectedRowKeys.length} artikel...`, success: 'Artikel berhasil dihapus.', error: 'Gagal menghapus.' },
+        restore: { loading: `Memulihkan ${selectedRowKeys.length} artikel...`, success: 'Artikel berhasil dipulihkan.', error: 'Gagal memulihkan.' },
+        forceDelete: { loading: `Menghapus permanen ${selectedRowKeys.length} artikel...`, success: 'Artikel berhasil dihapus permanen.', error: 'Gagal menghapus.' },
+    };
+    if (action === 'forceDelete' && !window.confirm(`Yakin ingin menghapus ${selectedRowKeys.length} artikel ini permanen?`)) return;
+    toast.promise(Promise.all(selectedRowKeys.map(id => endpoints[action](id))), {
       loading: messages[action].loading,
-      success: () => {
-          fetchArticles();
-          setSelectedRowKeys([]);
-          return messages[action].success;
-      },
-      error: (err) => (err as Error).message || messages[action].error,
+      success: () => { fetchArticles(); setSelectedRowKeys([]); return messages[action].success; },
+      error: (err: any) => err.message || messages[action].error,
     });
   };
 
@@ -139,77 +145,84 @@ export default function ArticleManagementPage() {
             {variant === 'active' ? 'Tulis, edit, dan publikasikan artikel Anda.' : 'Daftar artikel yang telah dihapus.'}
           </CardDescription>
           
-          <div className="flex flex-col md:flex-row items-center gap-2 pt-4">
-            {/* === BAGIAN YANG HILANG: UI AKSI MASSAL === */}
-            <AnimatePresence>
-              {selectedRowKeys.length > 0 && (
-                <motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: 'auto' }} exit={{ opacity: 0, width: 0 }} className="flex items-center gap-2">
-                  {variant === 'active' ? (
-                    <Button variant="destructive" size="sm" onClick={() => handleBulkAction('delete')}>
-                      <Trash2 className="mr-2 h-4 w-4" /> Hapus ({selectedRowKeys.length})
-                    </Button>
-                  ) : (
-                    <>
-                      <Button variant="outline" size="sm" onClick={() => handleBulkAction('restore')}>
-                        <Undo className="mr-2 h-4 w-4" /> Pulihkan ({selectedRowKeys.length})
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-4">
+            <div className="flex w-full sm:w-auto items-center gap-2 flex-1">
+              <AnimatePresence>
+                {selectedRowKeys.length > 0 && (
+                  <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
+                    {variant === 'active' ? (
+                      <Button variant="destructive" size="sm" onClick={() => handleBulkAction('delete')}>
+                        <Trash2 className="mr-2 h-4 w-4" /> Hapus ({selectedRowKeys.length})
                       </Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleBulkAction('forceDelete')}>
-                        <Trash2 className="mr-2 h-4 w-4" /> Hapus Permanen
-                      </Button>
-                    </>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-            <Input
-              placeholder="Cari judul artikel..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full md:flex-1"
-              disabled={variant === 'trashed'}
-            />
-            <Select 
-              value={filterByCategory} 
-              onValueChange={(value) => setFilterByCategory(value === 'all' ? '' : value)}
-              disabled={variant === 'trashed'}
-            >
-              <SelectTrigger className="w-full md:w-[220px]">
-                <SelectValue placeholder="Filter berdasarkan Kategori" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua Kategori</SelectItem>
-                {articleCategories.active.map(category => (
-                  <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={filterByStatus}
-              onValueChange={(value) => setFilterByStatus(value === 'all' ? '' : value)}
-              disabled={variant === 'trashed'}
-            >
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Filter Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua Status</SelectItem>
-                <SelectItem value="PUBLISHED">Published</SelectItem>
-                <SelectItem value="DRAFT">Draft</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Urutkan berdasarkan" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="createdAt-desc">Terbaru</SelectItem>
-                <SelectItem value="createdAt-asc">Terlama</SelectItem>
-                <SelectItem value="title-asc">Judul (A-Z)</SelectItem>
-                <SelectItem value="title-desc">Judul (Z-A)</SelectItem>
-              </SelectContent>
-            </Select>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" onClick={() => handleBulkAction('restore')}>
+                          <Undo className="mr-2 h-4 w-4" /> Pulihkan ({selectedRowKeys.length})
+                        </Button>
+                        <Button variant="destructive" size="sm" onClick={() => handleBulkAction('forceDelete')}>
+                          <Trash2 className="mr-2 h-4 w-4" /> Hapus Permanen
+                        </Button>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <Input
+                placeholder="Cari judul artikel..."
+                value={localSearchInput}
+                onChange={(e) => setLocalSearchInput(e.target.value)}
+                className="w-full"
+                disabled={variant === 'trashed'}
+              />
+            </div>
+
+            <div className="flex w-full sm:w-auto flex-col sm:flex-row gap-2">
+              <div className="flex w-full items-center gap-2">
+                <Select 
+                  value={filterByCategory} 
+                  onValueChange={(value) => setFilterByCategory(value === 'all' ? '' : value)}
+                  disabled={variant === 'trashed'}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Filter Kategori" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Semua Kategori</SelectItem>
+                    {articleCategories.active.map(category => (
+                      <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={filterByStatus}
+                  onValueChange={(value) => setFilterByStatus(value === 'all' ? '' : value)}
+                  disabled={variant === 'trashed'}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Filter Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Semua Status</SelectItem>
+                    <SelectItem value="PUBLISHED">Published</SelectItem>
+                    <SelectItem value="DRAFT">Draft</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-full sm:w-auto">
+                  <SelectValue placeholder="Urutkan berdasarkan" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="createdAt-desc">Terbaru</SelectItem>
+                  <SelectItem value="createdAt-asc">Terlama</SelectItem>
+                  <SelectItem value="title-asc">Judul (A-Z)</SelectItem>
+                  <SelectItem value="title-desc">Judul (Z-A)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardHeader>
+
         <CardContent>
           <ArticleTable
             variant={variant}
@@ -247,10 +260,14 @@ export default function ArticleManagementPage() {
 
   return (
     <PageWrapper className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Manajemen Artikel</h1>
-        <p className="text-muted-foreground">Kelola kategori dan konten artikel untuk website Anda di sini.</p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Manajemen Artikel</h1>
+          <p className="text-muted-foreground">Kelola semua konten dan artikel untuk website Anda di sini.</p>
+        </div>
+        <CreateArticleDialog onSuccess={fetchArticles} />
       </div>
+
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex items-center justify-between">
           <TabsList>
@@ -263,7 +280,7 @@ export default function ArticleManagementPage() {
         <TabsContent value="trashed"><ArticleListCard variant="trashed" /></TabsContent>
       </Tabs>
       <Card>
-        <CardHeader className="flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>Kategori Artikel</CardTitle>
             <CardDescription>Kelompokkan artikel Anda ke dalam kategori yang relevan.</CardDescription>
