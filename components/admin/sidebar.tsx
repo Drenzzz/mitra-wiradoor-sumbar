@@ -56,7 +56,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
                 className={cn(
                   'flex h-10 w-10 w-full items-center justify-center rounded-lg transition-colors hover:text-foreground',
                   isActive
-                    ? 'bg-primary text-primary-foreground'
+                    ? 'bg-sidebar-primary text-sidebar-primary-foreground'
                     : 'text-muted-foreground'
                 )}
               >
@@ -75,7 +75,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
         className={cn(
           'flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary',
           isActive
-            ? 'bg-muted text-primary font-semibold'
+            ? 'bg-sidebar-primary text-sidebar-primary-foreground font-semibold '
             : 'text-muted-foreground'
         )}
       >
