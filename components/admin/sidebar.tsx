@@ -33,7 +33,7 @@ interface SidebarProps {
 
 export function Sidebar({ isCollapsed }: SidebarProps) {
   const pathname = usePathname();
-  const { setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const { data: session } = useSession();
 
   const navItems = [
@@ -151,13 +151,18 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
             <DropdownMenuContent align="end" side="top" className="mb-2 w-56">
                 <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setTheme('light')}>
-                <Sun className="mr-2 h-4 w-4" />
-                <span>Light Mode</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme('dark')}>
-                <Moon className="mr-2 h-4 w-4" />
-                <span>Dark Mode</span>
+                <DropdownMenuItem onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}>
+                  {resolvedTheme === 'dark' ? (
+                    <>
+                      <Sun className="mr-2 h-4 w-4" />
+                      <span>Switch to Light Mode</span>
+                    </>
+                  ) : (
+                    <>
+                      <Moon className="mr-2 h-4 w-4" />
+                      <span>Switch to Dark Mode</span>
+                    </>
+                  )}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
