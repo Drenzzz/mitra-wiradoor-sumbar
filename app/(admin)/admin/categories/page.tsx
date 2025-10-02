@@ -16,6 +16,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { CreateCategoryButton } from '@/components/admin/categories/create-category-button';
 import { CategoryTable } from '@/components/admin/categories/category-table';
 import { EditCategoryDialog } from '@/components/admin/categories/edit-category-dialog';
+import { ConfirmationDialog } from '@/components/admin/shared/confirmation-dialog';
 
 // Konfigurasi untuk animasi container tabel
 const containerVariants = {
@@ -52,6 +53,15 @@ export default function CategoryManagementPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [dialogConfig, setDialogConfig] = useState({
+    title: '',
+    description: '',
+    variant: 'default' as 'default' | 'destructive',
+    onConfirm: () => {},
+  });
+  const [isActionLoading, setIsActionLoading] = useState(false);
+
   const handleEditClick = (category: Category) => {
     setSelectedCategory(category);
     setIsEditDialogOpen(true);
@@ -63,45 +73,120 @@ export default function CategoryManagementPage() {
   };
 
   const handleBulkAction = (action: 'delete' | 'restore' | 'forceDelete') => {
-    const endpoints = {
-      delete: (id: string) => fetch(`/api/categories/${id}`, { method: 'DELETE' }),
-      restore: (id: string) => fetch(`/api/categories/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'restore' }) }),
-      forceDelete: (id: string) => fetch(`/api/categories/${id}?force=true`, { method: 'DELETE' }),
+    const configMap = {
+      delete: {
+        title: `Hapus ${selectedRowKeys.length} Kategori?`,
+        description: 'Kategori yang dipilih akan dipindahkan ke sampah.',
+        variant: 'destructive' as const,
+      },
+      restore: {
+        title: `Pulihkan ${selectedRowKeys.length} Kategori?`,
+        description: 'Kategori yang dipilih akan dikembalikan dari sampah.',
+        variant: 'default' as const,
+      },
+      forceDelete: {
+        title: `Hapus Permanen ${selectedRowKeys.length} Kategori?`,
+        description: 'Aksi ini tidak dapat dibatalkan. Data akan hilang selamanya.',
+        variant: 'destructive' as const,
+      },
     };
 
     const messages = {
-      delete: { loading: 'Menghapus...', success: 'Kategori berhasil dihapus.', error: 'Gagal menghapus beberapa kategori.' },
-      restore: { loading: 'Memulihkan...', success: 'Kategori berhasil dipulihkan.', error: 'Gagal memulihkan beberapa kategori.' },
-      forceDelete: { loading: 'Menghapus permanen...', success: 'Kategori berhasil dihapus permanen.', error: 'Gagal menghapus beberapa kategori.' },
+      delete: { loading: 'Menghapus...', success: 'Kategori berhasil dihapus.', error: 'Gagal menghapus.' },
+      restore: { loading: 'Memulihkan...', success: 'Kategori berhasil dipulihkan.', error: 'Gagal memulihkan.' },
+      forceDelete: { loading: 'Menghapus permanen...', success: 'Kategori berhasil dihapus permanen.', error: 'Gagal menghapus.' },
     };
 
-    if (action === 'forceDelete' && !window.confirm(`Anda yakin ingin menghapus ${selectedRowKeys.length} kategori ini secara permanen? Aksi ini tidak dapat dibatalkan.`)) {
-        return;
-    }
+    setDialogConfig({
+      ...configMap[action],
+      onConfirm: () => {
+        setIsActionLoading(true);
+        const endpoints = {
+          delete: (id: string) => fetch(`/api/categories/${id}`, { method: 'DELETE' }),
+          restore: (id: string) => fetch(`/api/categories/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'restore' }) }),
+          forceDelete: (id: string) => fetch(`/api/categories/${id}?force=true`, { method: 'DELETE' }),
+        };
 
-    toast.promise(
-      Promise.all(selectedRowKeys.map(id => endpoints[action](id))),
-      {
-        loading: messages[action].loading,
-        success: () => {
-          fetchCategories();
-          setSelectedRowKeys([]);
-          return messages[action].success;
-        },
-        error: (err) => (err as Error).message || messages[action].error,
-      }
-    );
+        toast.promise(Promise.all(selectedRowKeys.map(id => endpoints[action](id))), {
+          loading: messages[action].loading,
+          success: () => {
+            fetchCategories();
+            setSelectedRowKeys([]);
+            return messages[action].success;
+          },
+          error: (err: any) => err.message || messages[action].error,
+          finally: () => {
+            setIsConfirmOpen(false);
+            setIsActionLoading(false);
+          },
+        });
+      },
+    });
+    setIsConfirmOpen(true);
+  };
+
+  const handleSingleAction = (
+    item: Category,
+    action: 'delete' | 'restore' | 'forceDelete'
+  ) => {
+    const configMap = {
+      delete: {
+        title: `Hapus Kategori "${item.name}"?`,
+        description: 'Kategori ini akan dipindahkan ke sampah.',
+        variant: 'destructive' as const,
+      },
+      restore: {
+        title: `Pulihkan Kategori "${item.name}"?`,
+        description: 'Kategori ini akan dikembalikan dari sampah.',
+        variant: 'default' as const,
+      },
+      forceDelete: {
+        title: `Hapus Permanen "${item.name}"?`,
+        description: 'Aksi ini tidak dapat dibatalkan. Data akan hilang selamanya.',
+        variant: 'destructive' as const,
+      },
+    };
+
+    const messages = {
+      delete: { loading: 'Menghapus...', success: 'Kategori berhasil dihapus.', error: 'Gagal menghapus.' },
+      restore: { loading: 'Memulihkan...', success: 'Kategori berhasil dipulihkan.', error: 'Gagal memulihkan.' },
+      forceDelete: { loading: 'Menghapus permanen...', success: 'Kategori berhasil dihapus permanen.', error: 'Gagal menghapus.' },
+    };
+
+    setDialogConfig({
+      ...configMap[action],
+      onConfirm: () => {
+        setIsActionLoading(true);
+        const endpoints = {
+          delete: (id: string) => fetch(`/api/categories/${id}`, { method: 'DELETE' }),
+          restore: (id: string) => fetch(`/api/categories/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'restore' }) }),
+          forceDelete: (id: string) => fetch(`/api/categories/${id}?force=true`, { method: 'DELETE' }),
+        };
+
+        toast.promise(endpoints[action](item.id), {
+          loading: messages[action].loading,
+          success: () => {
+            fetchCategories();
+            return messages[action].success;
+          },
+          error: (err: any) => err.message || messages[action].error,
+          finally: () => {
+            setIsConfirmOpen(false);
+            setIsActionLoading(false);
+          },
+        });
+      },
+    });
+    setIsConfirmOpen(true);
   };
 
   // Komponen pembungkus untuk Card
   const CategoryCard = ({ variant }: { variant: 'active' | 'trashed' }) => {
     const isTrash = variant === 'trashed';
-    // ✅ DIPERBAIKI: Mengambil data dari state `categories` yang disediakan oleh hook
     const currentCategories = isTrash ? categories.trashed : categories.active;
     const totalCategories = isTrash ? totals.trashed : totals.active;
     const totalPages = Math.ceil(totalCategories / rowsPerPage);
-    // ✅ DIPERBAIKI: Mengambil `debouncedSearchTerm` dari hook `useCategoryManagement` jika diperlukan atau definisikan ulang di sini jika perlu
-    const debouncedSearchTerm = searchTerm; // Untuk prop `CategoryTable`
+    const debouncedSearchTerm = searchTerm;
 
     return (
       <Card>
@@ -117,7 +202,6 @@ export default function CategoryManagementPage() {
                   <div className="flex items-center gap-2">
                     {isTrash ? (
                       <>
-                        {/* ✅ DIPERBAIKI: Memanggil handleBulkAction dengan parameter yang benar */}
                         <Button variant="outline" size="sm" onClick={() => handleBulkAction('restore')}>
                           <Undo className="mr-2 h-4 w-4" />
                           Pulihkan ({selectedRowKeys.length})
@@ -160,17 +244,20 @@ export default function CategoryManagementPage() {
         </CardHeader>
         <CardContent>
           <motion.div variants={containerVariants} initial="hidden" animate="visible">
-            <CategoryTable
-              variant={variant}
-              categories={currentCategories}
-              isLoading={isLoading}
-              error={error}
-              searchTerm={debouncedSearchTerm}
-              onRefresh={fetchCategories}
-              onEditClick={handleEditClick}
-              selectedRowKeys={selectedRowKeys}
-              setSelectedRowKeys={setSelectedRowKeys}
-            />
+          <CategoryTable
+            variant={variant}
+            categories={currentCategories}
+            isLoading={isLoading}
+            error={error}
+            searchTerm={debouncedSearchTerm}
+            onRefresh={fetchCategories}
+            onEditClick={handleEditClick}
+            selectedRowKeys={selectedRowKeys}
+            setSelectedRowKeys={setSelectedRowKeys}
+            onDeleteClick={(category) => handleSingleAction(category, 'delete')}
+            onRestoreClick={(category) => handleSingleAction(category, 'restore')}
+            onForceDeleteClick={(category) => handleSingleAction(category, 'forceDelete')}
+          />
           </motion.div>
         </CardContent>
         {totalPages > 1 && (
@@ -231,6 +318,16 @@ export default function CategoryManagementPage() {
           toast.success('Kategori berhasil diperbarui!');
         }}
       />
+      <ConfirmationDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={dialogConfig.onConfirm}
+        title={dialogConfig.title}
+        description={dialogConfig.description}
+        variant={dialogConfig.variant}
+        isLoading={isActionLoading}
+      />
+
     </div>
   );
 }

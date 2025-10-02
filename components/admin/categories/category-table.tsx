@@ -46,7 +46,9 @@ interface CategoryTableProps {
   onEditClick: (category: Category) => void;
   selectedRowKeys: string[];
   setSelectedRowKeys: React.Dispatch<React.SetStateAction<string[]>>;
-
+  onDeleteClick: (category: Category) => void;
+  onRestoreClick: (category: Category) => void;
+  onForceDeleteClick: (category: Category) => void;
 }
 
 export function CategoryTable({
@@ -59,6 +61,9 @@ export function CategoryTable({
   onEditClick,
   selectedRowKeys,
   setSelectedRowKeys,
+  onDeleteClick,
+  onRestoreClick,
+  onForceDeleteClick,
 
 }: CategoryTableProps) {
   
@@ -68,52 +73,6 @@ export function CategoryTable({
 
   const handleRowSelect = (id: string, checked: boolean) => {
     setSelectedRowKeys(prev => checked ? [...prev, id] : prev.filter(key => key !== id));
-  };
-
-  const handleSoftDelete = (categoryId: string) => {
-    toast.promise(
-      fetch(`/api/categories/${categoryId}`, { method: 'DELETE' }),
-      {
-        loading: 'Memindahkan ke sampah...',
-        success: () => {
-          onRefresh();
-          return 'Kategori berhasil dipindahkan ke sampah.';
-        },
-        error: (err) => (err as Error).message || 'Gagal memindahkan kategori.',
-      }
-    );
-  };
-  
-  const handleRestore = (categoryId: string) => {
-    toast.promise(
-      fetch(`/api/categories/${categoryId}`, { 
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'restore' })
-      }),
-      {
-        loading: 'Memulihkan kategori...',
-        success: () => {
-          onRefresh();
-          return 'Kategori berhasil dipulihkan.';
-        },
-        error: (err) => (err as Error).message || 'Gagal memulihkan kategori.',
-      }
-    );
-  };
-  
-  const handlePermanentDelete = (categoryId: string) => {
-     toast.promise(
-      fetch(`/api/categories/${categoryId}?force=true`, { method: 'DELETE' }),
-      {
-        loading: 'Menghapus permanen...',
-        success: () => {
-          onRefresh();
-          return 'Kategori berhasil dihapus permanen.';
-        },
-        error: (err) => (err as Error).message || 'Gagal menghapus kategori.',
-      }
-    );
   };
 
   if (isLoading) {
@@ -184,7 +143,6 @@ export function CategoryTable({
                         <span className="sr-only">Toggle menu</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    {/* PERUBAHAN: Efek glassmorphism/blur ditambahkan di sini */}
                     <DropdownMenuContent align="end" className="bg-background/80 backdrop-blur-sm">
                       <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                       <DropdownMenuSeparator />
@@ -196,7 +154,7 @@ export function CategoryTable({
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-red-600 focus:text-red-600 focus:bg-red-500/10"
-                            onSelect={() => handleSoftDelete(category.id)}
+                            onSelect={() => onDeleteClick(category)}
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
                             Hapus
@@ -204,13 +162,13 @@ export function CategoryTable({
                         </>
                       ) : (
                         <>
-                          <DropdownMenuItem onSelect={() => handleRestore(category.id)}>
-                             <Undo className="mr-2 h-4 w-4" />
+                          <DropdownMenuItem onSelect={() => onRestoreClick(category)}>
+                            <Undo className="mr-2 h-4 w-4" />
                             Pulihkan
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-red-600 focus:text-red-600 focus:bg-red-500/10"
-                            onSelect={() => handlePermanentDelete(category.id)}
+                            onSelect={() => onForceDeleteClick(category)}
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
                             Hapus Permanen

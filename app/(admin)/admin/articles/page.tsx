@@ -21,6 +21,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Undo, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDebounce } from '@/hooks/use-debounce';
+import { ConfirmationDialog } from '@/components/admin/shared/confirmation-dialog';
 
 export default function ArticleManagementPage() {
   const { categories: articleCategories, fetchCategories } = useArticleCategoryManagement();
@@ -74,6 +75,15 @@ export default function ArticleManagementPage() {
     setIsDetailOpen(true);
   };
 
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [dialogConfig, setDialogConfig] = useState({
+    title: '',
+    description: '',
+    variant: 'default' as 'default' | 'destructive',
+    onConfirm: () => {},
+  });
+  const [isActionLoading, setIsActionLoading] = useState(false);
+
   const handleAction = async (actionPromise: Promise<Response>, messages: { loading: string; success: string; error: string; }) => {
     toast.promise(actionPromise, {
       loading: messages.loading,
@@ -107,33 +117,115 @@ export default function ArticleManagementPage() {
     );
   };
 
-  const handleBulkAction = (action: 'delete' | 'restore' | 'forceDelete') => {
-    const actionPromise = Promise.all(selectedRowKeys.map(id => {
-        if (action === 'delete') return fetch(`/api/articles/${id}`, { method: 'DELETE' });
-        if (action === 'restore') return fetch(`/api/articles/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'restore' }) });
-        if (action === 'forceDelete') return fetch(`/api/articles/${id}?force=true`, { method: 'DELETE' });
-        return Promise.reject('Invalid action');
-    }));
+const handleBulkAction = (action: 'delete' | 'restore' | 'forceDelete') => {
+  const configMap = {
+    delete: {
+      title: `Hapus ${selectedRowKeys.length} Artikel?`,
+      description: 'Artikel yang dipilih akan dipindahkan ke sampah.',
+      variant: 'destructive' as const,
+    },
+    restore: {
+      title: `Pulihkan ${selectedRowKeys.length} Artikel?`,
+      description: 'Artikel yang dipilih akan dikembalikan dari sampah.',
+      variant: 'default' as const,
+    },
+    forceDelete: {
+      title: `Hapus Permanen ${selectedRowKeys.length} Artikel?`,
+      description: 'Aksi ini tidak dapat dibatalkan. Data akan hilang selamanya.',
+      variant: 'destructive' as const,
+    },
+  };
 
-    const endpoints = {
+  const messages = {
+    delete: { loading: 'Menghapus...', success: 'Artikel berhasil dihapus.', error: 'Gagal menghapus.' },
+    restore: { loading: 'Memulihkan...', success: 'Artikel berhasil dipulihkan.', error: 'Gagal memulihkan.' },
+    forceDelete: { loading: 'Menghapus permanen...', success: 'Artikel berhasil dihapus permanen.', error: 'Gagal menghapus.' },
+  };
+
+  setDialogConfig({
+    ...configMap[action],
+    onConfirm: () => {
+      setIsActionLoading(true);
+      const endpoints = {
         delete: (id: string) => fetch(`/api/articles/${id}`, { method: 'DELETE' }),
         restore: (id: string) => fetch(`/api/articles/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'restore' }) }),
         forceDelete: (id: string) => fetch(`/api/articles/${id}?force=true`, { method: 'DELETE' }),
-    };
-    const messages = {
-        delete: { loading: `Menghapus ${selectedRowKeys.length} artikel...`, success: 'Artikel berhasil dihapus.', error: 'Gagal menghapus.' },
-        restore: { loading: `Memulihkan ${selectedRowKeys.length} artikel...`, success: 'Artikel berhasil dipulihkan.', error: 'Gagal memulihkan.' },
-        forceDelete: { loading: `Menghapus permanen ${selectedRowKeys.length} artikel...`, success: 'Artikel berhasil dihapus permanen.', error: 'Gagal menghapus.' },
-    };
-    if (action === 'forceDelete' && !window.confirm(`Yakin ingin menghapus ${selectedRowKeys.length} artikel ini permanen?`)) return;
-    toast.promise(Promise.all(selectedRowKeys.map(id => endpoints[action](id))), {
-      loading: messages[action].loading,
-      success: () => { fetchArticles(); setSelectedRowKeys([]); return messages[action].success; },
-      error: (err: any) => err.message || messages[action].error,
-    });
+      };
+
+      toast.promise(Promise.all(selectedRowKeys.map(id => endpoints[action](id))), {
+        loading: messages[action].loading,
+        success: () => {
+          fetchArticles();
+          setSelectedRowKeys([]);
+          return messages[action].success;
+        },
+        error: (err: any) => err.message || messages[action].error,
+        finally: () => {
+          setIsConfirmOpen(false);
+          setIsActionLoading(false);
+        },
+      });
+    },
+  });
+  setIsConfirmOpen(true);
+};
+
+const handleSingleAction = (
+  item: Article,
+  action: 'delete' | 'restore' | 'forceDelete'
+) => {
+  const configMap = {
+    delete: {
+      title: `Hapus Artikel "${item.title}"?`,
+      description: 'Artikel ini akan dipindahkan ke sampah.',
+      variant: 'destructive' as const,
+    },
+    restore: {
+      title: `Pulihkan Artikel "${item.title}"?`,
+      description: 'Artikel ini akan dikembalikan dari sampah.',
+      variant: 'default' as const,
+    },
+    forceDelete: {
+      title: `Hapus Permanen "${item.title}"?`,
+      description: 'Aksi ini tidak dapat dibatalkan. Data akan hilang selamanya.',
+      variant: 'destructive' as const,
+    },
   };
 
-  const ArticleListCard = ({ variant }: { variant: 'active' | 'trashed' }) => {
+  const messages = {
+    delete: { loading: 'Menghapus...', success: 'Artikel berhasil dihapus.', error: 'Gagal menghapus.' },
+    restore: { loading: 'Memulihkan...', success: 'Artikel berhasil dipulihkan.', error: 'Gagal memulihkan.' },
+    forceDelete: { loading: 'Menghapus permanen...', success: 'Artikel berhasil dihapus permanen.', error: 'Gagal menghapus.' },
+  };
+
+  setDialogConfig({
+    ...configMap[action],
+    onConfirm: () => {
+      setIsActionLoading(true);
+      const endpoints = {
+        delete: (id: string) => fetch(`/api/articles/${id}`, { method: 'DELETE' }),
+        restore: (id: string) => fetch(`/api/articles/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'restore' }) }),
+        forceDelete: (id: string) => fetch(`/api/articles/${id}?force=true`, { method: 'DELETE' }),
+      };
+
+      toast.promise(endpoints[action](item.id), {
+        loading: messages[action].loading,
+        success: () => {
+          fetchArticles();
+          return messages[action].success;
+        },
+        error: (err: any) => err.message || messages[action].error,
+        finally: () => {
+          setIsConfirmOpen(false);
+          setIsActionLoading(false);
+        },
+      });
+    },
+  });
+  setIsConfirmOpen(true);
+};
+
+const ArticleListCard = ({ variant }: { variant: 'active' | 'trashed' }) => {
     const totalCount = variant === 'active' ? totals.active : totals.trashed;
     const totalPages = Math.ceil(totalCount / rowsPerPage);
 
@@ -231,9 +323,9 @@ export default function ArticleManagementPage() {
             onRefresh={fetchArticles}
             onEditClick={handleEditArticleClick}
             onViewClick={handleViewClick} 
-            onDeleteClick={handleSoftDelete}
-            onRestoreClick={handleRestore}
-            onForceDeleteClick={handleForceDelete}
+            onDeleteClick={(article) => handleSingleAction(article, 'delete')}
+            onRestoreClick={(article) => handleSingleAction(article, 'restore')}
+            onForceDeleteClick={(article) => handleSingleAction(article, 'forceDelete')}
             selectedRowKeys={selectedRowKeys}
             setSelectedRowKeys={setSelectedRowKeys}
           />
@@ -321,6 +413,15 @@ export default function ArticleManagementPage() {
           toast.success('Kategori berhasil diperbarui!');
         }}
       />
+    <ConfirmationDialog
+      isOpen={isConfirmOpen}
+      onClose={() => setIsConfirmOpen(false)}
+      onConfirm={dialogConfig.onConfirm}
+      title={dialogConfig.title}
+      description={dialogConfig.description}
+      variant={dialogConfig.variant}
+      isLoading={isActionLoading}
+    />
     </PageWrapper>
   );
 }

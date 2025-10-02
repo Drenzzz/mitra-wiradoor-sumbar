@@ -16,6 +16,7 @@ import { EditProductDialog } from '@/components/admin/products/edit-product-dial
 import { motion, AnimatePresence } from "framer-motion";
 import { Undo, Trash2 } from "lucide-react";
 import { PageWrapper } from "@/components/admin/page-wrapper";
+import { ConfirmationDialog } from "@/components/admin/shared/confirmation-dialog";
 
 export default function ProductManagementPage() {
   const [products, setProducts] = useState<{ active: Product[], trashed: Product[] }>({ active: [], trashed: [] });
@@ -40,13 +41,22 @@ export default function ProductManagementPage() {
         try {
             const response = await fetch('/api/categories?status=active');
             const data = await response.json();
-            setCategories(data.data);
+            setCategories(data.data || []);
         } catch (error) {
             toast.error("Gagal memuat daftar kategori filter.");
         }
     };
     fetchCategories();
   }, []);
+
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [dialogConfig, setDialogConfig] = useState({
+    title: '',
+    description: '',
+    variant: 'default' as 'default' | 'destructive',
+    onConfirm: () => {},
+  });
+  const [isActionLoading, setIsActionLoading] = useState(false);
 
   const fetchProducts = async () => {
     setIsLoading(true);
@@ -92,34 +102,111 @@ export default function ProductManagementPage() {
   const handleEditClick = (product: Product) => { setSelectedProduct(product); setIsEditOpen(true); };
 
   const handleBulkAction = (action: 'delete' | 'restore' | 'forceDelete') => {
-    const endpoints = {
-      delete: (id: string) => fetch(`/api/products/${id}`, { method: 'DELETE' }),
-      restore: (id: string) => fetch(`/api/products/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'restore' }) }),
-      forceDelete: (id: string) => fetch(`/api/products/${id}?force=true`, { method: 'DELETE' }),
+    const configMap = {
+      delete: {
+        title: `Hapus ${selectedRowKeys.length} Produk?`,
+        description: 'Produk yang dipilih akan dipindahkan ke sampah.',
+        variant: 'destructive' as const,
+      },
+      restore: {
+        title: `Pulihkan ${selectedRowKeys.length} Produk?`,
+        description: 'Produk yang dipilih akan dikembalikan dari sampah.',
+        variant: 'default' as const,
+      },
+      forceDelete: {
+        title: `Hapus Permanen ${selectedRowKeys.length} Produk?`,
+        description: 'Aksi ini tidak dapat dibatalkan. Data akan hilang selamanya.',
+        variant: 'destructive' as const,
+      },
     };
 
     const messages = {
-      delete: { loading: 'Menghapus...', success: 'Produk berhasil dihapus.', error: 'Gagal menghapus beberapa produk.' },
-      restore: { loading: 'Memulihkan...', success: 'Produk berhasil dipulihkan.', error: 'Gagal memulihkan beberapa produk.' },
-      forceDelete: { loading: 'Menghapus permanen...', success: 'Produk berhasil dihapus permanen.', error: 'Gagal menghapus beberapa produk.' },
+      delete: { loading: 'Menghapus...', success: 'Produk berhasil dihapus.', error: 'Gagal menghapus.' },
+      restore: { loading: 'Memulihkan...', success: 'Produk berhasil dipulihkan.', error: 'Gagal memulihkan.' },
+      forceDelete: { loading: 'Menghapus permanen...', success: 'Produk berhasil dihapus permanen.', error: 'Gagal menghapus.' },
     };
 
-    if (action === 'forceDelete' && !window.confirm(`Anda yakin ingin menghapus ${selectedRowKeys.length} produk ini secara permanen? Aksi ini tidak dapat dibatalkan.`)) {
-        return;
-    }
+    setDialogConfig({
+      ...configMap[action],
+      onConfirm: () => {
+        setIsActionLoading(true);
+        const endpoints = {
+          delete: (id: string) => fetch(`/api/products/${id}`, { method: 'DELETE' }),
+          restore: (id: string) => fetch(`/api/products/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'restore' }) }),
+          forceDelete: (id: string) => fetch(`/api/products/${id}?force=true`, { method: 'DELETE' }),
+        };
 
-    toast.promise(
-      Promise.all(selectedRowKeys.map(id => endpoints[action](id))),
-      {
-        loading: messages[action].loading,
-        success: () => {
-          fetchProducts();
-          setSelectedRowKeys([]);
-          return messages[action].success;
-        },
-        error: (err: any) => err.message || messages[action].error,
-      }
-    );
+        toast.promise(Promise.all(selectedRowKeys.map(id => endpoints[action](id))), {
+          loading: messages[action].loading,
+          success: () => {
+            fetchProducts();
+            setSelectedRowKeys([]);
+            return messages[action].success;
+          },
+          error: (err: any) => err.message || messages[action].error,
+          finally: () => {
+            setIsConfirmOpen(false);
+            setIsActionLoading(false);
+          },
+        });
+      },
+    });
+    setIsConfirmOpen(true);
+  };
+
+  const handleSingleAction = (
+    item: Product,
+    action: 'delete' | 'restore' | 'forceDelete'
+  ) => {
+    const configMap = {
+      delete: {
+        title: `Hapus Produk "${item.name}"?`,
+        description: 'Produk ini akan dipindahkan ke sampah.',
+        variant: 'destructive' as const,
+      },
+      restore: {
+        title: `Pulihkan Produk "${item.name}"?`,
+        description: 'Produk ini akan dikembalikan dari sampah.',
+        variant: 'default' as const,
+      },
+      forceDelete: {
+        title: `Hapus Permanen "${item.name}"?`,
+        description: 'Aksi ini tidak dapat dibatalkan. Data akan hilang selamanya.',
+        variant: 'destructive' as const,
+      },
+    };
+
+    const messages = {
+      delete: { loading: 'Menghapus...', success: 'Produk berhasil dihapus.', error: 'Gagal menghapus.' },
+      restore: { loading: 'Memulihkan...', success: 'Produk berhasil dipulihkan.', error: 'Gagal memulihkan.' },
+      forceDelete: { loading: 'Menghapus permanen...', success: 'Produk berhasil dihapus permanen.', error: 'Gagal menghapus.' },
+    };
+
+    setDialogConfig({
+      ...configMap[action],
+      onConfirm: () => {
+        setIsActionLoading(true);
+        const endpoints = {
+          delete: (id: string) => fetch(`/api/products/${id}`, { method: 'DELETE' }),
+          restore: (id: string) => fetch(`/api/products/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'restore' }) }),
+          forceDelete: (id: string) => fetch(`/api/products/${id}?force=true`, { method: 'DELETE' }),
+        };
+
+        toast.promise(endpoints[action](item.id), {
+          loading: messages[action].loading,
+          success: () => {
+            fetchProducts();
+            return messages[action].success;
+          },
+          error: (err: any) => err.message || messages[action].error,
+          finally: () => {
+            setIsConfirmOpen(false);
+            setIsActionLoading(false);
+          },
+        });
+      },
+    });
+    setIsConfirmOpen(true);
   };
 
   const ProductListCard = ({ variant }: { variant: 'active' | 'trashed' }) => {
@@ -177,7 +264,7 @@ export default function ProductManagementPage() {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Semua Kategori</SelectItem>
-                            {categories.map(category => (
+                            {categories && categories.map(category => (
                                 <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
                             ))}
                         </SelectContent>
@@ -206,6 +293,9 @@ export default function ProductManagementPage() {
                     onRefresh={fetchProducts}
                     selectedRowKeys={selectedRowKeys}
                     setSelectedRowKeys={setSelectedRowKeys}
+                    onDeleteClick={(product) => handleSingleAction(product, 'delete')}
+                    onRestoreClick={(product) => handleSingleAction(product, 'restore')}
+                    onForceDeleteClick={(product) => handleSingleAction(product, 'forceDelete')}
                 />
             </CardContent>
             {totalPages > 1 && (
@@ -252,6 +342,15 @@ export default function ProductManagementPage() {
       </div>
       <ProductDetailDialog isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} product={selectedProduct} />
       <EditProductDialog isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} product={selectedProduct} onSuccess={handleSuccess} />
+      <ConfirmationDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={dialogConfig.onConfirm}
+        title={dialogConfig.title}
+        description={dialogConfig.description}
+        variant={dialogConfig.variant}
+        isLoading={isActionLoading}
+      />
     </>
     </PageWrapper>
   );

@@ -1,4 +1,3 @@
-// components/admin/products/product-table.tsx
 'use client';
 
 import { useEffect, useRef } from 'react';
@@ -6,7 +5,6 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Product } from '@/types';
 import { MoreHorizontal, Pencil, Trash2, Eye, Undo } from 'lucide-react';
-import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -14,7 +12,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -43,9 +40,25 @@ interface ProductTableProps {
   onRefresh: () => void;
   selectedRowKeys: string[];
   setSelectedRowKeys: React.Dispatch<React.SetStateAction<string[]>>;
+  onDeleteClick: (product: Product) => void;
+  onRestoreClick: (product: Product) => void;
+  onForceDeleteClick: (product: Product) => void;
 }
 
-export function ProductTable({ variant, products, isLoading, error, onEditClick, onViewClick, onRefresh, selectedRowKeys, setSelectedRowKeys }: ProductTableProps) {
+export function ProductTable({
+  variant,
+  products,
+  isLoading,
+  error,
+  onEditClick,
+  onViewClick,
+  onRefresh,
+  selectedRowKeys,
+  setSelectedRowKeys,
+  onDeleteClick,
+  onRestoreClick,
+  onForceDeleteClick,
+}: ProductTableProps) {
 
   const handleSelectAll = (checked: boolean) => {
     setSelectedRowKeys(checked ? products.map(p => p.id) : []);
@@ -54,45 +67,11 @@ export function ProductTable({ variant, products, isLoading, error, onEditClick,
   const handleRowSelect = (id: string, checked: boolean) => {
     setSelectedRowKeys(prev => checked ? [...prev, id] : prev.filter(key => key !== id));
   };
-
-  const handleAction = async (promise: Promise<Response>, messages: { loading: string; success: string; error: string; }) => {
-    toast.promise(promise, {
-        loading: messages.loading,
-        success: () => {
-            onRefresh();
-            return messages.success;
-        },
-        error: (err: any) => err.message || messages.error,
-    });
-  };
-
-  const handleSoftDelete = (id: string) => {
-    handleAction(
-        fetch(`/api/products/${id}`, { method: 'DELETE' }),
-        { loading: 'Memindahkan ke sampah...', success: 'Produk dipindahkan ke sampah.', error: 'Gagal memindahkan produk.' }
-    );
-  };
-
-  const handleRestore = (id: string) => {
-    handleAction(
-        fetch(`/api/products/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'restore' }) }),
-        { loading: 'Memulihkan produk...', success: 'Produk berhasil dipulihkan.', error: 'Gagal memulihkan produk.' }
-    );
-  };
-
-  const handlePermanentDelete = (id: string) => {
-    if (!window.confirm('Anda yakin ingin menghapus produk ini secara permanen? Aksi ini tidak dapat dibatalkan.')) return;
-    handleAction(
-        fetch(`/api/products/${id}?force=true`, { method: 'DELETE' }),
-        { loading: 'Menghapus permanen...', success: 'Produk dihapus permanen.', error: 'Gagal menghapus produk.' }
-    );
-  };
-
+  
   if (isLoading) return <div className="text-center p-8 text-muted-foreground">Memuat data produk...</div>;
   if (error) return <div className="text-center p-8 text-destructive">Error: {error}</div>;
 
-  const headerCheckboxRef = useRef<HTMLButtonElement>(null); // Buat ref
-
+  const headerCheckboxRef = useRef<HTMLButtonElement>(null);
   const numSelected = selectedRowKeys.length;
   const rowCount = products.length;
   const isIndeterminate = numSelected > 0 && numSelected < rowCount;
@@ -107,13 +86,13 @@ export function ProductTable({ variant, products, isLoading, error, onEditClick,
     <Table>
       <TableHeader>
         <TableRow className="border-b-0">
-            <TableHead className="w-12 pl-6">
-                <Checkbox
-                    ref={headerCheckboxRef} // Pasang ref di sini
-                    checked={numSelected === rowCount && rowCount > 0}
-                    onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
-                />
-            </TableHead>
+          <TableHead className="w-12 pl-6">
+            <Checkbox
+              ref={headerCheckboxRef}
+              checked={numSelected === rowCount && rowCount > 0}
+              onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
+            />
+          </TableHead>
           <TableHead className="w-[80px]">Gambar</TableHead>
           <TableHead>Nama Produk</TableHead>
           <TableHead>Kategori</TableHead>
@@ -128,8 +107,8 @@ export function ProductTable({ variant, products, isLoading, error, onEditClick,
             <motion.tr key={product.id} variants={itemVariants} layout className="hover:bg-muted/50 data-[state=selected]:bg-muted/50">
               <TableCell className="pl-6 py-2">
                 <Checkbox
-                    checked={selectedRowKeys.includes(product.id)}
-                    onCheckedChange={(checked) => handleRowSelect(product.id, Boolean(checked))}
+                  checked={selectedRowKeys.includes(product.id)}
+                  onCheckedChange={(checked) => handleRowSelect(product.id, Boolean(checked))}
                 />
               </TableCell>
               <TableCell className="py-2">
@@ -146,9 +125,9 @@ export function ProductTable({ variant, products, isLoading, error, onEditClick,
                 <Badge variant="outline">{product.category?.name || 'N/A'}</Badge>
               </TableCell>
               <TableCell className="max-w-xs truncate text-muted-foreground py-2">{product.description}</TableCell>
-               {variant === 'trashed' && (
+              {variant === 'trashed' && (
                 <TableCell className="text-muted-foreground py-2">
-                    {product.deletedAt ? new Date(product.deletedAt).toLocaleDateString('id-ID') : '-'}
+                  {product.deletedAt ? new Date(product.deletedAt).toLocaleDateString('id-ID') : '-'}
                 </TableCell>
               )}
               <TableCell className="text-right pr-6 py-2">
@@ -162,12 +141,12 @@ export function ProductTable({ variant, products, isLoading, error, onEditClick,
                     {variant === 'active' ? (
                       <>
                         <DropdownMenuItem onSelect={() => onEditClick(product)}><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-500" onSelect={() => handleSoftDelete(product.id)}><Trash2 className="mr-2 h-4 w-4" />Hapus</DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-500" onSelect={() => onDeleteClick(product)}><Trash2 className="mr-2 h-4 w-4" />Hapus</DropdownMenuItem>
                       </>
                     ) : (
                       <>
-                        <DropdownMenuItem onSelect={() => handleRestore(product.id)}><Undo className="mr-2 h-4 w-4" />Pulihkan</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-500" onSelect={() => handlePermanentDelete(product.id)}><Trash2 className="mr-2 h-4 w-4" />Hapus Permanen</DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onRestoreClick(product)}><Undo className="mr-2 h-4 w-4" />Pulihkan</DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-500" onSelect={() => onForceDeleteClick(product)}><Trash2 className="mr-2 h-4 w-4" />Hapus Permanen</DropdownMenuItem>
                       </>
                     )}
                   </DropdownMenuContent>

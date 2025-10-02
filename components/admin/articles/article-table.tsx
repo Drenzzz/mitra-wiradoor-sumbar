@@ -18,9 +18,9 @@ interface ArticleTableProps {
   onRefresh: () => void;
   onEditClick: (article: Article) => void;
   onViewClick: (article: Article) => void;
-  onDeleteClick: (articleId: string) => void;
-  onRestoreClick: (articleId: string) => void;
-  onForceDeleteClick: (articleId: string) => void;
+  onDeleteClick: (article: Article) => void;
+  onRestoreClick: (article: Article) => void;
+  onForceDeleteClick: (article: Article) => void;
   selectedRowKeys: string[];
   setSelectedRowKeys: React.Dispatch<React.SetStateAction<string[]>>;
 }
@@ -101,16 +101,16 @@ export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditCl
                       <DropdownMenuItem onSelect={() => onEditClick(article)}>
                         <Pencil className="mr-2 h-4 w-4" />Edit
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-500" onSelect={() => onDeleteClick(article.id)}>
+                      <DropdownMenuItem className="text-red-500" onSelect={() => onDeleteClick(article)}>
                         <Trash2 className="mr-2 h-4 w-4" />Hapus
                       </DropdownMenuItem>
                     </>
                   ) : (
                     <>
-                      <DropdownMenuItem onSelect={() => onRestoreClick(article.id)}>
+                      <DropdownMenuItem onSelect={() => onRestoreClick(article)}>
                         <Undo className="mr-2 h-4 w-4" />Pulihkan
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-500" onSelect={() => onForceDeleteClick(article.id)}>
+                      <DropdownMenuItem className="text-red-500" onSelect={() => onForceDeleteClick(article)}>
                         <Trash2 className="mr-2 h-4 w-4" />Hapus Permanen
                       </DropdownMenuItem>
                     </>
