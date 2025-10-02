@@ -357,7 +357,6 @@ const ArticleListCard = ({ variant }: { variant: 'active' | 'trashed' }) => {
           <h1 className="text-2xl font-bold">Manajemen Artikel</h1>
           <p className="text-muted-foreground">Kelola semua konten dan artikel untuk website Anda di sini.</p>
         </div>
-        <CreateArticleDialog onSuccess={fetchArticles} />
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
