@@ -89,7 +89,7 @@ export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditCl
             <TableCell>{formatDate(variant === 'trashed' ? article.deletedAt! : article.createdAt)}</TableCell>
             <TableCell className="text-right pr-4">
               <DropdownMenu>
-                <DropdownMenuTrigger asChild><Button size="icon" variant="ghost"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
+                <DropdownMenuTrigger asChild><Button size="icon" variant="ghost"><MoreHorizontal className="h-4 w-4 ml-6" /></Button></DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                   <DropdownMenuSeparator />
