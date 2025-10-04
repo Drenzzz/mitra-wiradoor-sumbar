@@ -1,5 +1,6 @@
 import { MainNav } from "@/components/guest/main-nav";
 import { SiteFooter } from "@/components/guest/site-footer";
+import { FloatingWhatsAppButton } from "@/components/guest/floating-whatsapp-button";
 
 export default function GuestLayout({
   children,
@@ -11,6 +12,7 @@ export default function GuestLayout({
       <MainNav />
       <main className="flex-grow">{children}</main>
       <SiteFooter />
+      <FloatingWhatsAppButton />
     </div>
   );
 }
