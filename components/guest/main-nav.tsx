@@ -1,80 +1,104 @@
-// components/main-nav.tsx
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
-  SheetTitle,
   SheetTrigger,
+  SheetClose,
 } from "@/components/ui/sheet";
-import { Menu } from 'lucide-react';
+import { Menu, Package2, Home, Package, Newspaper, Briefcase, Building2 } from 'lucide-react';
 import { useState } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { cn } from '@/lib/utils';
+
+const navItems = [
+  { href: "/", label: "Beranda", icon: Home },
+  { href: "/produk", label: "Produk", icon: Package },
+  { href: "/artikel", label: "Artikel", icon: Newspaper },
+  { href: "/portfolio", label: "Portofolio", icon: Briefcase },
+  { href: "/tentang-kami", label: "Tentang Kami", icon: Building2 },
+];
 
 export function MainNav() {
-  const [isOpen, setIsOpen] = useState(false);
-  const { data: session, status } = useSession();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <header className="bg-white/80 backdrop-blur-sm sticky top-0 z-50 border-b">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="font-bold text-lg">WiraDoor Sumbar</span>
+        <Link href="/" className="flex items-center gap-2 font-bold text-lg">
+          <Package2 className="h-6 w-6 text-primary" />
+          <span>WiraDoor Sumbar</span>
         </Link>
         
-        {/* Navigasi untuk Desktop (hanya tampil di layar medium ke atas) */}
-        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-          <Link href="/">Beranda</Link>
-          <Link href="/produk">Produk</Link>
-          <Link href="/artikel">Artikel</Link>
-          <Link href="/tentang-kami">Tentang Kami</Link>
-          <Link href="/kontak">Kontak</Link>
-        </nav>
+        <div className="hidden md:flex items-center gap-8">
+          <nav className="flex items-center gap-6 text-sm font-medium">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "text-muted-foreground transition-all duration-300 hover:text-primary hover:drop-shadow-[0_0_8px_rgba(234,88,12,0.4)]",
+                  pathname === item.href && "text-primary"
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          
+          <Button asChild>
+            <Link href="/kontak">Hubungi Kami</Link>
+          </Button>
+        </div>
         
-        <div className="flex items-center gap-4">
-          {/* Tombol Hubungi Kami atau Status Login untuk Desktop */}
-          <div className="hidden md:block">
-            {status === 'authenticated' ? (
-              <div className="flex items-center gap-4">
-                <span>{session.user?.name}</span>
-                <Button variant="outline" onClick={() => signOut()}>Logout</Button>
-              </div>
-            ) : (
-              <Button asChild>
-                <Link href="/login">Login</Link>
+        <div className="md:hidden">
+          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Buka menu</span>
               </Button>
-            )}
-          </div>
+            </SheetTrigger>
+            
+            <SheetContent side="left" className="flex flex-col p-4">
+              <div className="mb-4">
+                <Link href="/" className="flex items-center gap-2 font-bold text-lg">
+                  <Package2 className="h-6 w-6 text-primary" />
+                  <span>WiraDoor Sumbar</span>
+                </Link>
+              </div>
+              <nav className="flex flex-col gap-2 flex-1">
+                {navItems.map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <SheetClose asChild key={item.href}>
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10",
+                          isActive && "bg-primary/10 text-primary font-semibold"
+                        )}
+                      >
+                        <item.icon className="h-5 w-5" />
+                        {item.label}
+                      </Link>
+                    </SheetClose>
+                  );
+                })}
+              </nav>
 
-          {/* Tombol Menu Hamburger untuk Mobile (hanya tampil di layar kecil) */}
-          <div className="md:hidden">
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Menu className="h-6 w-6" />
-                  <span className="sr-only">Buka menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left">
-                <SheetHeader>
-                  <SheetTitle>Menu Navigasi</SheetTitle>
-                </SheetHeader>
-                <nav className="flex flex-col space-y-4 py-6">
-                  <Link href="/" onClick={() => setIsOpen(false)}>Beranda</Link>
-                  <Link href="/produk" onClick={() => setIsOpen(false)}>Produk</Link>
-                  <Link href="/artikel" onClick={() => setIsOpen(false)}>Artikel</Link>
-                  <Link href="/tentang-kami" onClick={() => setIsOpen(false)}>Tentang Kami</Link>
-                  <Link href="/kontak" onClick={() => setIsOpen(false)}>Kontak</Link>
-                  <Button asChild className="w-full mt-4">
-                    <Link href="/kontak" onClick={() => setIsOpen(false)}>Hubungi Kami</Link>
+              <div className="mt-auto">
+                <SheetClose asChild>
+                  <Button asChild className="w-full">
+                    <Link href="/kontak">Hubungi Kami</Link>
                   </Button>
-                </nav>
-              </SheetContent>
-            </Sheet>
-          </div>
+                </SheetClose>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
