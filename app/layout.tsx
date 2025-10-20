@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Onest } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 
-const inter = Inter({ subsets: ["latin"] });
+const onest = Onest({ subsets: ["latin"], variable: "--font-onest" });
 
 export const metadata: Metadata = {
   title: "Wiradoor Sumatera Barat - Distributor Pintu Premium",
@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={onest.className}>
         <ThemeProvider 
           attribute="class"
           defaultTheme="system"
