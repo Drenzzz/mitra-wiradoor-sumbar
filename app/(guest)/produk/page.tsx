@@ -1,6 +1,29 @@
-import { ProductCardSkeleton } from '@/components/guest/product-card-skeleton'; 
+import { ProductCard } from '@/components/guest/product-card';
+import { ProductCardSkeleton } from '@/components/guest/product-card-skeleton';
+import { AlertTriangle, Info } from 'lucide-react';
+import type { Product } from '@/types';
 
-export default function ProdukPage() {
+async function getProducts() {
+  try {
+    const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products?status=active&limit=9`, {
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      throw new Error('Gagal memuat data produk.');
+    }
+
+    const data = await res.json();
+    return { products: data.data as Product[], totalCount: data.totalCount, error: null };
+  } catch (error: any) {
+    console.error("Fetch error:", error);
+    return { products: [], totalCount: 0, error: error.message || 'Terjadi kesalahan saat mengambil data.' };
+  }
+}
+
+export default async function ProdukPage() {
+  const { products, totalCount, error } = await getProducts();
+  const isLoading = !error && products.length === 0 && totalCount === 0;
   return (
     <div className="container mx-auto py-12 px-4">
       <div className="mb-8 text-center md:text-left">
@@ -27,15 +50,44 @@ export default function ProdukPage() {
              <div className="h-9 bg-muted rounded-md animate-pulse w-full sm:w-[180px]"></div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <ProductCardSkeleton key={index} />
-            ))}
-          </div>
+\          {error ? (
+            <div className="flex flex-col items-center justify-center text-destructive bg-destructive/10 p-6 rounded-md min-h-[300px]">
+              <AlertTriangle className="w-12 h-12 mb-4" />
+              <p className="font-semibold">Oops! Terjadi Kesalahan</p>
+              <p className="text-sm">{error}</p>
+            </div>
+          ) : isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <ProductCardSkeleton key={index} />
+              ))}
+            </div>
+          ) : products.length === 0 ? (
+            <div className="flex flex-col items-center justify-center text-muted-foreground bg-muted/50 p-6 rounded-md min-h-[300px]">
+               <Info className="w-12 h-12 mb-4" />
+               <p className="font-semibold">Belum Ada Produk</p>
+               <p className="text-sm">Silakan cek kembali nanti atau hubungi kami.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  slug={product.id}
+                  imageUrl={product.imageUrl}
+                  category={product.category?.name || 'Tanpa Kategori'}
+                  name={product.name}
+                  description={product.description}
+                />
+              ))}
+            </div>
+          )}
 
-           <div className="mt-8 flex justify-center">
-              <div className="h-9 bg-muted rounded-md animate-pulse w-40"></div>
-           </div>
+           {!error && !isLoading && totalCount > 9 && (
+             <div className="mt-8 flex justify-center">
+                <div className="h-9 bg-muted rounded-md animate-pulse w-40"></div>
+             </div>
+           )}
         </main>
       </div>
     </div>
