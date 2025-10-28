@@ -5,9 +5,16 @@ import { ProductCard } from '@/components/guest/product-card';
 import { ProductCardSkeleton } from '@/components/guest/product-card-skeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useDebounce } from '@/hooks/use-debounce';
-import { AlertTriangle, Info, ChevronLeft, ChevronRight, Search } from 'lucide-react';
-import type { Product } from '@/types';
+import { AlertTriangle, Info, ChevronLeft, ChevronRight, Search, Filter } from 'lucide-react';
+import type { Product, Category } from '@/types';
 
 const PRODUCTS_PER_PAGE = 9; 
 
@@ -21,9 +28,28 @@ export default function ProdukPage() {
   const [searchInput, setSearchInput] = useState('');
   const debouncedSearchTerm = useDebounce(searchInput, 500);
 
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>(''); 
+
   const totalPages = Math.ceil(totalCount / PRODUCTS_PER_PAGE);
 
-  const fetchProducts = useCallback(async (page: number, search: string) => {
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch('/api/categories?status=active&limit=100'); 
+        if (!res.ok) {
+          throw new Error('Gagal memuat kategori.');
+        }
+        const data = await res.json();
+        setCategories(data.data || []);
+      } catch (err: any) {
+        console.error("Fetch categories error:", err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  const fetchProducts = useCallback(async (page: number, search: string, categoryId: string) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -36,6 +62,9 @@ export default function ProdukPage() {
       if (search) {
         query.append('search', search);
       }      
+      if (categoryId) {
+        query.append('categoryId', categoryId);
+      }
       const res = await fetch(`/api/products?${query.toString()}`, {
         cache: 'no-store',
       });
@@ -58,15 +87,13 @@ export default function ProdukPage() {
   }, []);
 
   useEffect(() => {
-    fetchProducts(currentPage, debouncedSearchTerm);
-  }, [currentPage, debouncedSearchTerm, fetchProducts]);
+    fetchProducts(currentPage, debouncedSearchTerm, selectedCategoryId);
+  }, [currentPage, debouncedSearchTerm, selectedCategoryId, fetchProducts]);
 
   useEffect(() => {
-    if (debouncedSearchTerm !== undefined) {
-        setCurrentPage(1);
-    }
-  }, [debouncedSearchTerm]);
-    
+    setCurrentPage(1);
+  }, [debouncedSearchTerm, selectedCategoryId]);   
+
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
   };
@@ -75,6 +102,10 @@ export default function ProdukPage() {
     setCurrentPage((prev) => Math.min(totalPages, prev + 1));
   };
 
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategoryId(value === 'all' ? '' : value);
+  };
+  
   return (
     <div className="container mx-auto py-12 px-4">
       <div className="mb-8 text-center md:text-left">
@@ -87,12 +118,36 @@ export default function ProdukPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr] gap-8">
-        <aside className="hidden md:block">
-           <div className="sticky top-20 space-y-6">
-                <h2 className="text-lg font-semibold">Filter</h2>
-                <div className="h-40 bg-muted rounded-md animate-pulse"></div>
-                <div className="h-20 bg-muted rounded-md animate-pulse"></div>
-              </div>
+<aside className="hidden md:block">
+          <div className="sticky top-20 space-y-6">
+            <h2 className="text-lg font-semibold flex items-center">
+              <Filter className="w-5 h-5 mr-2 text-muted-foreground"/>
+              Filter
+            </h2>
+            <div>
+              <label htmlFor="category-filter" className="block text-sm font-medium mb-2">Kategori</label>
+              <Select
+                value={selectedCategoryId || 'all'}
+                onValueChange={handleCategoryChange}
+              >
+                <SelectTrigger id="category-filter">
+                  <SelectValue placeholder="Pilih Kategori" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Kategori</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+             <div>
+               <label className="block text-sm font-medium mb-2">Harga </label>
+               <div className="h-20 bg-muted rounded-md animate-pulse"></div>
+            </div>
+          </div>
         </aside>
 
         <main>
