@@ -4,7 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { ProductCard } from '@/components/guest/product-card';
 import { ProductCardSkeleton } from '@/components/guest/product-card-skeleton';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Info, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { useDebounce } from '@/hooks/use-debounce';
+import { AlertTriangle, Info, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import type { Product } from '@/types';
 
 const PRODUCTS_PER_PAGE = 9; 
@@ -16,9 +18,12 @@ export default function ProdukPage() {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [searchInput, setSearchInput] = useState('');
+  const debouncedSearchTerm = useDebounce(searchInput, 500);
+
   const totalPages = Math.ceil(totalCount / PRODUCTS_PER_PAGE);
 
-  const fetchProducts = useCallback(async (page: number) => {
+  const fetchProducts = useCallback(async (page: number, search: string) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -28,6 +33,9 @@ export default function ProdukPage() {
         page: String(page),
       });
 
+      if (search) {
+        query.append('search', search);
+      }      
       const res = await fetch(`/api/products?${query.toString()}`, {
         cache: 'no-store',
       });
@@ -50,9 +58,15 @@ export default function ProdukPage() {
   }, []);
 
   useEffect(() => {
-    fetchProducts(currentPage);
-  }, [currentPage, fetchProducts]);
+    fetchProducts(currentPage, debouncedSearchTerm);
+  }, [currentPage, debouncedSearchTerm, fetchProducts]);
 
+  useEffect(() => {
+    if (debouncedSearchTerm !== undefined) {
+        setCurrentPage(1);
+    }
+  }, [debouncedSearchTerm]);
+    
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
   };
@@ -83,7 +97,16 @@ export default function ProdukPage() {
 
         <main>
           <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-             <div className="h-9 bg-muted rounded-md animate-pulse w-full sm:w-1/2"></div>
+          <div className="relative w-full sm:w-1/2">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Cari nama produk..."
+                className="pl-9"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+              />
+            </div>
              <div className="h-9 bg-muted rounded-md animate-pulse w-full sm:w-[180px]"></div>
           </div>
 
@@ -99,13 +122,17 @@ export default function ProdukPage() {
                 <ProductCardSkeleton key={index} />
               ))}
             </div>
-          ) : products.length === 0 ? (
-             <div className="flex flex-col items-center justify-center text-muted-foreground bg-muted/50 p-6 rounded-md min-h-[300px]">
-               <Info className="w-12 h-12 mb-4" />
-               <p className="font-semibold">Belum Ada Produk</p>
-               <p className="text-sm">Tidak ada produk yang cocok dengan kriteria Anda.</p>
-             </div>
-           ) : (
+          ) : !isLoading && products.length === 0 ? (
+            <div className="flex flex-col items-center justify-center text-muted-foreground bg-muted/50 p-6 rounded-md min-h-[300px]">
+              <Info className="w-12 h-12 mb-4" />
+              <p className="font-semibold">Produk Tidak Ditemukan</p>
+              <p className="text-sm text-center">
+                {debouncedSearchTerm
+                  ? `Tidak ada produk yang cocok dengan pencarian "${debouncedSearchTerm}".`
+                  : 'Belum ada produk yang tersedia saat ini.'}
+              </p>
+            </div>
+          ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.map((product) => (
                 <ProductCard
