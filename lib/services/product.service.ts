@@ -34,9 +34,12 @@ export const getProducts = async (options: GetProductsOptions = {}) => {
     whereClause.categoryId = categoryId;
   }
 
-  const [sortField, sortOrder] = sort?.split('-') || ['name', 'asc'];
-  const orderByClause = { [sortField]: sortOrder };
-
+  const [sortField, sortOrder] = sort?.split('-') || ['name', 'createdAt', 'asc'];
+  const validSortFields = ['name', 'createdAt', 'price'];
+  const orderByField = validSortFields.includes(sortField) ? sortField : 'createdAt';
+  const orderByOrder = sortOrder === 'asc' ? 'asc' : 'desc';
+  const orderByClause = { [orderByField]: orderByOrder };
+  
   const [products, totalCount] = await prisma.$transaction([
     prisma.product.findMany({
       where: whereClause,

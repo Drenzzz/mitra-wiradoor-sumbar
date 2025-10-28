@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useDebounce } from '@/hooks/use-debounce';
-import { AlertTriangle, Info, ChevronLeft, ChevronRight, Search, Filter } from 'lucide-react';
+import { AlertTriangle, Info, ChevronLeft, ChevronRight, Search, Filter, ArrowDownUp } from 'lucide-react';
 import type { Product, Category } from '@/types';
 
 const PRODUCTS_PER_PAGE = 9; 
@@ -30,6 +30,8 @@ export default function ProdukPage() {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>(''); 
+
+  const [sortBy, setSortBy] = useState<string>('createdAt-desc');
 
   const totalPages = Math.ceil(totalCount / PRODUCTS_PER_PAGE);
 
@@ -49,7 +51,7 @@ export default function ProdukPage() {
     fetchCategories();
   }, []);
 
-  const fetchProducts = useCallback(async (page: number, search: string, categoryId: string) => {
+  const fetchProducts = useCallback(async (page: number, search: string, categoryId: string, sort: string) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -65,6 +67,7 @@ export default function ProdukPage() {
       if (categoryId) {
         query.append('categoryId', categoryId);
       }
+      if (sort) query.append('sort', sort);
       const res = await fetch(`/api/products?${query.toString()}`, {
         cache: 'no-store',
       });
@@ -86,13 +89,13 @@ export default function ProdukPage() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchProducts(currentPage, debouncedSearchTerm, selectedCategoryId);
-  }, [currentPage, debouncedSearchTerm, selectedCategoryId, fetchProducts]);
+useEffect(() => {
+    fetchProducts(currentPage, debouncedSearchTerm, selectedCategoryId, sortBy);
+  }, [currentPage, debouncedSearchTerm, selectedCategoryId, sortBy, fetchProducts]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearchTerm, selectedCategoryId]);   
+  }, [debouncedSearchTerm, selectedCategoryId, sortBy]);
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
@@ -106,6 +109,10 @@ export default function ProdukPage() {
     setSelectedCategoryId(value === 'all' ? '' : value);
   };
   
+  const handleSortChange = (value: string) => {
+    setSortBy(value);
+  };
+
   return (
     <div className="container mx-auto py-12 px-4">
       <div className="mb-8 text-center md:text-left">
@@ -162,7 +169,18 @@ export default function ProdukPage() {
                 onChange={(e) => setSearchInput(e.target.value)}
               />
             </div>
-             <div className="h-9 bg-muted rounded-md animate-pulse w-full sm:w-[180px]"></div>
+             <Select value={sortBy} onValueChange={handleSortChange}>
+              <SelectTrigger className="w-full sm:w-auto sm:min-w-[180px]">
+                <ArrowDownUp className="w-4 h-4 mr-2 text-muted-foreground"/>
+                <SelectValue placeholder="Urutkan berdasarkan..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="createdAt-desc">Terbaru</SelectItem>
+                <SelectItem value="createdAt-asc">Terlama</SelectItem>
+                <SelectItem value="name-asc">Nama (A-Z)</SelectItem>
+                <SelectItem value="name-desc">Nama (Z-A)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {error ? (
