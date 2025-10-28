@@ -1,29 +1,66 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
 import { ProductCard } from '@/components/guest/product-card';
 import { ProductCardSkeleton } from '@/components/guest/product-card-skeleton';
-import { AlertTriangle, Info } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, Info, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Product } from '@/types';
 
-async function getProducts() {
-  try {
-    const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products?status=active&limit=9`, {
-      cache: 'no-store',
-    });
+const PRODUCTS_PER_PAGE = 9; 
 
-    if (!res.ok) {
-      throw new Error('Gagal memuat data produk.');
+export default function ProdukPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(totalCount / PRODUCTS_PER_PAGE);
+
+  const fetchProducts = useCallback(async (page: number) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const query = new URLSearchParams({
+        status: 'active',
+        limit: String(PRODUCTS_PER_PAGE),
+        page: String(page),
+      });
+
+      const res = await fetch(`/api/products?${query.toString()}`, {
+        cache: 'no-store',
+      });
+
+      if (!res.ok) {
+        throw new Error('Gagal memuat data produk.');
+      }
+
+      const data = await res.json();
+      setProducts(data.data || []);
+      setTotalCount(data.totalCount || 0);
+    } catch (err: any) {
+      console.error("Fetch error:", err);
+      setError(err.message || 'Terjadi kesalahan saat mengambil data.');
+      setProducts([]);
+      setTotalCount(0);
+    } finally {
+      setIsLoading(false);
     }
+  }, []);
 
-    const data = await res.json();
-    return { products: data.data as Product[], totalCount: data.totalCount, error: null };
-  } catch (error: any) {
-    console.error("Fetch error:", error);
-    return { products: [], totalCount: 0, error: error.message || 'Terjadi kesalahan saat mengambil data.' };
-  }
-}
+  useEffect(() => {
+    fetchProducts(currentPage);
+  }, [currentPage, fetchProducts]);
 
-export default async function ProdukPage() {
-  const { products, totalCount, error } = await getProducts();
-  const isLoading = !error && products.length === 0 && totalCount === 0;
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+  };
+
   return (
     <div className="container mx-auto py-12 px-4">
       <div className="mb-8 text-center md:text-left">
@@ -37,11 +74,11 @@ export default async function ProdukPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr] gap-8">
         <aside className="hidden md:block">
-          <div className="sticky top-20 space-y-6">
-            <h2 className="text-lg font-semibold">Filter</h2>
-            <div className="h-40 bg-muted rounded-md animate-pulse"></div>
-            <div className="h-20 bg-muted rounded-md animate-pulse"></div>
-          </div>
+           <div className="sticky top-20 space-y-6">
+                <h2 className="text-lg font-semibold">Filter</h2>
+                <div className="h-40 bg-muted rounded-md animate-pulse"></div>
+                <div className="h-20 bg-muted rounded-md animate-pulse"></div>
+              </div>
         </aside>
 
         <main>
@@ -50,25 +87,25 @@ export default async function ProdukPage() {
              <div className="h-9 bg-muted rounded-md animate-pulse w-full sm:w-[180px]"></div>
           </div>
 
-\          {error ? (
-            <div className="flex flex-col items-center justify-center text-destructive bg-destructive/10 p-6 rounded-md min-h-[300px]">
-              <AlertTriangle className="w-12 h-12 mb-4" />
-              <p className="font-semibold">Oops! Terjadi Kesalahan</p>
-              <p className="text-sm">{error}</p>
-            </div>
+          {error ? (
+             <div className="flex flex-col items-center justify-center text-destructive bg-destructive/10 p-6 rounded-md min-h-[300px]">
+               <AlertTriangle className="w-12 h-12 mb-4" />
+               <p className="font-semibold">Oops! Terjadi Kesalahan</p>
+               <p className="text-sm">{error}</p>
+             </div>
           ) : isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 6 }).map((_, index) => (
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: PRODUCTS_PER_PAGE }).map((_, index) => (
                 <ProductCardSkeleton key={index} />
               ))}
             </div>
           ) : products.length === 0 ? (
-            <div className="flex flex-col items-center justify-center text-muted-foreground bg-muted/50 p-6 rounded-md min-h-[300px]">
+             <div className="flex flex-col items-center justify-center text-muted-foreground bg-muted/50 p-6 rounded-md min-h-[300px]">
                <Info className="w-12 h-12 mb-4" />
                <p className="font-semibold">Belum Ada Produk</p>
-               <p className="text-sm">Silakan cek kembali nanti atau hubungi kami.</p>
-            </div>
-          ) : (
+               <p className="text-sm">Tidak ada produk yang cocok dengan kriteria Anda.</p>
+             </div>
+           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.map((product) => (
                 <ProductCard
@@ -83,11 +120,35 @@ export default async function ProdukPage() {
             </div>
           )}
 
-           {!error && !isLoading && totalCount > 9 && (
-             <div className="mt-8 flex justify-center">
-                <div className="h-9 bg-muted rounded-md animate-pulse w-40"></div>
+           {!error && totalPages > 1 && (
+             <div className="mt-8 flex items-center justify-between">
+               <div className="text-sm text-muted-foreground">
+                 Halaman <span className="font-semibold">{currentPage}</span> dari <span className="font-semibold">{totalPages}</span>
+               </div>
+
+               <div className="flex items-center space-x-2">
+                 <Button
+                   variant="outline"
+                   size="sm"
+                   onClick={handlePreviousPage}
+                   disabled={currentPage <= 1 || isLoading}
+                 >
+                   <ChevronLeft className="h-4 w-4 mr-1" />
+                   Sebelumnya
+                 </Button>
+                 <Button
+                   variant="outline"
+                   size="sm"
+                   onClick={handleNextPage}
+                   disabled={currentPage >= totalPages || isLoading}
+                 >
+                   Selanjutnya
+                   <ChevronRight className="h-4 w-4 ml-1" />
+                 </Button>
+               </div>
              </div>
            )}
+
         </main>
       </div>
     </div>
