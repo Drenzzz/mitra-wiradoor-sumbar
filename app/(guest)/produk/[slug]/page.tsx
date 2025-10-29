@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ProductCardSkeleton } from '@/components/guest/product-card-skeleton';
+import { ProductCard } from '@/components/guest/product-card';
 import { ArrowLeft, ChevronRight, Home, ShoppingCart, MessageCircle } from 'lucide-react';
 import type { Product } from '@/types';
 
@@ -29,13 +29,62 @@ async function getProduct(slug: string): Promise<Product | null> {
   }
 }
 
+interface ProductData {
+  product: Product | null;
+  relatedProducts: Product[];
+}
+
+async function getProductData(slug: string): Promise<ProductData> {
+  let product: (Product & { isReadyStock?: boolean; stock?: number | null }) | null = null;
+  let relatedProducts: Product[] = [];
+
+  try {
+    const productRes = await fetch(`${process.env.NEXTAUTH_URL}/api/products/${slug}`, {
+      cache: 'no-store',
+    });
+
+    if (productRes.status === 404) {
+      return { product: null, relatedProducts: [] };
+    }
+    if (!productRes.ok) {
+      throw new Error('Gagal memuat data produk utama.');
+    }
+    product = await productRes.json();
+
+    if (product?.categoryId) {
+      const relatedQuery = new URLSearchParams({
+        status: 'active',
+        limit: '4',
+        categoryId: product.categoryId,
+      });
+
+      const relatedRes = await fetch(`${process.env.NEXTAUTH_URL}/api/products?${relatedQuery.toString()}`, {
+        cache: 'no-store', 
+      });
+
+      if (relatedRes.ok) {
+        const relatedData = await relatedRes.json();
+        relatedProducts = (relatedData.data as Product[]).filter(p => p.id !== product?.id);
+      } else {
+        console.warn("Gagal memuat produk terkait.");
+      }
+    }
+
+    return { product, relatedProducts };
+
+  } catch (error) {
+    console.error("Fetch product data error:", error);
+    return { product: null, relatedProducts: [] };
+  }
+}
+
 interface ProductDetailPageProps {
   params: { slug: string };
 }
 
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { slug } = await params;    
-  const product = await getProduct(slug);
+  const { product, relatedProducts } = await getProductData(slug);
 
   if (!product) {
     notFound();
@@ -126,9 +175,24 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
       <div className="mt-16 pt-8 border-t">
         <h2 className="text-2xl font-semibold mb-6">Produk Terkait</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-           {Array.from({ length: 4 }).map((_, index) => ( <ProductCardSkeleton key={index} /> ))}
-        </div>
+        {relatedProducts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Map data produk terkait menggunakan ProductCard */}
+            {relatedProducts.map((relatedProduct) => (
+              <ProductCard
+                key={relatedProduct.id}
+                slug={relatedProduct.id} // Gunakan ID sebagai slug sementara
+                imageUrl={relatedProduct.imageUrl}
+                category={relatedProduct.category?.name || 'Lainnya'}
+                name={relatedProduct.name}
+                description={relatedProduct.description}
+              />
+            ))}
+          </div>
+        ) : (
+          // Tampilkan pesan jika tidak ada produk terkait
+          <p className="text-muted-foreground">Tidak ada produk terkait lainnya dalam kategori ini.</p>
+        )}
       </div>
 
     </div>
