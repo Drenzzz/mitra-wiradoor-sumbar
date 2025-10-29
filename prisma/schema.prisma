@@ -88,6 +88,9 @@ model Product {
   deletedAt      DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  isReadyStock   Boolean?
+  stock          Int?
+  price          Float?
 
   // Kunci relasi ke Kategori
   categoryId String   @db.ObjectId

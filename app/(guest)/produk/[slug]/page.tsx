@@ -22,7 +22,7 @@ async function getProduct(slug: string): Promise<Product | null> {
     }
 
     const data = await res.json();
-    return data as Product;
+    return data as Product & { isReadyStock?: boolean; stock?: number | null };
   } catch (error) {
     console.error("Fetch product error:", error);
     return null;
@@ -40,6 +40,13 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   if (!product) {
     notFound();
   }
+
+  const whatsAppNumber = process.env.WHATSAPP_NUMBER || '6281234567890';
+  const whatsappMessage = `Halo, saya tertarik dengan produk: ${product.name}`;
+  const whatsappLink = `https://wa.me/${whatsAppNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+
+  const isReadyStock = product.isReadyStock ?? false; 
+  const currentStock = product.stock ?? 0;
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -86,13 +93,28 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
           </div>
 
           <div className="pt-4 flex flex-col sm:flex-row gap-3">
-                <Button size="lg" asChild>
-                  <a href={`https://wa.me/${process.env.WHATSAPP_NUMBER}?text=Halo,%20saya%20tertarik%20dengan%20produk:%20${encodeURIComponent(product.name)}`} target="_blank" rel="noopener noreferrer">
+            {isReadyStock ? (
+              <Button size="lg" disabled={currentStock <= 0}>
+                <ShoppingCart className="mr-2 h-5 w-5" />
+                {currentStock <= 0 ? 'Stok Habis' : 'Tambah ke Keranjang'}
+              </Button>
+            ) : (
+              <Button size="lg" asChild>
+                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                  <MessageCircle className="mr-2 h-5 w-5" />
+                  Tanya / Pesan Custom
+                </a>
+              </Button>
+            )}
+
+             {isReadyStock && (
+                <Button size="lg" variant="outline" asChild>
+                  <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                     <MessageCircle className="mr-2 h-5 w-5" />
-                    Tanya via WhatsApp
+                    Tanya Detail
                   </a>
                 </Button>
-
+             )}
           </div>
 
           <div className="pt-4 border-t">
