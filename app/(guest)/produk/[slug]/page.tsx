@@ -94,8 +94,8 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   const whatsappMessage = `Halo, saya tertarik dengan produk: ${product.name}`;
   const whatsappLink = `https://wa.me/${whatsAppNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 
-  const isReadyStock = product.isReadyStock ?? false; 
-  const currentStock = product.stock ?? 0;
+  // const isReadyStock = product.isReadyStock ?? false; 
+  // const currentStock = product.stock ?? 0;
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -142,28 +142,28 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
           </div>
 
           <div className="pt-4 flex flex-col sm:flex-row gap-3">
-            {isReadyStock ? (
+            {/* {isReadyStock ? (
               <Button size="lg" disabled={currentStock <= 0}>
                 <ShoppingCart className="mr-2 h-5 w-5" />
                 {currentStock <= 0 ? 'Stok Habis' : 'Tambah ke Keranjang'}
               </Button>
-            ) : (
+            ) : ( */}
               <Button size="lg" asChild>
                 <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="mr-2 h-5 w-5" />
                   Tanya / Pesan Custom
                 </a>
               </Button>
-            )}
+            {/* )} */}
 
-             {isReadyStock && (
+             {/* {isReadyStock && (
                 <Button size="lg" variant="outline" asChild>
                   <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                     <MessageCircle className="mr-2 h-5 w-5" />
                     Tanya Detail
                   </a>
                 </Button>
-             )}
+             )} */}
           </div>
 
           <div className="pt-4 border-t">
