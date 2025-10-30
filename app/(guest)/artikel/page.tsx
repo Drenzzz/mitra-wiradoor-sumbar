@@ -4,8 +4,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { ArticleCard } from '@/components/guest/article-card';
 import { ArticleCardSkeleton } from '@/components/guest/article-card-skeleton';
 import { Button } from '@/components/ui/button'; 
-import { AlertTriangle, Info, ChevronLeft, ChevronRight } from 'lucide-react';
-import type { Article } from '@/types';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";  
+import { AlertTriangle, Info, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import type { Article, ArticleCategory } from '@/types';
 
 const ARTICLES_PER_PAGE = 2;
 
@@ -18,7 +25,26 @@ export default function ArtikelPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(totalCount / ARTICLES_PER_PAGE);
 
-  const fetchArticles = useCallback(async (page: number) => {
+  const [categories, setCategories] = useState<ArticleCategory[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
+
+  useEffect(() => {
+    const fetchArticleCategories = async () => {
+      try {
+        const res = await fetch('/api/article-categories?status=active&limit=100');
+        if (!res.ok) {
+          throw new Error('Gagal memuat kategori artikel.');
+        }
+        const data = await res.json();
+        setCategories(data.data || []);
+      } catch (err: any) {
+        console.error("Fetch article categories error:", err);
+      }
+    };
+    fetchArticleCategories();
+  }, []);
+
+  const fetchArticles = useCallback(async (page: number, categoryId?: string) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -29,6 +55,10 @@ export default function ArtikelPage() {
         page: String(page),
         sort: 'createdAt-desc',
       });
+
+      if (categoryId) {
+        query.append('categoryId', categoryId);
+      }
 
       const res = await fetch(`/api/articles?${query.toString()}`, {
         cache: 'no-store',
@@ -52,8 +82,12 @@ export default function ArtikelPage() {
   }, []);
 
   useEffect(() => {
-    fetchArticles(currentPage);
-  }, [currentPage, fetchArticles]);
+    fetchArticles(currentPage, selectedCategoryId);
+  }, [currentPage, selectedCategoryId, fetchArticles]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategoryId]);
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
@@ -61,6 +95,10 @@ export default function ArtikelPage() {
 
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategoryId(value === 'all' ? '' : value);
   };
   
   return (
@@ -77,16 +115,33 @@ export default function ArtikelPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr] gap-8">
 
-        <aside className="hidden md:block">
+      <aside className="hidden md:block">
           <div className="sticky top-20 space-y-6">
-            <h2 className="text-lg font-semibold">Filter & Cari</h2>
+            <h2 className="text-lg font-semibold flex items-center">
+              <Filter className="w-5 h-5 mr-2 text-muted-foreground" />
+              Filter & Cari
+            </h2>
+            
             <div className="h-9 w-full bg-muted rounded-md animate-pulse"></div>
+            
             <div>
-              <div className="h-5 w-1/2 bg-muted rounded-md mb-3"></div>
-              <div className="space-y-2">
-                <div className="h-4 w-3/4 bg-muted rounded-md animate-pulse"></div>
-                <div className="h-4 w-3/4 bg-muted rounded-md animate-pulse"></div>
-              </div>
+              <label htmlFor="article-category-filter" className="block text-sm font-medium mb-2">Kategori Artikel</label>
+              <Select
+                value={selectedCategoryId || 'all'}
+                onValueChange={handleCategoryChange}
+              >
+                <SelectTrigger id="article-category-filter">
+                  <SelectValue placeholder="Pilih Kategori" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Kategori</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </aside>
@@ -105,11 +160,15 @@ export default function ArtikelPage() {
               ))}
             </div>
           ) : !isLoading && articles.length === 0 ? (
-             <div className="flex flex-col items-center justify-center text-muted-foreground bg-muted/50 p-6 rounded-md min-h-[300px]">
-                <Info className="w-12 h-12 mb-4" />
-                <p className="font-semibold">Belum Ada Artikel</p>
-                <p className="text-sm">Silakan cek kembali nanti.</p>
-             </div>
+            <div className="flex flex-col items-center justify-center text-muted-foreground bg-muted/50 p-6 rounded-md min-h-[300px]">
+               <Info className="w-12 h-12 mb-4" />
+               <p className="font-semibold">Artikel Tidak Ditemukan</p>
+               <p className="text-sm">
+                 {selectedCategoryId
+                   ? 'Tidak ada artikel yang cocok dengan kategori ini.'
+                   : 'Belum ada artikel yang dipublikasikan.'}
+               </p>
+            </div>
            ) : (
             <div className={`grid grid-cols-1 md:grid-cols-2 gap-8 ${isLoading ? 'opacity-50 transition-opacity' : ''}`}>
               {articles.map((article) => (
