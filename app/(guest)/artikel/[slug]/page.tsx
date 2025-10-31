@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { ArticleCard } from '@/components/guest/article-card';
+import { ShareButtons } from '@/components/guest/share-buttons';
 import { ChevronRight, Home, CalendarDays, UserCircle } from 'lucide-react';
 import type { Article } from '@/types';
 
@@ -130,7 +131,7 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
       </article>
 
       <div className="pt-8 mt-8 border-t">
-        <p className="text-xs text-muted-foreground mb-4">Bagikan:</p>
+        <ShareButtons title={article.title} />
       </div>
 
       <div className="mt-12 pt-8 border-t">
