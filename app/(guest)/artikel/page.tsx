@@ -11,8 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";  
-import { AlertTriangle, Info, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { AlertTriangle, Info, ChevronLeft, ChevronRight, Filter, Search } from 'lucide-react';
 import type { Article, ArticleCategory } from '@/types';
+import { Input } from '@/components/ui/input';
+import { useDebounce } from '@/hooks/use-debounce';
 
 const ARTICLES_PER_PAGE = 2;
 
@@ -27,6 +29,9 @@ export default function ArtikelPage() {
 
   const [categories, setCategories] = useState<ArticleCategory[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
+
+  const [searchInput, setSearchInput] = useState('');
+  const debouncedSearchTerm = useDebounce(searchInput, 500);
 
   useEffect(() => {
     const fetchArticleCategories = async () => {
@@ -44,7 +49,7 @@ export default function ArtikelPage() {
     fetchArticleCategories();
   }, []);
 
-  const fetchArticles = useCallback(async (page: number, categoryId?: string) => {
+  const fetchArticles = useCallback(async (page: number, categoryId?: string, search?: string) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -58,6 +63,10 @@ export default function ArtikelPage() {
 
       if (categoryId) {
         query.append('categoryId', categoryId);
+      }
+
+      if (search) {
+        query.append('search', search);
       }
 
       const res = await fetch(`/api/articles?${query.toString()}`, {
@@ -81,13 +90,13 @@ export default function ArtikelPage() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchArticles(currentPage, selectedCategoryId);
-  }, [currentPage, selectedCategoryId, fetchArticles]);
+useEffect(() => {
+    fetchArticles(currentPage, selectedCategoryId, debouncedSearchTerm);
+  }, [currentPage, selectedCategoryId, debouncedSearchTerm, fetchArticles]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategoryId]);
+  }, [selectedCategoryId, debouncedSearchTerm]);
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
@@ -122,8 +131,17 @@ export default function ArtikelPage() {
               Filter & Cari
             </h2>
             
-            <div className="h-9 w-full bg-muted rounded-md animate-pulse"></div>
-            
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Cari judul artikel..."
+                className="pl-9"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+              />
+            </div>
+
             <div>
               <label htmlFor="article-category-filter" className="block text-sm font-medium mb-2">Kategori Artikel</label>
               <Select
@@ -163,9 +181,9 @@ export default function ArtikelPage() {
             <div className="flex flex-col items-center justify-center text-muted-foreground bg-muted/50 p-6 rounded-md min-h-[300px]">
                <Info className="w-12 h-12 mb-4" />
                <p className="font-semibold">Artikel Tidak Ditemukan</p>
-               <p className="text-sm">
-                 {selectedCategoryId
-                   ? 'Tidak ada artikel yang cocok dengan kategori ini.'
+              <p className="text-sm text-center">
+                 {selectedCategoryId || debouncedSearchTerm
+                   ? 'Tidak ada artikel yang cocok dengan filter atau pencarian Anda.'
                    : 'Belum ada artikel yang dipublikasikan.'}
                </p>
             </div>
