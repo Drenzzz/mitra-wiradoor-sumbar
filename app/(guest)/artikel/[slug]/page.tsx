@@ -93,6 +93,11 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
         />
       </div>
 
+      <article 
+        className="text-foreground/90 leading-relaxed whitespace-pre-wrapspace-y-4max-w-none">
+        {article.content}
+      </article>
+
       <div className="pt-8 mt-8 border-t">
         <p className="text-xs text-muted-foreground mb-4">Bagikan:</p>
       </div>
