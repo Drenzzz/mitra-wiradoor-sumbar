@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { PageWrapper } from '@/components/admin/page-wrapper';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,6 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { useInquiryManagement } from '@/hooks/use-inquiry-management';
 import { InquiryStatus } from "@prisma/client";
+import { toast } from 'sonner';
+import type { Inquiry } from '@/types';
+import { InquiryTable } from '@/components/admin/inquiries/inquiry-table';
+import { InquiryDetailDialog } from '@/components/admin/inquiries/inquiry-detail-dialog';
 
 export default function InquiryManagementPage() {
   const {
@@ -23,8 +28,47 @@ export default function InquiryManagementPage() {
     currentPage,
     setCurrentPage,
     rowsPerPage,
+    fetchInquiries,
   } = useInquiryManagement();
 
+const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
+
+  const handleViewClick = (inquiry: Inquiry) => {
+    setSelectedInquiry(inquiry);
+    setIsDetailOpen(true);
+    if (inquiry.status === 'NEW') {
+      handleStatusChange(inquiry.id, 'READ', true);
+    }
+  };
+
+  const handleStatusChange = async (id: string, status: InquiryStatus, silent = false) => {
+    const promise = fetch(`/api/inquiries/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    }).then(async (res) => {
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error);
+      }
+      return res.json();
+    });
+
+    if (silent) {
+      promise.then(fetchInquiries).catch(console.error);
+    } else {
+      toast.promise(promise, {
+        loading: 'Mengubah status...',
+        success: () => {
+          fetchInquiries();
+          return 'Status pesan berhasil diubah!';
+        },
+        error: (err) => err.message,
+      });
+    }
+  };
+    
   const totalPages = Math.ceil(totalCount / rowsPerPage);
 
   return (
@@ -69,9 +113,12 @@ export default function InquiryManagementPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="p-4 text-center text-muted-foreground">
-              {isLoading ? "Memuat data..." : `(Placeholder: Tabel data inquiry akan tampil di sini. Ditemukan ${inquiries.length} data)`}
-            </div>
+            <InquiryTable
+              inquiries={inquiries}
+              isLoading={isLoading}
+              onViewClick={handleViewClick}
+              onStatusChange={handleStatusChange}
+            />
           </CardContent>
           {totalPages > 1 && (
             <CardFooter>
@@ -100,6 +147,11 @@ export default function InquiryManagementPage() {
           )}
         </Card>
       </Tabs>
+      <InquiryDetailDialog
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        inquiry={selectedInquiry}
+      />
     </PageWrapper>
   );
 }

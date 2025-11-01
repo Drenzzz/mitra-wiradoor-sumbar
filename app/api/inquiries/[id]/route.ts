@@ -6,7 +6,7 @@ import { InquiryStatus, Prisma } from "@prisma/client";
 
 export async function PATCH(
   request: Request,
-  context: { params: { id: string } } 
+  context: { params: Promise<{ id: string }> }   
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
@@ -14,7 +14,7 @@ export async function PATCH(
   }
 
   try {
-    const { id } = context.params;
+    const { id } = await context.params;
     const body = await request.json();
     const { status } = body;
 
