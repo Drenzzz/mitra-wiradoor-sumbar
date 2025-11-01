@@ -49,3 +49,10 @@ export const getInquiries = async (options: GetInquiriesOptions = {}) => {
 
   return { data: inquiries, totalCount };
 };
+
+export const updateInquiryStatus = (id: string, status: InquiryStatus) => {
+  return prisma.inquiry.update({
+    where: { id: id },
+    data: { status: status },
+  });
+};
