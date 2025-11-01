@@ -2,6 +2,7 @@ import { MainNav } from "@/components/guest/main-nav";
 import { SiteFooter } from "@/components/guest/site-footer";
 import { FloatingWhatsAppButton } from "@/components/guest/floating-whatsapp-button";
 import { ForceLightTheme } from "@/components/guest/force-light-theme";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function GuestLayout({
   children,
@@ -15,6 +16,7 @@ export default function GuestLayout({
       <main className="flex-grow">{children}</main>
       <SiteFooter />
       <FloatingWhatsAppButton />
+      <Toaster position="top-center" />
     </div>
   );
 }

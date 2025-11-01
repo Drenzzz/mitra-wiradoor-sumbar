@@ -1,4 +1,5 @@
 import { MapPin, Mail, Phone } from 'lucide-react';
+import { InquiryForm } from '@/components/guest/inquiry-form';
 
 const whatsAppNumber = process.env.WHATSAPP_NUMBER || '6281234567890';
 const whatsAppLink = `https://wa.me/${whatsAppNumber}`;
@@ -55,7 +56,7 @@ export default function KontakPage() {
             <div>
               <h2 className="text-2xl font-semibold mb-4">Kirim Pesan</h2>
               <div className="p-8 bg-muted/50 rounded-lg text-center text-muted-foreground">
-                <p>Coming Soon.</p>
+                <InquiryForm />
               </div>
             </div>
           </div>
