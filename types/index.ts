@@ -49,3 +49,14 @@ export type Article = {
     name: string | null;
   };
 };
+
+export type Inquiry = {
+  id: string;
+  senderName: string;
+  senderEmail: string;
+  subject: string;
+  message: string;
+  status: 'NEW' | 'READ' | 'REPLIED';
+  createdAt: Date;
+};
+
