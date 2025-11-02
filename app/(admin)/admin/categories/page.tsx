@@ -1,5 +1,3 @@
-// app/(admin)/admin/categories/page.tsx
-
 'use client';
 
 import { useState } from 'react';
@@ -18,7 +16,6 @@ import { CategoryTable } from '@/components/admin/categories/category-table';
 import { EditCategoryDialog } from '@/components/admin/categories/edit-category-dialog';
 import { ConfirmationDialog } from '@/components/admin/shared/confirmation-dialog';
 
-// Konfigurasi untuk animasi container tabel
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -48,7 +45,6 @@ export default function CategoryManagementPage() {
     fetchCategories,
   } = useCategoryManagement();
 
-  // State lokal hanya untuk UI (dialog dan selection)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
@@ -180,7 +176,6 @@ export default function CategoryManagementPage() {
     setIsConfirmOpen(true);
   };
 
-  // Komponen pembungkus untuk Card
   const CategoryCard = ({ variant }: { variant: 'active' | 'trashed' }) => {
     const isTrash = variant === 'trashed';
     const currentCategories = isTrash ? categories.trashed : categories.active;
@@ -293,7 +288,6 @@ export default function CategoryManagementPage() {
 
       <Tabs defaultValue="active" onValueChange={setActiveTab} className="w-full">
         <TabsList>
-          {/* ✅ DIPERBAIKI: Mengambil data dari state `totals` */}
           <TabsTrigger value="active">Aktif ({totals.active})</TabsTrigger>
           <TabsTrigger value="trashed">Sampah ({totals.trashed})</TabsTrigger>
         </TabsList>

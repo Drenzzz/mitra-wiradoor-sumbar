@@ -33,14 +33,12 @@ const {
     setFilterByCategory,
     currentPage,
     setCurrentPage,
-    rowsPerPage, // Anda bisa tambahkan setRowsPerPage jika perlu
+    rowsPerPage, 
     selectedRowKeys,
     setSelectedRowKeys,
     fetchProducts,
   } = useProductManagement();
-  // --- AKHIR PERUBAHAN ---
 
-  // State UI (Dialog) tetap di sini, ini sudah benar
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);

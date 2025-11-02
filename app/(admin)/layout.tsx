@@ -1,5 +1,3 @@
-// File: app/(admin)/layout.tsx
-
 'use client';
 
 import { useState } from 'react';
@@ -25,7 +23,6 @@ export default function AdminLayout({
   return (
     <div className="flex min-h-screen w-full bg-muted/40 relative">
       
-      {/* Tombol Collapse untuk Desktop */}
       <Button
         variant="outline"
         size="icon"
@@ -38,14 +35,12 @@ export default function AdminLayout({
         {isSidebarCollapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
       </Button>
 
-      {/* Sidebar untuk Desktop */}
       <div className="hidden md:flex">
         <Sidebar isCollapsed={isSidebarCollapsed} />
       </div>
 
       <div className="flex flex-col flex-1 w-full min-w-0">
         
-        {/* Header Khusus untuk Mobile */}
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 md:hidden">
           <Sheet>
             <SheetTrigger asChild>
@@ -64,7 +59,6 @@ export default function AdminLayout({
            </Link>
         </header>
 
-        {/* Konten Utama Halaman */}
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 overflow-auto">
           {children}
         </main>

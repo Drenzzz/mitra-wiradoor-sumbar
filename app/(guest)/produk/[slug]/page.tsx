@@ -7,28 +7,6 @@ import { ProductCard } from '@/components/guest/product-card';
 import { ArrowLeft, ChevronRight, Home, ShoppingCart, MessageCircle } from 'lucide-react';
 import type { Product } from '@/types';
 
-async function getProduct(slug: string): Promise<Product | null> {
-  try {
-    const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products/${slug}`, {
-      cache: 'no-store',
-    });
-
-    if (res.status === 404) {
-      return null;
-    }
-
-    if (!res.ok) {
-      throw new Error('Gagal memuat data produk.');
-    }
-
-    const data = await res.json();
-    return data as Product & { isReadyStock?: boolean; stock?: number | null };
-  } catch (error) {
-    console.error("Fetch product error:", error);
-    return null;
-  }
-}
-
 interface ProductData {
   product: Product | null;
   relatedProducts: Product[];
@@ -201,7 +179,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
 export async function generateMetadata({ params }: ProductDetailPageProps) {
     const { slug } = await params;
-    const product =     await getProduct(slug);
+    const { product } = await getProductData(slug);
 
   if (!product) {
     return { title: 'Produk Tidak Ditemukan' };

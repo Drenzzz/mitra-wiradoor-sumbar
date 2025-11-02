@@ -330,7 +330,6 @@ const ArticleListCard = ({ variant }: { variant: 'active' | 'trashed' }) => {
             setSelectedRowKeys={setSelectedRowKeys}
           />
         </CardContent>
-        {/* === BAGIAN YANG HILANG: UI PAGINASI === */}
         {totalPages > 1 && (
           <CardFooter>
             <div className="text-xs text-muted-foreground">
