@@ -29,7 +29,10 @@ export const getArticles = async (options: GetArticlesOptions = {}) => {
   whereClause.deletedAt = status === 'trashed' ? { not: null } : null;
 
   if (search) {
-    whereClause.title = { contains: search, mode: 'insensitive' };
+    whereClause.OR = [
+      { title: { contains: search, mode: 'insensitive' } },
+      { content: { contains: search, mode: 'insensitive' } },
+    ];
   }
   if (categoryId) {
     whereClause.categoryId = categoryId;

@@ -27,7 +27,11 @@ export const getProducts = async (options: GetProductsOptions = {}) => {
   whereClause.deletedAt = status === 'trashed' ? { not: null } : null;
 
   if (search) {
-    whereClause.name = { contains: search, mode: 'insensitive' };
+    whereClause.OR = [
+      { name: { contains: search, mode: 'insensitive' } },
+      { description: { contains: search, mode: 'insensitive' } },
+      { specifications: { contains: search, mode: 'insensitive' } },
+    ];
   }
 
   if (categoryId) {

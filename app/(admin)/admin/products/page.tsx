@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Product, Category } from "@/types";
-import { useDebounce } from "@/hooks/use-debounce";
+import { useProductManagement } from "@/hooks/use-product-management";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,21 +19,32 @@ import { PageWrapper } from "@/components/admin/page-wrapper";
 import { ConfirmationDialog } from "@/components/admin/shared/confirmation-dialog";
 
 export default function ProductManagementPage() {
-  const [products, setProducts] = useState<{ active: Product[], trashed: Product[] }>({ active: [], trashed: [] });
-  const [totals, setTotals] = useState({ active: 0, trashed: 0 });
-  const [isLoading, setIsLoading] = useState(true);
+const {
+    products,
+    totals,
+    isLoading,
+    activeTab,
+    setActiveTab,
+    searchTerm,
+    setSearchTerm,
+    sortBy,
+    setSortBy,
+    filterByCategory,
+    setFilterByCategory,
+    currentPage,
+    setCurrentPage,
+    rowsPerPage, // Anda bisa tambahkan setRowsPerPage jika perlu
+    selectedRowKeys,
+    setSelectedRowKeys,
+    fetchProducts,
+  } = useProductManagement();
+  // --- AKHIR PERUBAHAN ---
+
+  // State UI (Dialog) tetap di sini, ini sudah benar
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [activeTab, setActiveTab] = useState('active');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('name-asc');
-  const [filterByCategory, setFilterByCategory] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
-
+  
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
@@ -57,45 +68,6 @@ export default function ProductManagementPage() {
     onConfirm: () => {},
   });
   const [isActionLoading, setIsActionLoading] = useState(false);
-
-  const fetchProducts = async () => {
-    setIsLoading(true);
-    try {
-      const buildQuery = (status: 'active' | 'trashed') => {
-        const params = new URLSearchParams({ 
-            status, 
-            sort: sortBy,
-            page: String(currentPage),
-            limit: String(rowsPerPage),
-         });
-        if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
-        if (filterByCategory) params.append('categoryId', filterByCategory);
-        return params.toString();
-      };
-
-      const statusToFetch = activeTab as 'active' | 'trashed';
-      const res = await fetch(`/api/products?${buildQuery(statusToFetch)}`);
-      if (!res.ok) throw new Error('Gagal memuat data');
-
-      const { data, totalCount } = await res.json();
-      setProducts(prev => ({ ...prev, [statusToFetch]: data }));
-      setTotals(prev => ({ ...prev, [statusToFetch]: totalCount }));
-
-    } catch (err: any) {
-      toast.error(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProducts();
-  }, [debouncedSearchTerm, sortBy, filterByCategory, currentPage, activeTab]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-    setSelectedRowKeys([]);
-  }, [activeTab, debouncedSearchTerm, sortBy, filterByCategory]);
 
   const handleSuccess = () => fetchProducts();
   const handleViewClick = (product: Product) => { setSelectedProduct(product); setIsDetailOpen(true); };

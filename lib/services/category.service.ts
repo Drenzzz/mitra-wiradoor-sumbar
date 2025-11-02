@@ -22,7 +22,10 @@ export const getCategories = async (options: GetCategoriesOptions = {}) => {
   whereClause.deletedAt = status === 'trashed' ? { not: null } : null;
 
   if (search) {
-    whereClause.name = { contains: search, mode: 'insensitive' };
+    whereClause.OR = [
+      { name: { contains: search, mode: 'insensitive' } },
+      { description: { contains: search, mode: 'insensitive' } },
+    ];
   }
 
   const [sortField, sortOrder] = sort?.split('-') || ['name', 'asc'];
