@@ -18,7 +18,7 @@ export const formSchema = z.object({
   specifications: z.string().min(10, { message: 'Spesifikasi minimal 10 karakter.' }),
   categoryId: z.string().min(1, { message: "Kategori wajib dipilih." }),
   imageUrl: z.string().min(1, { message: "Gambar produk wajib diunggah." }).url({ message: "URL gambar tidak valid." }),
-  isReadyStock: z.boolean({ required_error: "Status produk wajib dipilih." }),
+  isReadyStock: z.boolean({ message: "Status produk wajib dipilih." }),
 });
 export type ProductFormValues = z.infer<typeof formSchema>;
 

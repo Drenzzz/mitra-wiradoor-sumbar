@@ -18,6 +18,7 @@ export type Product = {
   category: {
     name: string;
   };
+  isReadyStock: boolean;
 };
 
 export type ArticleCategory = {
