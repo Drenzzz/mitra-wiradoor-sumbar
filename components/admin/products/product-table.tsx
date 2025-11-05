@@ -96,6 +96,7 @@ export function ProductTable({
           <TableHead className="w-[80px]">Gambar</TableHead>
           <TableHead>Nama Produk</TableHead>
           <TableHead>Kategori</TableHead>
+          <TableHead>Status</TableHead>
           <TableHead>Deskripsi</TableHead>
           {variant === 'trashed' && <TableHead>Dihapus Pada</TableHead>}
           <TableHead className="text-right pr-6">Aksi</TableHead>
@@ -123,6 +124,11 @@ export function ProductTable({
               <TableCell className="font-semibold py-2">{product.name}</TableCell>
               <TableCell className="py-2">
                 <Badge variant="outline">{product.category?.name || 'N/A'}</Badge>
+              </TableCell>
+              <TableCell className="py-2">
+                <Badge variant={product.isReadyStock ? 'default' : 'secondary'}>
+                  {product.isReadyStock ? 'Ready Stock' : 'Kustom'}
+                </Badge>
               </TableCell>
               <TableCell className="max-w-xs truncate text-muted-foreground py-2">{product.description}</TableCell>
               {variant === 'trashed' && (

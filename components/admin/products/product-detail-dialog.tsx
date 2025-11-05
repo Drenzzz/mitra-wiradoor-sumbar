@@ -42,6 +42,12 @@ export function ProductDetailDialog({ product, isOpen, onClose }: ProductDetailD
               <p className="text-sm text-muted-foreground whitespace-pre-wrap">{product.specifications}</p>
             </div>
             <div>
+              <h3 className="font-semibold text-lg">Status Produk</h3>
+              <Badge variant={product.isReadyStock ? 'default' : 'secondary'}>
+                {product.isReadyStock ? 'Ready Stock' : 'Kustom (Pre-Order)'}
+              </Badge>
+            </div>
+            <div>
               <h3 className="font-semibold text-lg">Info Lainnya</h3>
               <p className="text-xs text-muted-foreground">
                 Dibuat pada: {new Date(product.createdAt).toLocaleDateString('id-ID')}
