@@ -24,10 +24,8 @@ model User {
   articles      Article[]
   passwordResetToken  String?
   passwordResetExpires DateTime?
-  @@unique([passwordResetToken])
   passwordChangeToken   String?   
   passwordChangeExpires DateTime?
-  @@unique([passwordChangeToken])
 }
 
 model Account {
@@ -95,6 +93,8 @@ model Product {
   // Kunci relasi ke Kategori
   categoryId String   @db.ObjectId
   category   Category @relation(fields: [categoryId], references: [id])
+
+  OrderItem OrderItem[]
 }
 
 // Model inquiry
@@ -159,4 +159,46 @@ enum InquiryStatus {
 enum ArticleStatus {
   PUBLISHED
   DRAFT
+}
+
+enum OrderStatus {
+  PENDING  
+  COMPLETED
+  CANCELLED 
+}
+
+// Model Order (Transaksi)
+model Order {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  invoiceNumber String      @unique
+
+  customerName  String
+  customerEmail String
+  customerPhone String
+  customerAddress String?
+
+  status        OrderStatus @default(PENDING)
+  
+  items         OrderItem[] 
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+// Model OrderItem
+model OrderItem {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  
+  orderId     String  @db.ObjectId
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId   String  @db.ObjectId
+  product     Product @relation(fields: [productId], references: [id])
+
+  productName   String
+  isReadyStock  Boolean 
+  quantity      Int     @default(1)
+
+  @@index([orderId])
+  @@index([productId])
 }
