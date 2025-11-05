@@ -59,6 +59,13 @@ export const getProducts = async (options: GetProductsOptions = {}) => {
 };
 
 export const getProductById = (id: string) => {
+
+  const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(id);
+
+  if (!isValidObjectId) {
+    return null;
+  }
+
   return prisma.product.findUnique({
     where: { id },
     include: {
