@@ -1,4 +1,3 @@
-// components/admin/products/create-product-button.tsx
 'use client';
 
 import { useState } from 'react';
@@ -10,24 +9,23 @@ import { PlusCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
-import { ProductForm } from './product-form';
-
-const formSchema = z.object({
-    name: z.string().min(3, { message: 'Nama produk minimal 3 karakter.' }),
-    description: z.string().min(10, { message: 'Deskripsi minimal 10 karakter.' }),
-    specifications: z.string().min(10, { message: 'Spesifikasi minimal 10 karakter.' }),
-    categoryId: z.string().min(1, { message: "Kategori wajib dipilih." }),
-    imageUrl: z.string().min(1, { message: "Gambar produk wajib diunggah." }).url(),
-});
+import { ProductForm, formSchema, ProductFormValues } from './product-form';
 
 export function CreateProductButton({ onSuccess }: { onSuccess: () => void; }) {
   const [isOpen, setIsOpen] = useState(false);
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: '', description: '', specifications: '', categoryId: '', imageUrl: '' },
+    defaultValues: { 
+      name: '', 
+      description: '', 
+      specifications: '', 
+      categoryId: '', 
+      imageUrl: '',
+      isReadyStock: false
+    },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: ProductFormValues) => {
     toast.promise(
         fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(values) })
         .then(async res => {

@@ -12,13 +12,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImageUploader } from './image-uploader';
 
-// Definisikan tipe FormValues agar bisa di-re-use
 export const formSchema = z.object({
   name: z.string().min(3, { message: 'Nama produk minimal 3 karakter.' }),
   description: z.string().min(10, { message: 'Deskripsi minimal 10 karakter.' }),
   specifications: z.string().min(10, { message: 'Spesifikasi minimal 10 karakter.' }),
   categoryId: z.string().min(1, { message: "Kategori wajib dipilih." }),
   imageUrl: z.string().min(1, { message: "Gambar produk wajib diunggah." }).url({ message: "URL gambar tidak valid." }),
+  isReadyStock: z.boolean({ required_error: "Status produk wajib dipilih." }),
 });
 export type ProductFormValues = z.infer<typeof formSchema>;
 
@@ -64,7 +64,6 @@ export function ProductForm({ form, onSubmit, formId }: ProductFormProps) {
             )}
         />
         
-        {/* ✅ KODE JSX YANG DIPERBAIKI FORMATNYA */}
         <FormField
           control={form.control}
           name="name"
@@ -97,6 +96,31 @@ export function ProductForm({ form, onSubmit, formId }: ProductFormProps) {
                       {category.name}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="isReadyStock"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Status Produk</FormLabel>
+              <Select
+                onValueChange={(value) => field.onChange(value === 'true')} 
+                value={String(field.value)} 
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih status ketersediaan produk" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="false">Kustom (Pre-Order)</SelectItem>
+                  <SelectItem value="true">Ready Stock</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

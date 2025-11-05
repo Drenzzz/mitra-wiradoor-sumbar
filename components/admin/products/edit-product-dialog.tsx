@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { ProductForm, formSchema, ProductFormValues } from "./product-form"; // ✅ Impor skema dari form
+import { ProductForm, formSchema, ProductFormValues } from "./product-form";
 
 interface EditProductDialogProps {
   product: Product | null;
@@ -30,6 +30,7 @@ export function EditProductDialog({ product, isOpen, onClose, onSuccess }: EditP
         specifications: product.specifications,
         categoryId: product.categoryId,
         imageUrl: product.imageUrl,
+        isReadyStock: product.isReadyStock || false,
       });
     }
   }, [product, form, isOpen]);
