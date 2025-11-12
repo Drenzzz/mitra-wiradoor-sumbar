@@ -2,106 +2,98 @@
 
 ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
 
-Repositori ini berisi kode sumber untuk proyek Website Profil Perusahaan dan E-Katalog untuk MR Konstruksi, distributor resmi Wiradoor di Sumatera Barat.
+Repositori ini berisi kode sumber Website Profil Perusahaan dan E-Katalog untuk MR Konstruksi sebagai distributor resmi Wiradoor di Sumatera Barat. Proyek masih dalam tahap pengembangan aktif (WIP).
 
-## ✨ Fitur Utama
+## Status Singkat
+- [x] Panel admin dasar (auth, dashboard, produk, kategori, artikel) sudah fungsional.
+- [x] Alur pemesanan guest untuk produk ready stock sudah bisa digunakan sampai halaman sukses + WhatsApp follow-up.
+- [ ] Manajemen transaksi di sisi admin belum tersedia; pencatatan baru terjadi via API guest.
+- [ ] Halaman publik (beranda, katalog produk, daftar artikel) masih berupa versi awal.
 
-Proyek ini dibagi menjadi dua bagian utama: Panel Admin yang aman dan Halaman Publik yang informatif.
+## Fitur Utama
 
-### 🛡️ Panel Admin (`/admin`)
-- **Otentikasi Aman**: Sistem login berbasis kredensial dengan peran (Admin/Staf) menggunakan NextAuth.js.
-- **Dashboard Statistik**: Halaman utama yang menampilkan ringkasan data penting seperti jumlah produk, artikel, dan pesan baru (inquiry).
-- **Manajemen Produk**: Fungsionalitas CRUD (Create, Read, Update, Delete) penuh untuk produk, lengkap dengan fitur *soft-delete* (memindahkan ke sampah) dan hapus permanen.
-- **Manajemen Kategori**: CRUD penuh untuk kategori produk.
-- **Manajemen Artikel**: CRUD penuh untuk artikel & kategori artikel, dengan sistem status (Draft/Published).
-- **Manajemen Pengguna**: Admin dapat melakukan CRUD untuk akun Staf (menambah, melihat, mengedit, dan menghapus pengguna).  *(WIP)*
-- **Manajemen Pesan Masuk**: Melihat dan mengelola semua pesan yang masuk dari formulir kontak publik, serta mengubah statusnya (Baru, Dibaca, Dibalas).  *(WIP)*
-- **Manajemen Akun**: Pengguna dapat mengubah nama profil dan password melalui halaman pengaturan.
-- **Desain Responsif**: Antarmuka yang dioptimalkan untuk desktop maupun perangkat mobile.
-- **Tema Dinamis**: Pilihan antara mode terang (Light Mode) dan gelap (Dark Mode).
+### Panel Admin (`/admin`)
+- Otentikasi berbasis NextAuth dengan peran Admin/Staf.
+- Dashboard ringkasan data produk, artikel, dan pesan.
+- CRUD produk lengkap dengan *soft delete* serta opsi hapus permanen.
+- CRUD kategori produk.
+- CRUD artikel dan kategori artikel dengan status Draft/Published.
+- Pengaturan akun (ubah nama dan sandi).
+- Desain responsif dengan dukungan mode gelap/terang.
+- **WIP:** Manajemen pengguna staf (CRUD) masih dalam pengerjaan.
+- **WIP:** Inbox pesan dari publik hanya tercatat; UI pengelolaannya belum selesai.
+- **WIP:** Modul monitoring transaksi/order di panel admin belum tersedia.
 
-### 🌐 Halaman Publik (Guest)
-- **Halaman Beranda**: Menampilkan `Hero Section`, keunggulan produk, dan daftar produk unggulan. *(WIP)*
-- **Katalog Produk**: Halaman untuk menampilkan semua produk dengan fitur pencarian dan filter. *(WIP)*
-- **Daftar Artikel**: Halaman untuk menampilkan semua artikel yang sudah dipublikasikan. *(WIP)*
-- **Halaman Detail**: Halaman dinamis untuk menampilkan detail spesifik dari satu produk atau artikel. *(WIP)*
-- **Halaman Statis**: Halaman "Tentang Kami" dan "Kontak". *(WIP)*
+### Halaman Publik (Guest)
+- Halaman detail produk dinamis termasuk daftar produk terkait.
+- Form pemesanan khusus produk *ready stock* dengan validasi Zod + React Hook Form.
+- Endpoint API `POST /api/orders` untuk membuat order guest beserta item otomatis dan nomor invoice unik.
+- Halaman sukses pemesanan (`/order/success/[orderId]`) dengan ringkasan order serta CTA konfirmasi via WhatsApp.
+- Integrasi tombol WhatsApp dari halaman produk untuk konsultasi/pemesanan kustom.
+- **WIP:** Landing page/beranda, katalog produk dengan filter penuh, daftar artikel, dan halaman statis masih disempurnakan kontennya.
 
-## 🚀 Tumpukan Teknologi (Tech Stack)
+## Tumpukan Teknologi
 
 | Kategori | Teknologi |
-| :--- | :--- |
-| **Framework** | [Next.js](https://nextjs.org/) 15 (App Router) |
-| **Bahasa** | [TypeScript](https://www.typescriptlang.org/) |
-| **Styling** | [Tailwind CSS](https://tailwindcss.com/) & [shadcn/ui](https://ui.shadcn.com/) |
-| **Animasi** | [Framer Motion](https://www.framer.com/motion/) |
-| **Ikon** | [Lucide React](https://lucide.dev/) |
-| **Database** | [MongoDB](https://www.mongodb.com/) (via MongoDB Atlas) |
-| **ORM** | [Prisma](https://www.prisma.io/) |
-| **Otentikasi** | [NextAuth.js](https://next-auth.js.org/) |
-| **Validasi Form** | [React Hook Form](https://react-hook-form.com/) & [Zod](https://zod.dev/) |
-| **Notifikasi** | [Sonner](https://sonner.emilpriv.dev/) (Toast Notifications) |
-| **Upload Gambar** | [Cloudinary](https://cloudinary.com/) |
-| **Pengiriman Email** | [Nodemailer](https://nodemailer.com/) |
-| **Package Manager**| [pnpm](https://pnpm.io/) |
+| --- | --- |
+| Framework | Next.js 16 (App Router) |
+| Bahasa | TypeScript |
+| Styling | Tailwind CSS, shadcn/ui |
+| Animasi | Framer Motion |
+| Ikon | Lucide React |
+| Database | MongoDB Atlas |
+| ORM | Prisma |
+| Otentikasi | NextAuth.js |
+| Validasi Form | React Hook Form, Zod |
+| Notifikasi | Sonner |
+| Upload Gambar | Cloudinary |
+| Email | Nodemailer |
+| Package Manager | pnpm |
 
-
-## ⚙️ Instalasi & Konfigurasi Lokal
-
-Berikut adalah panduan untuk menyiapkan dan menjalankan proyek ini di lingkungan lokal Anda.
+## Instalasi & Konfigurasi Lokal
 
 ### Prasyarat
-- [Node.js](https://nodejs.org/) (v18 atau lebih baru)
-- [pnpm](https://pnpm.io/installation)
-- [Git](https://git-scm.com/)
-- Akun [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register)
-- Akun [Cloudinary](https://cloudinary.com/users/register/free)
+- Node.js v18+
+- pnpm
+- Git
+- Akun MongoDB Atlas & Cloudinary (untuk koneksi DB dan upload media)
 
-### Langkah-langkah Instalasi
-1.  **Clone repository ini:**
-    ```bash
-    git clone https://github.com/Drenzzz/mitra-wiradoor-sumbar.git
-    cd mitra-wiradoor-sumbar
-    ```
+### Langkah
+1. Clone repo lalu masuk ke folder proyek.
+   ```bash
+   git clone https://github.com/Drenzzz/mitra-wiradoor-sumbar.git
+   cd mitra-wiradoor-sumbar
+   ```
+2. Instal dependensi.
+   ```bash
+   pnpm install
+   ```
+3. Salin `.env.example` menjadi `.env` lalu isi seluruh variabel (MongoDB, NextAuth, Cloudinary, kredensial email, dll).
+   ```bash
+   cp .env.example .env
+   ```
+4. Sinkronkan skema Prisma ke MongoDB.
+   ```bash
+   pnpm prisma db push
+   ```
+5. Jalankan seed untuk membuat akun admin awal.
+   ```bash
+   pnpm prisma:seed
+   ```
+6. Mulai server pengembangan.
+   ```bash
+   pnpm dev
+   ```
 
-2.  **Instal semua dependencies:**
-    ```bash
-    pnpm install
-    ```
+Buka `http://localhost:3000` untuk halaman publik dan `http://localhost:3000/login` untuk akses admin.
 
-3.  **Siapkan file environment (`.env`):**
-    Salin file `.env.example` menjadi `.env` lalu isi semua variabel yang dibutuhkan.
-    ```bash
-    cp .env.example .env
-    ```
+## Skrip pnpm
 
-4.  **Isi variabel environment di file `.env`:**
-
-5.  **Sinkronisasi Skema Database:**
-    Perintah ini akan menerapkan skema dari `prisma/schema.prisma` ke database MongoDB Anda.
-    ```bash
-    pnpm prisma db push
-    ```
-
-6.  **Buat Pengguna Admin Pertama (Seeding):**
-    Perintah ini akan membuat satu pengguna dengan peran `ADMIN` agar Anda bisa login.
-    ```bash
-    pnpm prisma:seed
-    ```
-
-7.  **Jalankan Server Pengembangan:**
-    ```bash
-    pnpm dev
-    ```
-
-Sekarang, buka [http://localhost:3000](http://localhost:3000) di browser Anda untuk melihat hasilnya. Halaman login admin ada di [http://localhost:3000/login](http://localhost:3000/login).
-
-## 📜 Skrip yang Tersedia
-
-* `pnpm dev`: Menjalankan aplikasi dalam mode pengembangan.
-* `pnpm build`: Membangun aplikasi untuk mode produksi.
-* `pnpm start`: Menjalankan aplikasi yang sudah di-build.
-* `pnpm lint`: Menjalankan linter untuk memeriksa kualitas kode.
-* `pnpm prisma:generate`: Meng-generate ulang Prisma Client setelah ada perubahan skema.
-* `pnpm prisma:seed`: Menjalankan script seed untuk membuat data awal (pengguna admin).
-* `pnpm db:adduser`: Script kustom untuk menambah user baru melalui terminal.
+- `pnpm dev` - Menjalankan Next.js dalam mode pengembangan (Turbopack).
+- `pnpm build` - Build produksi.
+- `pnpm start` - Menjalankan hasil build.
+- `pnpm lint` - Menjalankan ESLint.
+- `pnpm prisma:generate` - Generate Prisma Client.
+- `pnpm prisma:push` - Sinkron Prisma schema ke database.
+- `pnpm prisma:seed` - Menjalankan seed akun admin.
+- `pnpm db:adduser` - Skrip CLI untuk menambah user admin/staf baru.
