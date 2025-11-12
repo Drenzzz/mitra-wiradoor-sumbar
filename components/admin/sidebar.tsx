@@ -28,6 +28,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
     { href: "/admin", label: "Dashboard", icon: Home },
     { href: "/admin/products", label: "Produk", icon: Package },
     { href: "/admin/categories", label: "Kategori", icon: Folder },
+    { href: "/admin/orders", label: "Pesanan", icon: CreditCard },
     { href: "/admin/articles", label: "Artikel", icon: LineChart },
     { href: "/admin/inquiries", label: "Pesan Masuk", icon: Mail },
   ]
