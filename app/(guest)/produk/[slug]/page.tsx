@@ -120,28 +120,30 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
           </div>
 
           <div className="pt-4 flex flex-col sm:flex-row gap-3">
-            {/* {isReadyStock ? (
-              <Button size="lg" disabled={currentStock <= 0}>
-                <ShoppingCart className="mr-2 h-5 w-5" />
-                {currentStock <= 0 ? 'Stok Habis' : 'Tambah ke Keranjang'}
+            {product.isReadyStock ? (
+              <Button size="lg" asChild>
+                <Link href={`/order/${product.id}`}>
+                  <ShoppingCart className="mr-2 h-5 w-5" />
+                  Pesan Sekarang
+                </Link>
               </Button>
-            ) : ( */}
+            ) : (
               <Button size="lg" asChild>
                 <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="mr-2 h-5 w-5" />
-                  Tanya / Pesan Custom
+                  Tanya / Pesan Kustom
                 </a>
               </Button>
-            {/* )} */}
+            )}
 
-             {/* {isReadyStock && (
-                <Button size="lg" variant="outline" asChild>
-                  <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                    <MessageCircle className="mr-2 h-5 w-5" />
-                    Tanya Detail
-                  </a>
-                </Button>
-             )} */}
+            {product.isReadyStock && (
+              <Button size="lg" variant="outline" asChild>
+                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                  <MessageCircle className="mr-2 h-5 w-5" />
+                  Tanya Detail (WA)
+                </a>
+              </Button>
+            )}
           </div>
 
           <div className="pt-4 border-t">
@@ -155,11 +157,10 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         <h2 className="text-2xl font-semibold mb-6">Produk Terkait</h2>
         {relatedProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Map data produk terkait menggunakan ProductCard */}
             {relatedProducts.map((relatedProduct) => (
               <ProductCard
                 key={relatedProduct.id}
-                slug={relatedProduct.id} // Gunakan ID sebagai slug sementara
+                slug={relatedProduct.id}
                 imageUrl={relatedProduct.imageUrl}
                 category={relatedProduct.category?.name || 'Lainnya'}
                 name={relatedProduct.name}
@@ -168,7 +169,6 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             ))}
           </div>
         ) : (
-          // Tampilkan pesan jika tidak ada produk terkait
           <p className="text-muted-foreground">Tidak ada produk terkait lainnya dalam kategori ini.</p>
         )}
       </div>
