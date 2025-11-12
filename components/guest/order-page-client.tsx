@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Product } from '@/types';
-import { CustomerInfoFormValues, CheckoutForm } from '@/components/guest/checkout-form';
+import { CheckoutForm } from '@/components/guest/checkout-form';
+import type { CustomerInfoFormValues } from '@/lib/validations/order.schema';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Image from 'next/image';
+import { toast } from 'sonner'; 
 
 interface OrderPageClientProps {
   product: Product;
@@ -13,19 +15,38 @@ interface OrderPageClientProps {
 
 export function OrderPageClient({ product }: OrderPageClientProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const router = useRouter(); 
   const handleFormSubmit = async (values: CustomerInfoFormValues) => {
     setIsLoading(true);
-    
-    console.log("Formulir disubmit dengan data:", values);
-    console.log("Memesan produk:", product.name, "(ID: ", product.id, ")");
 
-    await new Promise(resolve => setTimeout(resolve, 1500)); 
+    const payload = {
+      ...values,
+      productId: product.id, 
+    };
 
-    alert(`(HANYA TES) Pesanan untuk ${product.name} diterima.\nData: ${JSON.stringify(values)}`);
-    
-    setIsLoading(false);
-    
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Terjadi kesalahan saat mengirim pesanan.');
+      }
+
+      toast.success('Pesanan Anda berhasil dibuat!');
+      
+      router.push(`/order/success/${data.id}`);
+
+    } catch (error: any) {
+      console.error("Gagal mengirim pesanan:", error);
+      toast.error(error.message || 'Gagal terhubung ke server.');
+      
+      setIsLoading(false);
+    }
   };
 
   return (
