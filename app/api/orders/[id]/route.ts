@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { OrderStatus } from "@prisma/client";
 import * as orderService from "@/lib/services/order.service"; 
 
 export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } } 
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> } 
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
@@ -14,7 +14,7 @@ export async function PATCH(
   }
 
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { status } = body;
 
