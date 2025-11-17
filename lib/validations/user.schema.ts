@@ -9,6 +9,7 @@ export const userCreateSchema = z.object({
 });
 
 export type UserCreateFormValues = z.infer<typeof userCreateSchema>;
+export type UserCreateFormInput = z.input<typeof userCreateSchema>;
 
 export const userUpdateSchema = z.object({
   name: z.string().min(3, { message: "Nama minimal 3 karakter." }).optional(),
