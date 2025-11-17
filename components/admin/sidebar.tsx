@@ -5,7 +5,7 @@ import { TooltipTrigger } from "@/components/ui/tooltip"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
-import { Home, Package, Folder, LineChart, Mail, Package2, LogOut, Moon, Sun, Settings, User, CreditCard, Bell } from "lucide-react"
+import { Home, Package, Folder, LineChart, Mail, Package2, LogOut, Moon, Sun, Settings, User, CreditCard, Bell, Users } from "lucide-react"
 import { useTheme } from "next-themes"
 import { motion } from "framer-motion"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -31,6 +31,10 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
     { href: "/admin/orders", label: "Pesanan", icon: CreditCard },
     { href: "/admin/articles", label: "Artikel", icon: LineChart },
     { href: "/admin/inquiries", label: "Pesan Masuk", icon: Mail },
+  ]
+
+  const adminNavItems = [
+    { href: "/admin/users", label: "Manajemen Pengguna", icon: Users },
   ]
 
   const isActive = (href: string) => pathname.startsWith(href) && (href !== "/admin" || pathname === "/admin")
@@ -110,6 +114,59 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
               )
             })}
           </TooltipProvider>
+
+          {session?.user?.role === 'ADMIN' && (
+            <>
+              <Separator className="my-2" />
+              <TooltipProvider delayDuration={0}>
+                {adminNavItems.map(({ href, icon: Icon, label }) => {
+                  const active = isActive(href)
+
+                  const navLink = (
+                    <Link
+                      href={href}
+                      className={cn(
+                        "group relative flex items-center rounded-xl px-2 py-2 transition-colors outline-none",
+                        isCollapsed ? "justify-center" : "gap-3",
+                        active ? "text-primary" : "text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {active && (
+                        <motion.span
+                          layoutId="sidebar-active-bg"
+                          className="absolute inset-0 rounded-xl border border-primary/30 bg-primary/10"
+                          transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                          aria-hidden="true"
+                        />
+                      )}
+
+                      <Icon className="relative z-10 size-4" />
+                      {!isCollapsed && <span className="relative z-10 text-sm font-medium">{label}</span>}
+
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "absolute left-0 h-6 w-[3px] rounded-full bg-primary transition-opacity",
+                          active ? "opacity-100" : "opacity-0 group-hover:opacity-40",
+                        )}
+                      />
+                    </Link>
+                  )
+
+                  if (!isCollapsed) {
+                    return <div key={href}>{navLink}</div>
+                  }
+
+                  return (
+                    <Tooltip key={href}>
+                      <TooltipTrigger asChild>{navLink}</TooltipTrigger>
+                      <TooltipContent side="right" sideOffset={8}>{label}</TooltipContent>
+                    </Tooltip>
+                  )
+                })}
+              </TooltipProvider>
+            </>
+          )}
         </nav>
       </div>
 
