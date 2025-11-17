@@ -91,3 +91,11 @@ export type OrderDetailItem = {
 export type OrderDetail = Omit<Order, 'items'> & {
   items: OrderDetailItem[];
 };
+
+export type ClientUser = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  role: 'ADMIN' | 'STAF';
+  emailVerified: Date | null;
+};
