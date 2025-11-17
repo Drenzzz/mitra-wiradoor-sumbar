@@ -61,3 +61,23 @@ export type Inquiry = {
   createdAt: Date;
 };
 
+export type OrderItem = {
+  id: string;
+  productName: string;
+  isReadyStock: boolean;
+  quantity: number;
+};
+
+export type Order = {
+  id: string;
+  invoiceNumber: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  customerAddress: string | null;
+  status: 'PENDING' | 'COMPLETED' | 'CANCELLED';
+  createdAt: Date;
+  updatedAt: Date;
+  
+  items: { productName: string }[];
+};
