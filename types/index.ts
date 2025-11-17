@@ -81,3 +81,13 @@ export type Order = {
   
   items: { productName: string }[];
 };
+
+export type OrderDetailItem = {
+  productName: string;
+  isReadyStock: boolean;
+  quantity: number;
+};
+
+export type OrderDetail = Omit<Order, 'items'> & {
+  items: OrderDetailItem[];
+};
