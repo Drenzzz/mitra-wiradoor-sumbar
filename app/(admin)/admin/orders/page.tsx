@@ -8,17 +8,80 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { OrderStatus } from "@prisma/client";
+import { toast } from 'sonner';
+
+import { useOrderManagement } from '@/hooks/use-order-management';
+import { OrderTable } from '@/components/admin/orders/order-table';
+import { OrderDetailDialog } from '@/components/admin/orders/order-detail-dialog';
+import type { Order, OrderDetail } from '@/types';
 
 export default function OrderManagementPage() {
-  const [activeTab, setActiveTab] = useState<OrderStatus>(OrderStatus.PENDING);
   
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('createdAt-desc');
+  const {
+    orders,
+    totalCount,
+    isLoading,
+    activeTab,
+    setActiveTab,
+    searchTerm,
+    setSearchTerm,
+    sortBy,
+    setSortBy,
+    currentPage,
+    setCurrentPage,
+    rowsPerPage,
+    fetchOrders,
+  } = useOrderManagement();
+  
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<OrderDetail | null>(null);
+  const [isDialogLoading, setIsDialogLoading] = useState(false);
 
-  const isLoading = true;
-  const orders = [];
-  const totalPages = 1;
-  const currentPage = 1;
+  const handleViewClick = async (order: Order) => {
+    setIsDialogLoading(true);
+    setIsDetailOpen(true);
+    setSelectedOrder(null);
+    
+    try {
+      const response = await fetch(`/api/orders/${order.id}`);
+      if (!response.ok) {
+        throw new Error('Gagal memuat detail pesanan.');
+      }
+      const detailedOrderData = await response.json();
+      setSelectedOrder(detailedOrderData);
+    } catch (error: any) {
+      toast.error(error.message);
+      setIsDetailOpen(false);
+    } finally {
+      setIsDialogLoading(false);
+    }
+  };
+
+  const handleStatusChange = async (id: string, status: OrderStatus) => {
+    toast.promise(
+      fetch(`/api/orders/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      }).then(async (res) => {
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || 'Gagal mengubah status');
+        }
+        return res.json();
+      }),
+      {
+        loading: 'Memperbarui status...',
+        success: () => {
+          fetchOrders();
+          return 'Status pesanan berhasil diperbarui!';
+        },
+        error: (err) => err.message,
+      }
+    );
+  };
+
+  const totalPages = Math.ceil(totalCount / rowsPerPage);
 
   const OrderListCard = ({ status }: { status: OrderStatus }) => {
     return (
@@ -50,6 +113,12 @@ export default function OrderManagementPage() {
           </div>
         </CardHeader>
         <CardContent>
+          <OrderTable
+            orders={orders}
+            isLoading={isLoading}
+            onViewClick={handleViewClick}
+            onStatusChange={handleStatusChange}
+          />
         </CardContent>
         {totalPages > 1 && (
           <CardFooter>
@@ -60,14 +129,16 @@ export default function OrderManagementPage() {
               <Button 
                 variant="outline" 
                 size="sm" 
-                disabled={true}
+                onClick={() => setCurrentPage(p => p - 1)}
+                disabled={currentPage <= 1 || isLoading}
               >
                 Sebelumnya
               </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
-                disabled={true}
+                onClick={() => setCurrentPage(p => p + 1)}
+                disabled={currentPage >= totalPages || isLoading}
               >
                 Selanjutnya
               </Button>
@@ -108,6 +179,13 @@ export default function OrderManagementPage() {
           <OrderListCard status={OrderStatus.CANCELLED} />
         </TabsContent>
       </Tabs>
+      
+      <OrderDetailDialog
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        order={selectedOrder}
+        isLoading={isDialogLoading}
+      />
     </PageWrapper>
   );
 }
