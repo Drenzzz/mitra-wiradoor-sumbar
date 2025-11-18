@@ -202,3 +202,33 @@ model OrderItem {
   @@index([orderId])
   @@index([productId])
 }
+
+// Model Portfolio
+model PortfolioItem {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  title        String    
+  description  String    
+  imageUrl     String    
+  projectDate  DateTime  
+  
+  portfolioCategoryId String?           @db.ObjectId
+  category            PortfolioCategory? @relation(fields: [portfolioCategoryId], references: [id])
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([portfolioCategoryId])
+}
+
+// Model Kategori Portofolio
+model PortfolioCategory {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  name           String    @unique
+  description    String?
+  
+  portfolioItems PortfolioItem[] 
+
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
