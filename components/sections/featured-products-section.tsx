@@ -1,54 +1,66 @@
-// components/sections/featured-products-section.tsx
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from 'next/link';
 import Image from 'next/image';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
+import { Product } from '@/types';
 
-// Data tiruan - nanti akan diganti dengan data dari API
-const featuredProducts = [
-  {
-    name: 'Pintu Solid Merbau',
-    category: 'Kayu Solid',
-    description: 'Sangat cocok untuk pintu utama, memberikan kesan kokoh dan mewah.',
-    imageUrl: 'https://images.pexels.com/photos/1954331/pexels-photo-1954331.jpeg?auto=compress&cs=tinysrgb&w=600',
-  },
-  {
-    name: 'Pintu Engineering PVC',
-    category: 'Kayu Engineering',
-    description: 'Pilihan modern untuk interior, tahan lama dan mudah perawatannya.',
-    imageUrl: 'https://images.pexels.com/photos/2089422/pexels-photo-2089422.jpeg?auto=compress&cs=tinysrgb&w=600',
-  },
-  {
-    name: 'Pintu Kaca French',
-    category: 'Desain Kustom',
-    description: 'Memberikan sentuhan elegan dan memaksimalkan cahaya alami.',
-    imageUrl: 'https://images.pexels.com/photos/3935329/pexels-photo-3935329.jpeg?auto=compress&cs=tinysrgb&w=600',
-  },
-];
+interface FeaturedProductsSectionProps {
+  products: Product[];
+}
 
-export function FeaturedProductsSection() {
+export function FeaturedProductsSection({ products }: FeaturedProductsSectionProps) {
   return (
     <section className="py-24 sm:py-32">
       <div className="container mx-auto px-4">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Produk Unggulan Kami</h2>
-          <p className="mt-4 text-lg leading-8 text-gray-600">
-            Beberapa pilihan terbaik yang paling diminati oleh pelanggan kami.
+        <div className="text-center max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Produk Terbaru Kami</h2>
+          <p className="mt-4 text-lg leading-8 text-muted-foreground">
+            Pilihan produk pintu terbaru dengan kualitas terbaik untuk hunian Anda.
           </p>
         </div>
-        <div className="mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredProducts.map((product) => (
-            <Card key={product.name} className="overflow-hidden">
-              <CardHeader>
-                <div className="relative h-60 w-full">
-                  <Image src={product.imageUrl} alt={product.name} layout="fill" objectFit="cover" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>{product.category}</CardDescription>
-                <CardTitle className="mt-1">{product.name}</CardTitle>
-                <p className="mt-2 text-sm text-muted-foreground">{product.description}</p>
-              </CardContent>
-            </Card>
-          ))}
+        
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {products.length > 0 ? (
+            products.map((product) => (
+              <Card key={product.id} className="overflow-hidden flex flex-col hover:shadow-lg transition-all">
+                <CardHeader className="p-0">
+                  <div className="relative h-64 w-full overflow-hidden">
+                    <Image 
+                      src={product.imageUrl} 
+                      alt={product.name} 
+                      fill 
+                      className="object-cover transition-transform duration-300 hover:scale-105" 
+                    />
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6 flex-grow">
+                  <CardDescription className="mb-2">{product.category.name}</CardDescription>
+                  <CardTitle className="text-xl mb-2 line-clamp-1">{product.name}</CardTitle>
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {product.description}
+                  </p>
+                </CardContent>
+                <CardFooter className="p-6 pt-0">
+                  <Button variant="outline" asChild className="w-full">
+                    <Link href={`/produk/${product.id}`}>
+                      Lihat Detail <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12 text-muted-foreground">
+              Belum ada produk yang ditampilkan.
+            </div>
+          )}
+        </div>
+
+        <div className="mt-12 text-center">
+          <Button size="lg" asChild>
+            <Link href="/produk">Lihat Semua Produk</Link>
+          </Button>
         </div>
       </div>
     </section>
