@@ -5,7 +5,7 @@ import { TooltipTrigger } from "@/components/ui/tooltip"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
-import { Home, Package, Folder, LineChart, Mail, Package2, LogOut, Moon, Sun, Settings, User, CreditCard, Bell, Users } from "lucide-react"
+import { Home, Package, Folder, LineChart, Mail, Package2, LogOut, Moon, Sun, Settings, User, CreditCard, Bell, Users, Briefcase } from "lucide-react"
 import { useTheme } from "next-themes"
 import { motion } from "framer-motion"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -29,6 +29,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
     { href: "/admin/products", label: "Produk", icon: Package },
     { href: "/admin/categories", label: "Kategori", icon: Folder },
     { href: "/admin/orders", label: "Pesanan", icon: CreditCard },
+    { href: "/admin/portfolio", label: "Portofolio", icon: Briefcase },
     { href: "/admin/articles", label: "Artikel", icon: LineChart },
     { href: "/admin/inquiries", label: "Pesan Masuk", icon: Mail },
   ]
