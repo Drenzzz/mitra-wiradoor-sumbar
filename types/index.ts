@@ -99,3 +99,26 @@ export type ClientUser = {
   role: 'ADMIN' | 'STAF';
   emailVerified: Date | null;
 };
+
+export type PortfolioCategory = {
+  id: string;
+  name: string;
+  description: string | null;
+  deletedAt: Date | null;
+};
+
+export type PortfolioItem = {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  projectDate: Date;
+  
+  portfolioCategoryId: string | null;
+  category: {
+    name: string;
+  } | null;
+  
+  createdAt: Date;
+  updatedAt: Date;
+};
