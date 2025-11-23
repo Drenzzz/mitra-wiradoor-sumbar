@@ -161,9 +161,11 @@ enum ArticleStatus {
 }
 
 enum OrderStatus {
-  PENDING  
+  PENDING
+  PROCESSED
+  SHIPPED
   COMPLETED
-  CANCELLED 
+  CANCELLED
 }
 
 // Model Order (Transaksi)
@@ -177,7 +179,7 @@ model Order {
   customerAddress String?
 
   status        OrderStatus @default(PENDING)
-  
+  dealPrice       Float?
   items         OrderItem[] 
 
   createdAt     DateTime    @default(now())
