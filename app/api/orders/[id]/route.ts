@@ -2,12 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { OrderStatus } from "@prisma/client";
-import * as orderService from "@/lib/services/order.service"; 
+import * as orderService from "@/lib/services/order.service";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> } 
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
@@ -23,26 +20,16 @@ export async function GET(
     }
 
     return NextResponse.json(order);
-
   } catch (error: any) {
     console.error("Error fetching order detail:", error);
     if (error.message.includes("Format Order ID tidak valid")) {
-       return NextResponse.json(
-        { error: "Format ID Pesanan tidak valid." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Format ID Pesanan tidak valid." }, { status: 400 });
     }
-    return NextResponse.json(
-      { error: "Terjadi kesalahan pada server." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Terjadi kesalahan pada server." }, { status: 500 });
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> } 
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
@@ -51,32 +38,31 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { status } = body;
+    const { status, dealPrice } = body;
 
     if (!status || !Object.values(OrderStatus).includes(status)) {
-      return NextResponse.json(
-        { error: `Status tidak valid. Gunakan: PENDING, COMPLETED, atau CANCELLED.` },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Status tidak valid." }, { status: 400 });
     }
 
-    const updatedOrder = await orderService.updateOrderStatus(id, status);
+    if (status === "PROCESSED" && (dealPrice === undefined || dealPrice === null)) {
+      return NextResponse.json({ error: "Harga kesepakatan wajib diisi untuk memproses pesanan." }, { status: 400 });
+    }
+
+    const updateData: any = { status };
+    if (dealPrice !== undefined && dealPrice !== null) {
+      updateData.dealPrice = parseFloat(dealPrice);
+    }
+
+    const updatedOrder = await orderService.updateOrder(id, updateData);
 
     return NextResponse.json(updatedOrder);
-
   } catch (error: any) {
-    console.error("Error updating order status:", error);
-    
-    if (error.code === 'P2025' || error.message.includes("Format Order ID tidak valid")) {
-       return NextResponse.json(
-        { error: "Pesanan tidak ditemukan atau ID tidak valid." },
-        { status: 404 }
-      );
+    console.error("Error updating order:", error);
+
+    if (error.code === "P2025" || error.message.includes("Format Order ID tidak valid")) {
+      return NextResponse.json({ error: "Pesanan tidak ditemukan atau ID tidak valid." }, { status: 404 });
     }
 
-    return NextResponse.json(
-      { error: "Terjadi kesalahan pada server." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Terjadi kesalahan pada server." }, { status: 500 });
   }
 }

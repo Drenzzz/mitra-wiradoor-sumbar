@@ -15,10 +15,10 @@ export const getOrderById = (id: string) => {
         select: {
           productName: true,
           isReadyStock: true,
-          quantity: true
-        }
-      }
-    }
+          quantity: true,
+        },
+      },
+    },
   });
 };
 
@@ -35,20 +35,16 @@ export const getOrders = async (options: GetOrdersOptions = {}) => {
   const skip = (page - 1) * limit;
 
   const whereClause: Prisma.OrderWhereInput = {};
-  
+
   if (status) {
     whereClause.status = status;
   }
 
   if (search) {
-    whereClause.OR = [
-      { customerName: { contains: search, mode: 'insensitive' } },
-      { customerEmail: { contains: search, mode: 'insensitive' } },
-      { invoiceNumber: { contains: search, mode: 'insensitive' } },
-    ];
+    whereClause.OR = [{ customerName: { contains: search, mode: "insensitive" } }, { customerEmail: { contains: search, mode: "insensitive" } }, { invoiceNumber: { contains: search, mode: "insensitive" } }];
   }
 
-  const [sortField, sortOrder] = sort?.split('-') || ['createdAt', 'desc'];
+  const [sortField, sortOrder] = sort?.split("-") || ["createdAt", "desc"];
   const orderByClause = { [sortField]: sortOrder };
 
   const [orders, totalCount] = await prisma.$transaction([
@@ -56,9 +52,9 @@ export const getOrders = async (options: GetOrdersOptions = {}) => {
       where: whereClause,
       include: {
         items: {
-          take: 1, 
-          select: { productName: true }
-        }
+          take: 1,
+          select: { productName: true },
+        },
       },
       orderBy: orderByClause,
       skip,
@@ -70,7 +66,7 @@ export const getOrders = async (options: GetOrdersOptions = {}) => {
   return { data: orders, totalCount };
 };
 
-export const updateOrderStatus = (id: string, status: OrderStatus) => {
+export const updateOrder = (id: string, data: Prisma.OrderUpdateInput) => {
   const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(id);
   if (!isValidObjectId) {
     throw new Error("Format Order ID tidak valid.");
@@ -78,6 +74,6 @@ export const updateOrderStatus = (id: string, status: OrderStatus) => {
 
   return prisma.order.update({
     where: { id: id },
-    data: { status: status },
+    data: data,
   });
 };
