@@ -102,6 +102,7 @@ model Inquiry {
   id          String        @id @default(auto()) @map("_id") @db.ObjectId
   senderName  String
   senderEmail String
+  senderPhone String?
   subject     String
   message     String
   status      InquiryStatus @default(NEW)

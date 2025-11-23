@@ -1,17 +1,20 @@
-import * as z from 'zod';
+import * as z from "zod";
 
 export const inquirySchema = z.object({
-  senderName: z.string().min(3, { 
-    message: "Nama pengirim minimal 3 karakter." 
+  senderName: z.string().min(3, {
+    message: "Nama pengirim minimal 3 karakter.",
   }),
-  senderEmail: z.string().email({ 
-    message: "Format email tidak valid." 
+  senderEmail: z.string().email({
+    message: "Format email tidak valid.",
   }),
-  subject: z.string().min(5, { 
-    message: "Subjek minimal 5 karakter." 
+  senderPhone: z.string().min(10, {
+    message: "Nomor WhatsApp minimal 10 karakter.",
   }),
-  message: z.string().min(10, { 
-    message: "Pesan minimal 10 karakter." 
+  subject: z.string().min(5, {
+    message: "Subjek minimal 5 karakter.",
+  }),
+  message: z.string().min(10, {
+    message: "Pesan minimal 10 karakter.",
   }),
 });
 

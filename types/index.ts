@@ -55,6 +55,7 @@ export type Inquiry = {
   id: string;
   senderName: string;
   senderEmail: string;
+  senderPhone: string | null;
   subject: string;
   message: string;
   status: "NEW" | "READ" | "REPLIED";
