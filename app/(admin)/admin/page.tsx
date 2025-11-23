@@ -1,33 +1,62 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Folder, LineChart, Mail } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Package, Folder, LineChart, Mail, DollarSign, ShoppingBag, TrendingUp, Activity } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { toast } from "sonner";
 
-type Stats = {
-  products: number;
-  categories: number;
-  articles: number;
-  inquiries: number;
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
+
+const STATUS_LABELS: Record<string, string> = {
+  PENDING: "Menunggu",
+  PROCESSED: "Diproses",
+  SHIPPED: "Dikirim",
+  COMPLETED: "Selesai",
+  CANCELLED: "Batal",
+};
+
+type DashboardData = {
+  counts: {
+    products: number;
+    categories: number;
+    articles: number;
+    inquiries: number;
+  };
+  revenue: {
+    total: number;
+  };
+  charts: {
+    orderStatus: { status: string; count: number }[];
+    salesTrend: { name: string; total: number }[];
+  };
 };
 
 export default function DashboardPage() {
   const { data: session } = useSession();
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('/api/admin/stats');
-        if (!response.ok) throw new Error('Gagal memuat data');
-        const data = await response.json();
-        setStats(data);
+        const response = await fetch("/api/admin/stats");
+        if (!response.ok) throw new Error("Gagal memuat data dashboard");
+        const jsonData = await response.json();
+        setData(jsonData);
       } catch (error) {
         console.error(error);
+        toast.error("Gagal memuat data statistik.");
       } finally {
         setIsLoading(false);
       }
@@ -35,71 +64,122 @@ export default function DashboardPage() {
     fetchStats();
   }, []);
 
-  const statItems = [
+  if (isLoading) {
+    return (
+      <div className="p-8 flex items-center justify-center h-full">
+        <p className="text-muted-foreground animate-pulse">Memuat dashboard...</p>
+      </div>
+    );
+  }
+
+  if (!data) return null;
+
+  const statCards = [
     {
-      title: "Produk Aktif",
-      count: stats?.products,
-      icon: <Package className="h-4 w-4 text-muted-foreground" />,
-      link: "/admin/products"
+      title: "Total Pendapatan",
+      value: formatCurrency(data.revenue.total),
+      description: "Dari semua pesanan selesai",
+      icon: <DollarSign className="h-4 w-4 text-green-600" />,
     },
     {
-      title: "Kategori",
-      count: stats?.categories,
-      icon: <Folder className="h-4 w-4 text-muted-foreground" />,
-      link: "/admin/categories"
+      title: "Produk Aktif",
+      value: data.counts.products,
+      description: "Total produk di katalog",
+      icon: <Package className="h-4 w-4 text-blue-600" />,
+    },
+    {
+      title: "Pesan Masuk",
+      value: data.counts.inquiries,
+      description: "Inquiry baru belum dibaca",
+      icon: <Mail className="h-4 w-4 text-orange-600" />,
     },
     {
       title: "Artikel Terbit",
-      count: stats?.articles,
-      icon: <LineChart className="h-4 w-4 text-muted-foreground" />,
-      link: "/admin/articles"
-    },
-    {
-      title: "Pesan Baru",
-      count: stats?.inquiries,
-      icon: <Mail className="h-4 w-4 text-muted-foreground" />,
-      link: "/admin/inquiries"
+      value: data.counts.articles,
+      description: "Konten blog aktif",
+      icon: <LineChart className="h-4 w-4 text-purple-600" />,
     },
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Selamat datang kembali, {session?.user?.name || 'Admin'}! Berikut ringkasan aktivitas website Anda.
-        </p>
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground">Selamat datang kembali, {session?.user?.name || "Admin"}! Berikut ringkasan performa bisnis Anda.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {isLoading ? (
-          Array.from({ length: 4 }).map((_, index) => (
-            <Card key={index} className="animate-pulse">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <div className="h-4 bg-muted rounded w-2/3"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="h-8 bg-muted rounded w-1/4"></div>
-              </CardContent>
-            </Card>
-          ))
-        ) : (
-          statItems.map((item) => (
-            <Link href={item.link} key={item.title}>
-              <Card className="hover:bg-muted/50 transition-colors">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{item.title}</CardTitle>
-                  {item.icon}
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{item.count ?? 0}</div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))
-        )}
+        {statCards.map((item, index) => (
+          <Card key={index}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{item.title}</CardTitle>
+              {item.icon}
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{item.value}</div>
+              <p className="text-xs text-muted-foreground">{item.description}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-4">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Tren Penjualan
+            </CardTitle>
+            <CardDescription>Pendapatan kotor selama 6 bulan terakhir.</CardDescription>
+          </CardHeader>
+          <CardContent className="pl-2">
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data.charts.salesTrend}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `Rp${value / 1000}k`} />
+                  <Tooltip formatter={(value: number) => formatCurrency(value)} contentStyle={{ backgroundColor: "var(--background)", borderColor: "var(--border)" }} itemStyle={{ color: "var(--foreground)" }} />
+                  <Bar dataKey="total" fill="var(--primary)" radius={[4, 4, 0, 0]} name="Pendapatan" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-3">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5" />
+              Status Pesanan
+            </CardTitle>
+            <CardDescription>Distribusi pesanan berdasarkan status saat ini.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px] w-full flex items-center justify-center">
+              {data.charts.orderStatus.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={data.charts.orderStatus} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="count">
+                      {data.charts.orderStatus.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: number, name: string) => [value, STATUS_LABELS[name] || name]}
+                      contentStyle={{ backgroundColor: "var(--background)", borderColor: "var(--border)" }}
+                      itemStyle={{ color: "var(--foreground)" }}
+                    />
+                    <Legend formatter={(value) => STATUS_LABELS[value] || value} layout="horizontal" verticalAlign="bottom" align="center" />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="text-muted-foreground text-sm text-center">Belum ada data pesanan.</div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
