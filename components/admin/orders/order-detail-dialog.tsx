@@ -1,24 +1,33 @@
-'use client';
+"use client";
 
-import { OrderDetail } from '@/types'; 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { OrderStatus } from '@prisma/client';
-import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
+import { OrderDetail } from "@/types";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { OrderStatus } from "@prisma/client";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
-const formatDate = (dateString: Date) => 
-  new Date(dateString).toLocaleDateString('id-ID', { 
-    day: '2-digit', month: 'long', year: 'numeric',
-    hour: '2-digit', minute: '2-digit'
+const formatDate = (dateString: Date) =>
+  new Date(dateString).toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 
-const statusVariantMap: Record<OrderStatus, "default" | "secondary" | "destructive"> = {
-  PENDING: "default",
-  COMPLETED: "secondary",
-  CANCELLED: "destructive",
+const formatCurrency = (amount: number | null) => {
+  if (amount === null || amount === undefined) return "-";
+  return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(amount);
 };
 
+const statusVariantMap: Record<OrderStatus, "default" | "secondary" | "destructive" | "outline"> = {
+  PENDING: "outline",
+  PROCESSED: "default",
+  SHIPPED: "secondary",
+  COMPLETED: "default",
+  CANCELLED: "destructive",
+};
 
 interface OrderDetailDialogProps {
   order: OrderDetail | null;
@@ -41,25 +50,28 @@ export function OrderDetailDialog({ order, isOpen, onClose, isLoading }: OrderDe
         </DialogHeader>
 
         <div className="py-4 space-y-6 max-h-[70vh] overflow-y-auto pr-4">
-          
           {isLoading || !order ? (
             <div className="flex justify-center items-center h-64">
               <p className="text-muted-foreground">Memuat detail pesanan...</p>
             </div>
           ) : (
             <>
-              <div className="flex items-center gap-4 text-sm">
-                <Badge 
-                  variant={statusVariantMap[order.status]} 
-                  className={cn('text-base px-3 py-1', order.status === 'PENDING' && 'animate-pulse')}
-                >
-                  {order.status}
-                </Badge>
-                <span className="text-muted-foreground">
-                  Dibuat pada: {formatDate(order.createdAt)}
-                </span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4 text-sm">
+                  <Badge variant={statusVariantMap[order.status as OrderStatus]} className={cn("text-base px-3 py-1", order.status === "PENDING" && "animate-pulse")}>
+                    {order.status}
+                  </Badge>
+                  <span className="text-muted-foreground">{formatDate(order.createdAt)}</span>
+                </div>
+
+                {order.dealPrice && (
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">Harga Kesepakatan</p>
+                    <p className="text-lg font-bold text-green-600">{formatCurrency(order.dealPrice)}</p>
+                  </div>
+                )}
               </div>
-              
+
               <Separator />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -71,9 +83,7 @@ export function OrderDetailDialog({ order, isOpen, onClose, isLoading }: OrderDe
                 </div>
                 <div className="space-y-2">
                   <h3 className="font-semibold text-muted-foreground">Alamat Pengiriman</h3>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                    {order.customerAddress || 'Tidak ada alamat'}
-                  </p>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{order.customerAddress || "Tidak ada alamat"}</p>
                 </div>
               </div>
 
@@ -88,16 +98,13 @@ export function OrderDetailDialog({ order, isOpen, onClose, isLoading }: OrderDe
                         <p className="font-medium">{item.productName}</p>
                         <p className="text-sm text-muted-foreground">Kuantitas: {item.quantity}</p>
                       </div>
-                      <Badge variant={item.isReadyStock ? 'default' : 'secondary'}>
-                        {item.isReadyStock ? 'Ready Stock' : 'Kustom'}
-                      </Badge>
+                      <Badge variant={item.isReadyStock ? "default" : "secondary"}>{item.isReadyStock ? "Ready Stock" : "Kustom"}</Badge>
                     </div>
                   ))}
                 </div>
               </div>
             </>
-          )} 
-          
+          )}
         </div>
       </DialogContent>
     </Dialog>

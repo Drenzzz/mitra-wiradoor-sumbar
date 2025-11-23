@@ -36,11 +36,11 @@ export type Article = {
   slug: string;
   content: string;
   featuredImageUrl: string;
-  status: 'PUBLISHED' | 'DRAFT';
+  status: "PUBLISHED" | "DRAFT";
   deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
-  
+
   categoryId: string;
   category: {
     name: string;
@@ -57,7 +57,7 @@ export type Inquiry = {
   senderEmail: string;
   subject: string;
   message: string;
-  status: 'NEW' | 'READ' | 'REPLIED';
+  status: "NEW" | "READ" | "REPLIED";
   createdAt: Date;
 };
 
@@ -75,10 +75,10 @@ export type Order = {
   customerEmail: string;
   customerPhone: string;
   customerAddress: string | null;
-  status: 'PENDING' | 'COMPLETED' | 'CANCELLED';
+  status: "PENDING" | "PROCESSED" | "SHIPPED" | "COMPLETED" | "CANCELLED";
   createdAt: Date;
   updatedAt: Date;
-  
+  dealPrice: number | null;
   items: { productName: string }[];
 };
 
@@ -88,7 +88,7 @@ export type OrderDetailItem = {
   quantity: number;
 };
 
-export type OrderDetail = Omit<Order, 'items'> & {
+export type OrderDetail = Omit<Order, "items"> & {
   items: OrderDetailItem[];
 };
 
@@ -96,7 +96,7 @@ export type ClientUser = {
   id: string;
   name: string | null;
   email: string | null;
-  role: 'ADMIN' | 'STAF';
+  role: "ADMIN" | "STAF";
   emailVerified: Date | null;
 };
 
@@ -113,12 +113,12 @@ export type PortfolioItem = {
   description: string;
   imageUrl: string;
   projectDate: Date;
-  
+
   portfolioCategoryId: string | null;
   category: {
     name: string;
   } | null;
-  
+
   createdAt: Date;
   updatedAt: Date;
 };
