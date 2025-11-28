@@ -1,11 +1,9 @@
 "use client";
 
-import { TooltipTrigger } from "@/components/ui/tooltip";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { Home, Package, Folder, LineChart, Mail, Package2, LogOut, Moon, Sun, Settings, User, CreditCard, Bell, Users, Briefcase } from "lucide-react";
+import { Home, Package, Folder, LineChart, Mail, Package2, LogOut, Moon, Sun, Settings, User, CreditCard, Users, Briefcase } from "lucide-react";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -13,18 +11,16 @@ import { Separator } from "@/components/ui/separator";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePermission } from "@/hooks/use-permission";
+import { useSidebar } from "@/hooks/use-sidebar";
 
-interface SidebarProps {
-  isCollapsed: boolean;
-}
-
-export function Sidebar({ isCollapsed }: SidebarProps) {
+export function Sidebar() {
   const pathname = usePathname();
   const { resolvedTheme, setTheme } = useTheme();
   const { data: session } = useSession();
   const { can } = usePermission();
+  const { isCollapsed } = useSidebar();
 
   const navItems = [
     { href: "/admin", label: "Dashboard", icon: Home, permission: "dashboard:view" },
