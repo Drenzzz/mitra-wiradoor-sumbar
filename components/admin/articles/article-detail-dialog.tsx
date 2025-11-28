@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { Article } from '@/types';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import Image from 'next/image';
-import { Badge } from '@/components/ui/badge';
+import { Article } from "@/types";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
 
 interface ArticleDetailDialogProps {
   article: Article | null;
@@ -14,7 +14,7 @@ interface ArticleDetailDialogProps {
 export function ArticleDetailDialog({ article, isOpen, onClose }: ArticleDetailDialogProps) {
   if (!article) return null;
 
-  const formatDate = (dateString: Date) => new Date(dateString).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+  const formatDate = (dateString: Date) => new Date(dateString).toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -30,9 +30,9 @@ export function ArticleDetailDialog({ article, isOpen, onClose }: ArticleDetailD
             <div className="relative aspect-video">
               <Image src={article.featuredImageUrl} alt={article.title} fill className="rounded-md object-cover" />
             </div>
-             <div>
+            <div>
               <h3 className="font-semibold text-sm mb-1">Status</h3>
-              <Badge variant={article.status === 'PUBLISHED' ? 'default' : 'secondary'}>{article.status}</Badge>
+              <Badge variant={article.status === "PUBLISHED" ? "default" : "secondary"}>{article.status}</Badge>
             </div>
             <div>
               <h3 className="font-semibold text-sm mb-1">Penulis</h3>
@@ -45,9 +45,7 @@ export function ArticleDetailDialog({ article, isOpen, onClose }: ArticleDetailD
           </div>
           <div className="md:col-span-2">
             <h3 className="font-semibold text-lg mb-2">Konten Artikel</h3>
-            <div className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
-              {article.content}
-            </div>
+            <div className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">{article.content}</div>
           </div>
         </div>
       </DialogContent>

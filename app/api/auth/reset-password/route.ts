@@ -8,10 +8,7 @@ export async function POST(request: Request) {
   try {
     const { token, password } = await request.json();
 
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(token)
-      .digest("hex");
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
     const user = await prisma.user.findFirst({
       where: {
@@ -36,7 +33,6 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ message: "Password berhasil direset." });
-
   } catch (error) {
     return NextResponse.json({ error: "Terjadi kesalahan pada server." }, { status: 500 });
   }

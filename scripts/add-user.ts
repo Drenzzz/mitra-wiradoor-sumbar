@@ -1,5 +1,5 @@
-import { PrismaClient, Role } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import { PrismaClient, Role } from "@prisma/client";
+import * as bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
@@ -11,8 +11,8 @@ async function main() {
   const role = args[3] as Role;
 
   if (!email || !password || !name || !role) {
-    console.error("Penggunaan: pnpm db:adduser <email> \"<nama lengkap>\" <password> <ROLE>");
-    console.error("Contoh: pnpm db:adduser test@example.com \"Test User\" password123 STAF");
+    console.error('Penggunaan: pnpm db:adduser <email> "<nama lengkap>" <password> <ROLE>');
+    console.error('Contoh: pnpm db:adduser test@example.com "Test User" password123 STAF');
     console.error("PENTING: Gunakan tanda kutip untuk nama jika mengandung spasi.");
     process.exit(1);
   }
@@ -35,9 +35,9 @@ async function main() {
         role,
       },
     });
-    console.log('Pengguna baru berhasil ditambahkan:', { id: newUser.id, email: newUser.email, role: newUser.role });
+    console.log("Pengguna baru berhasil ditambahkan:", { id: newUser.id, email: newUser.email, role: newUser.role });
   } catch (e: any) {
-    if (e.code === 'P2002') { // Kode error Prisma untuk unique constraint violation
+    if (e.code === "P2002") {
       console.error(`\nError: Email "${email}" sudah terdaftar di database.`);
     } else {
       console.error("\nTerjadi kesalahan:", e);

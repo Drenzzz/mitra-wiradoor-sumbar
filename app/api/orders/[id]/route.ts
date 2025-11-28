@@ -4,46 +4,40 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as articleService from "@/lib/services/article.service";
 import { hasPermission } from "@/lib/config/permissions";
 
-export async function GET(
-  request: Request,
-  context: { params: Promise<{ id: string }> }
-) { 
-    try {
-        const article = await articleService.getArticleById((await context.params).id);
-        if (!article) {
-            return NextResponse.json({ error: "Artikel tidak ditemukan" }, { status: 404 });
-        }
-        return NextResponse.json(article);
-    } catch (error) {
-        return NextResponse.json({ error: "Gagal mengambil data artikel" }, { status: 500 });
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
+  try {
+    const article = await articleService.getArticleById((await context.params).id);
+    if (!article) {
+      return NextResponse.json({ error: "Artikel tidak ditemukan" }, { status: 404 });
     }
+    return NextResponse.json(article);
+  } catch (error) {
+    return NextResponse.json({ error: "Gagal mengambil data artikel" }, { status: 500 });
+  }
 }
 
-export async function PATCH(
-  request: Request,
-  context: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
-  if (!hasPermission(session.user.role, 'article:edit')) {
+  if (!hasPermission(session.user.role, "article:edit")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
     const { id } = await context.params;
     const body = await request.json();
-    
-    if (body.action === 'restore') {
-        if (!hasPermission(session.user.role, 'article:delete')) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-        await articleService.restoreArticleById(id);
-        return NextResponse.json({ message: "Artikel berhasil dipulihkan" });
+
+    if (body.action === "restore") {
+      if (!hasPermission(session.user.role, "article:delete")) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+      await articleService.restoreArticleById(id);
+      return NextResponse.json({ message: "Artikel berhasil dipulihkan" });
     }
 
-    if (body.status === 'PUBLISHED' && !hasPermission(session.user.role, 'article:publish')) {
-        return NextResponse.json({ error: "Anda tidak memiliki izin untuk mempublikasikan artikel." }, { status: 403 });
+    if (body.status === "PUBLISHED" && !hasPermission(session.user.role, "article:publish")) {
+      return NextResponse.json({ error: "Anda tidak memiliki izin untuk mempublikasikan artikel." }, { status: 403 });
     }
 
     const updatedArticle = await articleService.updateArticleById(id, body);
@@ -53,22 +47,19 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
-  if (!hasPermission(session.user.role, 'article:delete')) {
+  if (!hasPermission(session.user.role, "article:delete")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
     const { searchParams } = new URL(request.url);
-    const force = searchParams.get('force') === 'true';
+    const force = searchParams.get("force") === "true";
     const { id } = await context.params;
-    
+
     if (force) {
       await articleService.permanentDeleteArticleById(id);
       return NextResponse.json({ message: "Artikel berhasil dihapus permanen" });

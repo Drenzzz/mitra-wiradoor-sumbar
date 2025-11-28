@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ImageUploader } from '@/components/admin/products/image-uploader';
-import { portfolioItemSchema, PortfolioItemFormValues } from '@/lib/validations/portfolio.schema';
-import { PortfolioItem, PortfolioCategory } from '@/types';
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ImageUploader } from "@/components/admin/products/image-uploader";
+import { portfolioItemSchema, PortfolioItemFormValues } from "@/lib/validations/portfolio.schema";
+import { PortfolioItem, PortfolioCategory } from "@/types";
 
 interface EditPortfolioDialogProps {
   item: PortfolioItem | null;
@@ -34,7 +34,7 @@ export function EditPortfolioDialog({ item, categories, isOpen, onClose, onSucce
         description: item.description,
         imageUrl: item.imageUrl,
         projectDate: new Date(item.projectDate),
-        portfolioCategoryId: item.portfolioCategoryId || '',
+        portfolioCategoryId: item.portfolioCategoryId || "",
       });
     }
   }, [item, isOpen, form]);
@@ -44,22 +44,22 @@ export function EditPortfolioDialog({ item, categories, isOpen, onClose, onSucce
 
     toast.promise(
       fetch(`/api/portfolio/${item.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
-      }).then(async res => {
+      }).then(async (res) => {
         if (!res.ok) {
           const errorData = await res.json();
-          throw new Error(errorData.error || 'Gagal memperbarui portofolio');
+          throw new Error(errorData.error || "Gagal memperbarui portofolio");
         }
         return res.json();
       }),
       {
-        loading: 'Memperbarui...',
+        loading: "Memperbarui...",
         success: () => {
           onSuccess();
           onClose();
-          return 'Portofolio berhasil diperbarui!';
+          return "Portofolio berhasil diperbarui!";
         },
         error: (err: Error) => err.message,
       }
@@ -81,47 +81,52 @@ export function EditPortfolioDialog({ item, categories, isOpen, onClose, onSucce
                 <FormItem>
                   <FormLabel>Foto Proyek</FormLabel>
                   <FormControl>
-                    <ImageUploader 
-                      onUploadSuccess={(url) => form.setValue('imageUrl', url, { shouldValidate: true })}
-                      initialImageUrl={field.value}
-                    />
+                    <ImageUploader onUploadSuccess={(url) => form.setValue("imageUrl", url, { shouldValidate: true })} initialImageUrl={field.value} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
+              <FormField
                 control={form.control}
                 name="title"
                 render={({ field }) => (
-                    <FormItem>
+                  <FormItem>
                     <FormLabel>Judul Proyek</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
                     <FormMessage />
-                    </FormItem>
+                  </FormItem>
                 )}
-                />
+              />
 
-                <FormField
+              <FormField
                 control={form.control}
                 name="portfolioCategoryId"
                 render={({ field }) => (
-                    <FormItem>
+                  <FormItem>
                     <FormLabel>Kategori</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value || ''}>
-                        <FormControl><SelectTrigger><SelectValue placeholder="Pilih kategori" /></SelectTrigger></FormControl>
-                        <SelectContent>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih kategori" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
                         {categories.map((cat) => (
-                            <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                          <SelectItem key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </SelectItem>
                         ))}
-                        </SelectContent>
+                      </SelectContent>
                     </Select>
                     <FormMessage />
-                    </FormItem>
+                  </FormItem>
                 )}
-                />
+              />
             </div>
 
             <FormField
@@ -131,11 +136,7 @@ export function EditPortfolioDialog({ item, categories, isOpen, onClose, onSucce
                 <FormItem>
                   <FormLabel>Tanggal Pengerjaan</FormLabel>
                   <FormControl>
-                      <Input 
-                        type="date" 
-                        value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : ''}
-                        onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
-                      />
+                    <Input type="date" value={field.value instanceof Date ? field.value.toISOString().split("T")[0] : ""} onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -148,15 +149,21 @@ export function EditPortfolioDialog({ item, categories, isOpen, onClose, onSucce
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Deskripsi</FormLabel>
-                  <FormControl><Textarea {...field} /></FormControl>
+                  <FormControl>
+                    <Textarea {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>Batal</Button>
-              <Button type="submit" disabled={form.formState.isSubmitting}>Simpan Perubahan</Button>
+              <Button type="button" variant="outline" onClick={onClose}>
+                Batal
+              </Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                Simpan Perubahan
+              </Button>
             </DialogFooter>
           </form>
         </Form>

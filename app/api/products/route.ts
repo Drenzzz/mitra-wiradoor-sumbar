@@ -26,21 +26,21 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     const { searchParams } = new URL(request.url);
-    const statusParam = searchParams.get('status');
-    let status: 'active' | 'trashed' | undefined = 'active';
-    if (session?.user && ['active', 'trashed'].includes(statusParam || '')) {
-        status = statusParam as 'active' | 'trashed';
+    const statusParam = searchParams.get("status");
+    let status: "active" | "trashed" | undefined = "active";
+    if (session?.user && ["active", "trashed"].includes(statusParam || "")) {
+      status = statusParam as "active" | "trashed";
     }
 
     const options = {
       status,
-      search: searchParams.get('search') || undefined,
-      sort: searchParams.get('sort') || undefined,
-      page: parseInt(searchParams.get('page') || '1', 10),
-      limit: parseInt(searchParams.get('limit') || '10', 10),
-      categoryId: searchParams.get('categoryId') || undefined, // ✅ Teruskan categoryId ke service
+      search: searchParams.get("search") || undefined,
+      sort: searchParams.get("sort") || undefined,
+      page: parseInt(searchParams.get("page") || "1", 10),
+      limit: parseInt(searchParams.get("limit") || "10", 10),
+      categoryId: searchParams.get("categoryId") || undefined, // ✅ Teruskan categoryId ke service
     };
-    
+
     const result = await productService.getProducts(options);
     return NextResponse.json(result);
   } catch (error) {

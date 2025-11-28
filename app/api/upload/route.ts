@@ -48,9 +48,8 @@ export async function POST(request: Request) {
       readableStream.push(null);
       readableStream.pipe(uploadStream);
     });
-    
-    return NextResponse.json({ url: (uploadResult as any).secure_url });
 
+    return NextResponse.json({ url: (uploadResult as any).secure_url });
   } catch (error) {
     console.error("Error uploading image:", error);
     return NextResponse.json({ error: "Failed to upload image" }, { status: 500 });

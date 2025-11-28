@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import type { InquiryFormValues } from "@/lib/validations/inquiry.schema";
-import { Prisma, InquiryStatus } from '@prisma/client';
+import { Prisma, InquiryStatus } from "@prisma/client";
 
 export type GetInquiriesOptions = {
   status?: InquiryStatus;
@@ -27,14 +27,10 @@ export const getInquiries = async (options: GetInquiriesOptions = {}) => {
     whereClause.status = status;
   }
   if (search) {
-    whereClause.OR = [
-      { senderName: { contains: search, mode: 'insensitive' } },
-      { senderEmail: { contains: search, mode: 'insensitive' } },
-      { subject: { contains: search, mode: 'insensitive' } },
-    ];
+    whereClause.OR = [{ senderName: { contains: search, mode: "insensitive" } }, { senderEmail: { contains: search, mode: "insensitive" } }, { subject: { contains: search, mode: "insensitive" } }];
   }
 
-  const [sortField, sortOrder] = sort?.split('-') || ['createdAt', 'desc'];
+  const [sortField, sortOrder] = sort?.split("-") || ["createdAt", "desc"];
   const orderByClause = { [sortField]: sortOrder };
 
   const [inquiries, totalCount] = await prisma.$transaction([

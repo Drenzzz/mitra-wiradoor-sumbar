@@ -1,8 +1,8 @@
-import Image from 'next/image';
-import Link from 'next/link';
+import Image from "next/image";
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 interface ProductCardProps {
   imageUrl: string;
@@ -17,13 +17,7 @@ export function ProductCard({ imageUrl, category, name, description, slug }: Pro
     <Card className="overflow-hidden flex flex-col">
       <CardHeader className="p-0">
         <Link href={`/produk/${slug}`} className="block aspect-square relative w-full overflow-hidden">
-          <Image
-            src={imageUrl}
-            alt={name}
-            fill
-            className="object-cover transition-transform duration-300 hover:scale-105"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          />
+          <Image src={imageUrl} alt={name} fill className="object-cover transition-transform duration-300 hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
         </Link>
       </CardHeader>
       <CardContent className="p-4 flex-grow">
@@ -34,9 +28,7 @@ export function ProductCard({ imageUrl, category, name, description, slug }: Pro
             {name}
           </Link>
         </CardTitle>
-        <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
-          {description}
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{description}</p>
       </CardContent>
       <CardFooter className="p-4 pt-0">
         <Button variant="outline" asChild className="w-full">

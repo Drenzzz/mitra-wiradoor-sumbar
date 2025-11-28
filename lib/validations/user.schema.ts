@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { Role } from '@prisma/client';
+import { z } from "zod";
+import { Role } from "@prisma/client";
 
 export const userCreateSchema = z.object({
   name: z.string().min(3, { message: "Nama minimal 3 karakter." }),
@@ -14,9 +14,12 @@ export type UserCreateFormInput = z.input<typeof userCreateSchema>;
 export const userUpdateSchema = z.object({
   name: z.string().min(3, { message: "Nama minimal 3 karakter." }).optional(),
   email: z.string().email({ message: "Email tidak valid." }).optional(),
-  password: z.string().refine(val => val === "" || val.length >= 8, {
-    message: "Password baru minimal 8 karakter (atau biarkan kosong)."
-  }).optional(),
+  password: z
+    .string()
+    .refine((val) => val === "" || val.length >= 8, {
+      message: "Password baru minimal 8 karakter (atau biarkan kosong).",
+    })
+    .optional(),
   role: z.nativeEnum(Role).optional(),
 });
 

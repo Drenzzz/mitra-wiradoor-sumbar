@@ -67,13 +67,13 @@ export function EditProductDialog({ product, isOpen, onClose, onSuccess }: EditP
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Edit Produk</DialogTitle>
-          <DialogDescription>
-            Ubah detail produk di bawah ini.
-          </DialogDescription>
+          <DialogDescription>Ubah detail produk di bawah ini.</DialogDescription>
         </DialogHeader>
         <ProductForm form={form} onSubmit={onSubmit} formId="product-edit-form" />
         <DialogFooter className="pt-4">
-          <Button type="button" variant="outline" onClick={onClose}>Batal</Button>
+          <Button type="button" variant="outline" onClick={onClose}>
+            Batal
+          </Button>
           <Button type="submit" form="product-edit-form" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
           </Button>

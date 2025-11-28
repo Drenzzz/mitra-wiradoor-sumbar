@@ -1,19 +1,16 @@
 import prisma from "@/lib/prisma";
-import { Prisma, Role } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import { Prisma, Role } from "@prisma/client";
+import * as bcrypt from "bcrypt";
 import { UserCreateFormValues, UserUpdateFormValues } from "@/lib/validations/user.schema";
 
-export const getUsers = async (options: { page?: number, limit?: number, search?: string }) => {
+export const getUsers = async (options: { page?: number; limit?: number; search?: string }) => {
   const { page = 1, limit = 10, search } = options;
   const skip = (page - 1) * limit;
 
   const whereClause: Prisma.UserWhereInput = {
     role: Role.STAF,
     ...(search && {
-      OR: [
-        { name: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
-      ],
+      OR: [{ name: { contains: search, mode: "insensitive" } }, { email: { contains: search, mode: "insensitive" } }],
     }),
   };
 
@@ -29,7 +26,7 @@ export const getUsers = async (options: { page?: number, limit?: number, search?
       },
       skip,
       take: limit,
-      orderBy: { name: 'asc' },
+      orderBy: { name: "asc" },
     }),
     prisma.user.count({ where: whereClause }),
   ]);

@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { Prisma } from '@prisma/client';
+import { Prisma } from "@prisma/client";
 import { PortfolioItemFormValues } from "@/lib/validations/portfolio.schema";
 
 export type GetPortfolioItemsOptions = {
@@ -17,17 +17,14 @@ export const getPortfolioItems = async (options: GetPortfolioItemsOptions = {}) 
   const whereClause: Prisma.PortfolioItemWhereInput = {};
 
   if (search) {
-    whereClause.OR = [
-      { title: { contains: search, mode: 'insensitive' } },
-      { description: { contains: search, mode: 'insensitive' } },
-    ];
+    whereClause.OR = [{ title: { contains: search, mode: "insensitive" } }, { description: { contains: search, mode: "insensitive" } }];
   }
 
   if (categoryId) {
     whereClause.portfolioCategoryId = categoryId;
   }
 
-  const [sortField, sortOrder] = sort?.split('-') || ['projectDate', 'desc'];
+  const [sortField, sortOrder] = sort?.split("-") || ["projectDate", "desc"];
   const orderByClause = { [sortField]: sortOrder };
 
   const [items, totalCount] = await prisma.$transaction([

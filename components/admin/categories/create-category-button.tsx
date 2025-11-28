@@ -1,30 +1,15 @@
-'use client'
+"use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { toast } from "sonner"; 
+import { toast } from "sonner";
 import { PlusCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -44,31 +29,33 @@ export function CreateCategoryButton({ onSuccess }: { onSuccess: () => void }) {
       description: "",
     },
   });
-    
-  const { isSubmitting } = form.formState; 
+
+  const { isSubmitting } = form.formState;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     toast.promise(
-      fetch('/api/categories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      fetch("/api/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
-      }).then(response => {
+      }).then((response) => {
         if (!response.ok) {
           // Ambil pesan error dari body jika ada
-          return response.json().then(err => { throw new Error(err.error || 'Gagal menambahkan kategori') });
+          return response.json().then((err) => {
+            throw new Error(err.error || "Gagal menambahkan kategori");
+          });
         }
         return response.json();
       }),
       {
-        loading: 'Menambahkan kategori...',
+        loading: "Menambahkan kategori...",
         success: () => {
-            form.reset();
-            setOpen(false);
-            onSuccess(); // Panggil fungsi onSuccess yang dikirim dari parent
-            return 'Kategori berhasil ditambahkan!';
+          form.reset();
+          setOpen(false);
+          onSuccess(); // Panggil fungsi onSuccess yang dikirim dari parent
+          return "Kategori berhasil ditambahkan!";
         },
-        error: (err) => err.message || 'Terjadi kesalahan.',
+        error: (err) => err.message || "Terjadi kesalahan.",
       }
     );
   };
@@ -84,9 +71,7 @@ export function CreateCategoryButton({ onSuccess }: { onSuccess: () => void }) {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Tambah Kategori Baru</DialogTitle>
-          <DialogDescription>
-            Isi detail untuk kategori produk baru Anda.
-          </DialogDescription>
+          <DialogDescription>Isi detail untuk kategori produk baru Anda.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
@@ -111,11 +96,7 @@ export function CreateCategoryButton({ onSuccess }: { onSuccess: () => void }) {
                 <FormItem>
                   <FormLabel>Deskripsi (Opsional)</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Jelaskan tentang kategori ini..."
-                      className="resize-none"
-                      {...field}
-                    />
+                    <Textarea placeholder="Jelaskan tentang kategori ini..." className="resize-none" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -1,10 +1,9 @@
-// File: app/api/admin/article-categories/route.ts
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as articleCategoryService from "@/lib/services/article-category.service";
 
-// Handler untuk GET (mengambil semua kategori)
+// GET
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
@@ -12,11 +11,11 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const options = {
-      status: searchParams.get('status') as 'active' | 'trashed' | undefined,
-      search: searchParams.get('search') || undefined,
-      sort: searchParams.get('sort') || undefined,
-      page: parseInt(searchParams.get('page') || '1', 10),
-      limit: parseInt(searchParams.get('limit') || '10', 10),
+      status: searchParams.get("status") as "active" | "trashed" | undefined,
+      search: searchParams.get("search") || undefined,
+      sort: searchParams.get("sort") || undefined,
+      page: parseInt(searchParams.get("page") || "1", 10),
+      limit: parseInt(searchParams.get("limit") || "10", 10),
     };
     const result = await articleCategoryService.getArticleCategories(options);
     return NextResponse.json(result);
@@ -25,7 +24,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Handler untuk POST (membuat kategori baru)
+// POST
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });

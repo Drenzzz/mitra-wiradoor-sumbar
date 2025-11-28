@@ -1,18 +1,18 @@
 import prisma from "@/lib/prisma";
-import { Prisma } from '@prisma/client';
+import { Prisma } from "@prisma/client";
 
 export type ArticleDto = {
   title: string;
   slug: string;
   content: string;
   featuredImageUrl: string;
-  status: 'PUBLISHED' | 'DRAFT';
+  status: "PUBLISHED" | "DRAFT";
   authorId: string;
   categoryId: string;
 };
 
 export type GetArticlesOptions = {
-  status?: 'active' | 'trashed';
+  status?: "active" | "trashed";
   search?: string;
   sort?: string;
   page?: number;
@@ -22,26 +22,23 @@ export type GetArticlesOptions = {
 };
 
 export const getArticles = async (options: GetArticlesOptions = {}) => {
-  const { status = 'active', search, sort, page = 1, limit = 10, categoryId, statusFilter } = options;
+  const { status = "active", search, sort, page = 1, limit = 10, categoryId, statusFilter } = options;
   const skip = (page - 1) * limit;
 
   const whereClause: Prisma.ArticleWhereInput = {};
-  whereClause.deletedAt = status === 'trashed' ? { not: null } : null;
+  whereClause.deletedAt = status === "trashed" ? { not: null } : null;
 
   if (search) {
-    whereClause.OR = [
-      { title: { contains: search, mode: 'insensitive' } },
-      { content: { contains: search, mode: 'insensitive' } },
-    ];
+    whereClause.OR = [{ title: { contains: search, mode: "insensitive" } }, { content: { contains: search, mode: "insensitive" } }];
   }
   if (categoryId) {
     whereClause.categoryId = categoryId;
   }
-  if (statusFilter && status === 'active') {
-    whereClause.status = statusFilter as 'DRAFT' | 'PUBLISHED';
+  if (statusFilter && status === "active") {
+    whereClause.status = statusFilter as "DRAFT" | "PUBLISHED";
   }
 
-  const [sortField, sortOrder] = sort?.split('-') || ['createdAt', 'desc'];
+  const [sortField, sortOrder] = sort?.split("-") || ["createdAt", "desc"];
   const orderByClause = { [sortField]: sortOrder };
 
   const [articles, totalCount] = await prisma.$transaction([
@@ -68,13 +65,13 @@ export const createArticle = (data: ArticleDto) => {
 };
 
 export const getArticleById = (id: string) => {
-    return prisma.article.findUnique({
-        where: { id },
-        include: {
-            author: { select: { name: true } },
-            category: { select: { name: true } },
-        },
-    });
+  return prisma.article.findUnique({
+    where: { id },
+    include: {
+      author: { select: { name: true } },
+      category: { select: { name: true } },
+    },
+  });
 };
 
 export const updateArticleById = (id: string, data: Partial<ArticleDto>) => {
@@ -98,7 +95,7 @@ export const restoreArticleById = (id: string) => {
   });
 };
 
-export const permanentDeleteArticleById = (id:string) => {
+export const permanentDeleteArticleById = (id: string) => {
   return prisma.article.delete({
     where: { id },
   });

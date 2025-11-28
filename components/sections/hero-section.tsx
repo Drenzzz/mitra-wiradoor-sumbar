@@ -1,11 +1,9 @@
-// components/sections/hero-section.tsx
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 export function HeroSection() {
   return (
     <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center text-center text-white">
-      {/* Ganti URL gambar dengan foto produk/showroom Anda */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: "url('https://images.pexels.com/photos/271816/pexels-photo-271816.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')" }}

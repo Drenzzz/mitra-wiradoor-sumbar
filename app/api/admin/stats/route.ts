@@ -41,7 +41,8 @@ export async function GET() {
 
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
-    sixMonthsAgo.setDate(1);1
+    sixMonthsAgo.setDate(1);
+    1;
 
     const recentOrders = await prisma.order.findMany({
       where: {

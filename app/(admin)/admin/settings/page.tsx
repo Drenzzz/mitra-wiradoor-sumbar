@@ -1,16 +1,14 @@
-import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ProfileForm } from "@/components/admin/settings/profile-form"
-import { PasswordForm } from "@/components/admin/settings/password-form"
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ProfileForm } from "@/components/admin/settings/profile-form";
+import { PasswordForm } from "@/components/admin/settings/password-form";
 
 export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-lg font-medium">Pengaturan</h1>
-        <p className="text-sm text-muted-foreground">
-          Kelola informasi akun dan preferensi keamanan Anda.
-        </p>
+        <p className="text-sm text-muted-foreground">Kelola informasi akun dan preferensi keamanan Anda.</p>
       </div>
       <Separator />
 
@@ -27,5 +25,5 @@ export default function SettingsPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

@@ -8,16 +8,13 @@ import { Prisma } from "@prisma/client";
 
 async function isAdminSession() {
   const session = await getServerSession(authOptions);
-  if (session?.user?.role !== 'ADMIN') {
+  if (session?.user?.role !== "ADMIN") {
     return null;
   }
   return session;
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const item = await service.getPortfolioItemById(id);
@@ -31,10 +28,7 @@ export async function GET(
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await isAdminSession();
   if (!session) {
     return NextResponse.json({ error: "Hanya Admin yang diizinkan." }, { status: 403 });
@@ -56,10 +50,7 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await isAdminSession();
   if (!session) {
     return NextResponse.json({ error: "Hanya Admin yang diizinkan." }, { status: 403 });
@@ -70,7 +61,7 @@ export async function DELETE(
     await service.deletePortfolioItemById(id);
     return NextResponse.json({ message: "Item portofolio berhasil dihapus." }, { status: 200 });
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
       return NextResponse.json({ error: "Item portofolio tidak ditemukan." }, { status: 404 });
     }
     console.error("Error deleting portfolio item:", error);

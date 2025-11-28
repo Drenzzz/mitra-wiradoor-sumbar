@@ -1,14 +1,10 @@
-// File: app/api/admin/article-categories/[id]/route.ts
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as articleCategoryService from "@/lib/services/article-category.service";
 
-// Handler untuk PATCH (update atau restore)
-export async function PATCH(
-  request: Request,
-  context: { params: Promise<{ id: string }> }
-) {
+// PATCH
+export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
@@ -16,7 +12,7 @@ export async function PATCH(
     const { id } = await context.params;
     const body = await request.json();
 
-    if (body.action === 'restore') {
+    if (body.action === "restore") {
       await articleCategoryService.restoreArticleCategoryById(id);
       return NextResponse.json({ message: "Kategori artikel berhasil dipulihkan" });
     }
@@ -28,18 +24,15 @@ export async function PATCH(
   }
 }
 
-// Handler untuk DELETE (soft delete atau permanent delete)
-export async function DELETE(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
-) {
+// DELETE
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   try {
     const { id } = await context.params;
     const { searchParams } = new URL(request.url);
-    const force = searchParams.get('force') === 'true';
+    const force = searchParams.get("force") === "true";
 
     if (force) {
       await articleCategoryService.permanentDeleteArticleCategoryById(id);

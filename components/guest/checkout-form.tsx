@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-import { customerInfoSchema, CustomerInfoFormValues } from '@/lib/validations/order.schema';
+import { customerInfoSchema, CustomerInfoFormValues } from "@/lib/validations/order.schema";
 
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 interface CheckoutFormProps {
   onSubmit: (values: CustomerInfoFormValues) => void;
@@ -19,10 +19,10 @@ export function CheckoutForm({ onSubmit, isLoading = false }: CheckoutFormProps)
   const form = useForm<CustomerInfoFormValues>({
     resolver: zodResolver(customerInfoSchema),
     defaultValues: {
-      customerName: '',
-      customerEmail: '',
-      customerPhone: '',
-      customerAddress: '',
+      customerName: "",
+      customerEmail: "",
+      customerPhone: "",
+      customerAddress: "",
     },
   });
 
@@ -33,7 +33,6 @@ export function CheckoutForm({ onSubmit, isLoading = false }: CheckoutFormProps)
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
-        
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -62,7 +61,7 @@ export function CheckoutForm({ onSubmit, isLoading = false }: CheckoutFormProps)
             )}
           />
         </div>
-        
+
         <FormField
           control={form.control}
           name="customerEmail"
@@ -76,7 +75,7 @@ export function CheckoutForm({ onSubmit, isLoading = false }: CheckoutFormProps)
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="customerAddress"
@@ -84,18 +83,13 @@ export function CheckoutForm({ onSubmit, isLoading = false }: CheckoutFormProps)
             <FormItem>
               <FormLabel>Alamat Pengiriman</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="Tuliskan alamat lengkap Anda (Jalan, No. Rumah, Kelurahan, Kecamatan, Kota/Kab, Kode Pos)"
-                  className="min-h-[100px] resize-y"
-                  {...field}
-                  disabled={isLoading}
-                />
+                <Textarea placeholder="Tuliskan alamat lengkap Anda (Jalan, No. Rumah, Kelurahan, Kecamatan, Kota/Kab, Kode Pos)" className="min-h-[100px] resize-y" {...field} disabled={isLoading} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
+
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? "Memproses..." : "Lanjutkan Pesanan"}
         </Button>

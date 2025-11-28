@@ -36,7 +36,6 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ message: "Password berhasil diubah." });
-
   } catch (error) {
     console.error("Error confirming password change:", error);
     return NextResponse.json({ error: "Terjadi kesalahan pada server." }, { status: 500 });

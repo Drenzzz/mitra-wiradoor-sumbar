@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_SERVER_HOST,
@@ -15,7 +15,7 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
   await transporter.sendMail({
     from: process.env.EMAIL_FROM,
     to: email,
-    subject: 'Reset Password Akun Admin Wiradoor Sumbar',
+    subject: "Reset Password Akun Admin Wiradoor Sumbar",
     html: `
       <h1>Reset Password Anda</h1>
       <p>Anda menerima email ini karena Anda (atau orang lain) meminta untuk mereset password akun Anda.</p>
@@ -32,7 +32,7 @@ export const sendPasswordChangeEmail = async (email: string, token: string) => {
   await transporter.sendMail({
     from: process.env.EMAIL_FROM,
     to: email,
-    subject: 'Konfirmasi Perubahan Password Akun Wiradoor Sumbar',
+    subject: "Konfirmasi Perubahan Password Akun Wiradoor Sumbar",
     html: `
       <h1>Konfirmasi Perubahan Password</h1>
       <p>Kami menerima permintaan untuk mengubah password akun Anda.</p>

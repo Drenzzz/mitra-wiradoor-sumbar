@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { Product } from '@/types';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import Image from 'next/image';
-import { Badge } from '@/components/ui/badge';
+import { Product } from "@/types";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
 
 interface ProductDetailDialogProps {
   product: Product | null;
@@ -25,12 +25,7 @@ export function ProductDetailDialog({ product, isOpen, onClose }: ProductDetailD
         </DialogHeader>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
           <div className="relative aspect-square">
-            <Image
-              src={product.imageUrl}
-              alt={product.name}
-              fill
-              className="rounded-md object-cover"
-            />
+            <Image src={product.imageUrl} alt={product.name} fill className="rounded-md object-cover" />
           </div>
           <div className="space-y-4">
             <div>
@@ -43,16 +38,14 @@ export function ProductDetailDialog({ product, isOpen, onClose }: ProductDetailD
             </div>
             <div>
               <h3 className="font-semibold text-lg">Status Produk</h3>
-              <Badge variant={product.isReadyStock ? 'default' : 'secondary'}>
-                {product.isReadyStock ? 'Ready Stock' : 'Kustom (Pre-Order)'}
-              </Badge>
+              <Badge variant={product.isReadyStock ? "default" : "secondary"}>{product.isReadyStock ? "Ready Stock" : "Kustom (Pre-Order)"}</Badge>
             </div>
             <div>
               <h3 className="font-semibold text-lg">Info Lainnya</h3>
               <p className="text-xs text-muted-foreground">
-                Dibuat pada: {new Date(product.createdAt).toLocaleDateString('id-ID')}
+                Dibuat pada: {new Date(product.createdAt).toLocaleDateString("id-ID")}
                 <br />
-                Diperbarui pada: {new Date(product.updatedAt).toLocaleDateString('id-ID')}
+                Diperbarui pada: {new Date(product.updatedAt).toLocaleDateString("id-ID")}
               </p>
             </div>
           </div>

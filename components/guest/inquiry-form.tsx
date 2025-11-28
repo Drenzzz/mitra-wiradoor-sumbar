@@ -17,7 +17,7 @@ export function InquiryForm() {
     defaultValues: {
       senderName: "",
       senderEmail: "",
-      senderPhone: "", 
+      senderPhone: "",
       subject: "",
       message: "",
     },

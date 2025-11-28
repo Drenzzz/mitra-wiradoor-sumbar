@@ -9,16 +9,13 @@ import { Prisma } from "@prisma/client";
 // Helper untuk check Admin
 async function isAdminSession() {
   const session = await getServerSession(authOptions);
-  if (session?.user?.role !== 'ADMIN') {
+  if (session?.user?.role !== "ADMIN") {
     return null;
   }
   return session;
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await isAdminSession();
   if (!session) {
     return NextResponse.json({ error: "Hanya Admin yang diizinkan." }, { status: 403 });
@@ -31,17 +28,13 @@ export async function GET(
       return NextResponse.json({ error: "Pengguna tidak ditemukan." }, { status: 404 });
     }
     return NextResponse.json(user);
-
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json({ error: "Terjadi kesalahan pada server." }, { status: 500 });
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await isAdminSession();
   if (!session) {
     return NextResponse.json({ error: "Hanya Admin yang diizinkan." }, { status: 403 });
@@ -54,12 +47,11 @@ export async function PATCH(
 
     const updatedUser = await userService.updateUser(id, validatedData);
     return NextResponse.json(updatedUser);
-
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json({ error: "Data tidak valid.", details: error.issues }, { status: 400 });
     }
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       return NextResponse.json({ error: "Email ini sudah terdaftar." }, { status: 409 });
     }
     console.error("Error updating user:", error);
@@ -67,10 +59,7 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await isAdminSession();
   if (!session) {
     return NextResponse.json({ error: "Hanya Admin yang diizinkan." }, { status: 403 });
@@ -85,9 +74,8 @@ export async function DELETE(
   try {
     await userService.deleteUser(id);
     return NextResponse.json({ message: "Pengguna berhasil dihapus." }, { status: 200 });
-
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
       return NextResponse.json({ error: "Pengguna tidak ditemukan." }, { status: 404 });
     }
     console.error("Error deleting user:", error);

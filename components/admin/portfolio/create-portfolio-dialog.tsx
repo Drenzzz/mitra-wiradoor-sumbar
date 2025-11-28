@@ -137,11 +137,7 @@ export function CreatePortfolioDialog({ categories, onSuccess }: CreatePortfolio
                 <FormItem className="flex flex-col">
                   <FormLabel>Tanggal Pengerjaan</FormLabel>
                   <FormControl>
-                    <Input
-                      type="date"
-                      value={field.value instanceof Date ? format(field.value, "yyyy-MM-dd") : ""}
-                      onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
-                    />
+                    <Input type="date" value={field.value instanceof Date ? format(field.value, "yyyy-MM-dd") : ""} onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

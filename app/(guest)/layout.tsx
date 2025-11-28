@@ -4,14 +4,10 @@ import { FloatingWhatsAppButton } from "@/components/guest/floating-whatsapp-but
 import { ForceLightTheme } from "@/components/guest/force-light-theme";
 import { Toaster } from "@/components/ui/sonner";
 
-export default function GuestLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function GuestLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col min-h-screen">
-      <ForceLightTheme /> 
+      <ForceLightTheme />
       <MainNav />
       <main className="flex-grow">{children}</main>
       <SiteFooter />

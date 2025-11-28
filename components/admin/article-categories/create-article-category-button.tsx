@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { toast } from "sonner"; 
+import { toast } from "sonner";
 import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -23,29 +23,31 @@ export function CreateArticleCategoryButton({ onSuccess }: { onSuccess: () => vo
     resolver: zodResolver(formSchema),
     defaultValues: { name: "", description: "" },
   });
-  const { isSubmitting } = form.formState; 
+  const { isSubmitting } = form.formState;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     toast.promise(
-      fetch('/api/article-categories', { // Ganti endpoint
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      fetch("/api/article-categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
-      }).then(response => {
+      }).then((response) => {
         if (!response.ok) {
-          return response.json().then(err => { throw new Error(err.error || 'Gagal menambahkan kategori') });
+          return response.json().then((err) => {
+            throw new Error(err.error || "Gagal menambahkan kategori");
+          });
         }
         return response.json();
       }),
       {
-        loading: 'Menambahkan kategori...',
+        loading: "Menambahkan kategori...",
         success: () => {
-            form.reset();
-            setOpen(false);
-            onSuccess();
-            return 'Kategori artikel berhasil ditambahkan!';
+          form.reset();
+          setOpen(false);
+          onSuccess();
+          return "Kategori artikel berhasil ditambahkan!";
         },
-        error: (err) => err.message || 'Terjadi kesalahan.',
+        error: (err) => err.message || "Terjadi kesalahan.",
       }
     );
   };
@@ -53,7 +55,10 @@ export function CreateArticleCategoryButton({ onSuccess }: { onSuccess: () => vo
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button><PlusCircle className="mr-2 h-4 w-4" />Tambah Kategori</Button>
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Tambah Kategori
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -62,9 +67,37 @@ export function CreateArticleCategoryButton({ onSuccess }: { onSuccess: () => vo
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-            <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Nama Kategori</FormLabel><FormControl><Input placeholder="cth: Tips & Trik" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Deskripsi (Opsional)</FormLabel><FormControl><Textarea placeholder="Jelaskan tentang kategori ini..." className="resize-none" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <DialogFooter><Button type="submit" disabled={isSubmitting}>{isSubmitting ? "Menyimpan..." : "Simpan Kategori"}</Button></DialogFooter>
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama Kategori</FormLabel>
+                  <FormControl>
+                    <Input placeholder="cth: Tips & Trik" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Deskripsi (Opsional)</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Jelaskan tentang kategori ini..." className="resize-none" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Menyimpan..." : "Simpan Kategori"}
+              </Button>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

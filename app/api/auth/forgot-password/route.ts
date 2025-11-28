@@ -13,10 +13,7 @@ export async function POST(request: Request) {
     }
 
     const resetToken = crypto.randomBytes(32).toString("hex");
-    const passwordResetToken = crypto
-      .createHash("sha256")
-      .update(resetToken)
-      .digest("hex");
+    const passwordResetToken = crypto.createHash("sha256").update(resetToken).digest("hex");
 
     const passwordResetExpires = new Date(Date.now() + 3600000);
 
@@ -28,7 +25,6 @@ export async function POST(request: Request) {
     await sendPasswordResetEmail(user.email!, resetToken);
 
     return NextResponse.json({ message: "Jika email terdaftar, link reset akan dikirim." });
-
   } catch (error) {
     return NextResponse.json({ error: "Terjadi kesalahan pada server" }, { status: 500 });
   }

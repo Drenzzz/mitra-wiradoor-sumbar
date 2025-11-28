@@ -26,11 +26,11 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const options = {
-      status: searchParams.get('status') as 'active' | 'trashed' | undefined,
-      search: searchParams.get('search') || undefined,
-      sort: searchParams.get('sort') || undefined,
-      page: parseInt(searchParams.get('page') || '1', 10),
-      limit: parseInt(searchParams.get('limit') || '10', 10),
+      status: searchParams.get("status") as "active" | "trashed" | undefined,
+      search: searchParams.get("search") || undefined,
+      sort: searchParams.get("sort") || undefined,
+      page: parseInt(searchParams.get("page") || "1", 10),
+      limit: parseInt(searchParams.get("limit") || "10", 10),
     };
     const result = await categoryService.getCategories(options);
     return NextResponse.json(result);

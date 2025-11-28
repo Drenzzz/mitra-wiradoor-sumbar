@@ -16,20 +16,19 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const userId = session.user.id;
 
-    if ('name' in body && !('currentPassword' in body)) {
+    if ("name" in body && !("currentPassword" in body)) {
       const { name } = body;
-      if (typeof name !== 'string' || name.length < 3) {
+      if (typeof name !== "string" || name.length < 3) {
         return NextResponse.json({ error: "Nama minimal 3 karakter." }, { status: 400 });
       }
       await prisma.user.update({ where: { id: userId }, data: { name } });
       return NextResponse.json({ message: "Nama berhasil diperbarui" });
-    
-    } else if ('currentPassword' in body) {
+    } else if ("currentPassword" in body) {
       const { currentPassword } = body;
-      if (typeof currentPassword !== 'string' || currentPassword.length === 0) {
+      if (typeof currentPassword !== "string" || currentPassword.length === 0) {
         return NextResponse.json({ error: "Password saat ini wajib diisi." }, { status: 400 });
       }
-      
+
       const user = await prisma.user.findUnique({ where: { id: userId } });
       if (!user || !user.password) {
         return NextResponse.json({ error: "Pengguna tidak ditemukan." }, { status: 404 });
@@ -55,7 +54,6 @@ export async function PATCH(request: Request) {
     }
 
     return NextResponse.json({ error: "Data permintaan tidak valid" }, { status: 400 });
-
   } catch (error) {
     console.error("Error in settings API:", error);
     return NextResponse.json({ error: "Terjadi kesalahan pada server" }, { status: 500 });

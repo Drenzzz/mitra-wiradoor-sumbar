@@ -12,7 +12,9 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 function generateInvoiceNumber(): string {
   const timestamp = new Date().getTime().toString().slice(-8);
-  const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  const randomSuffix = Math.floor(Math.random() * 1000)
+    .toString()
+    .padStart(3, "0");
   return `WIR-${timestamp}-${randomSuffix}`;
 }
 
@@ -21,24 +23,15 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { productId, ...customerData } = body;
     const validatedCustomerData = customerInfoSchema.parse(customerData);
-    if (!productId || typeof productId !== 'string') {
-      return NextResponse.json(
-        { error: "Product ID tidak valid." },
-        { status: 400 }
-      );
+    if (!productId || typeof productId !== "string") {
+      return NextResponse.json({ error: "Product ID tidak valid." }, { status: 400 });
     }
     const product = await getProductById(productId);
     if (!product) {
-       return NextResponse.json(
-        { error: "Produk tidak ditemukan atau tidak valid." },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Produk tidak ditemukan atau tidak valid." }, { status: 404 });
     }
     if (product.isReadyStock !== true) {
-      return NextResponse.json(
-        { error: "Produk ini tidak dapat dipesan (bukan ready stock)." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Produk ini tidak dapat dipesan (bukan ready stock)." }, { status: 400 });
     }
     const newOrder = await prisma.$transaction(async (tx) => {
       const order = await tx.order.create({
@@ -48,7 +41,7 @@ export async function POST(request: Request) {
           customerEmail: validatedCustomerData.customerEmail,
           customerPhone: validatedCustomerData.customerPhone,
           customerAddress: validatedCustomerData.customerAddress,
-          status: 'PENDING',
+          status: "PENDING",
         },
       });
       await tx.orderItem.create({
@@ -63,22 +56,14 @@ export async function POST(request: Request) {
       return order;
     });
     return NextResponse.json(newOrder, { status: 201 });
-
   } catch (error) {
     if (error instanceof ZodError) {
-      return NextResponse.json(
-        { error: "Data formulir tidak valid.", details: error.issues },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Data formulir tidak valid.", details: error.issues }, { status: 400 });
     }
     console.error("Error creating order:", error);
-    return NextResponse.json(
-      { error: "Terjadi kesalahan pada server." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Terjadi kesalahan pada server." }, { status: 500 });
   }
 }
-
 
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -88,27 +73,21 @@ export async function GET(request: NextRequest) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const statusParam = searchParams.get('status');
-    
+    const statusParam = searchParams.get("status");
+
     const options = {
-      status: statusParam && Object.values(OrderStatus).includes(statusParam as OrderStatus) 
-        ? (statusParam as OrderStatus) 
-        : undefined,
-      search: searchParams.get('search') || undefined,
-      sort: searchParams.get('sort') || undefined,
-      page: parseInt(searchParams.get('page') || '1', 10),
-      limit: parseInt(searchParams.get('limit') || '10', 10),
+      status: statusParam && Object.values(OrderStatus).includes(statusParam as OrderStatus) ? (statusParam as OrderStatus) : undefined,
+      search: searchParams.get("search") || undefined,
+      sort: searchParams.get("sort") || undefined,
+      page: parseInt(searchParams.get("page") || "1", 10),
+      limit: parseInt(searchParams.get("limit") || "10", 10),
     };
 
     const result = await getOrders(options);
-    
-    return NextResponse.json(result);
 
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Error fetching orders:", error);
-    return NextResponse.json(
-      { error: "Terjadi kesalahan pada server." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Terjadi kesalahan pada server." }, { status: 500 });
   }
 }

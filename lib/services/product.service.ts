@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { Prisma } from '@prisma/client';
+import { Prisma } from "@prisma/client";
 
 export type ProductDto = {
   name: string;
@@ -10,7 +10,7 @@ export type ProductDto = {
 };
 
 export type GetProductsOptions = {
-  status?: 'active' | 'trashed';
+  status?: "active" | "trashed";
   search?: string;
   sort?: string;
   page?: number;
@@ -18,35 +18,30 @@ export type GetProductsOptions = {
   categoryId?: string;
 };
 
-
 export const getProducts = async (options: GetProductsOptions = {}) => {
-  const { status = 'active', search, sort, page = 1, limit = 10, categoryId } = options;
+  const { status = "active", search, sort, page = 1, limit = 10, categoryId } = options;
   const skip = (page - 1) * limit;
 
   const whereClause: Prisma.ProductWhereInput = {};
-  whereClause.deletedAt = status === 'trashed' ? { not: null } : null;
+  whereClause.deletedAt = status === "trashed" ? { not: null } : null;
 
   if (search) {
-    whereClause.OR = [
-      { name: { contains: search, mode: 'insensitive' } },
-      { description: { contains: search, mode: 'insensitive' } },
-      { specifications: { contains: search, mode: 'insensitive' } },
-    ];
+    whereClause.OR = [{ name: { contains: search, mode: "insensitive" } }, { description: { contains: search, mode: "insensitive" } }, { specifications: { contains: search, mode: "insensitive" } }];
   }
 
   if (categoryId) {
     whereClause.categoryId = categoryId;
   }
 
-  let orderByClause: any = { createdAt: 'desc' };
+  let orderByClause: any = { createdAt: "desc" };
 
   if (sort) {
-    const [field, order] = sort.split('-');
-    if (['name', 'createdAt', 'price'].includes(field)) {
-      orderByClause = { [field]: order === 'asc' ? 'asc' : 'desc' };
+    const [field, order] = sort.split("-");
+    if (["name", "createdAt", "price"].includes(field)) {
+      orderByClause = { [field]: order === "asc" ? "asc" : "desc" };
     }
   }
-  
+
   const [products, totalCount] = await prisma.$transaction([
     prisma.product.findMany({
       where: whereClause,
@@ -62,7 +57,6 @@ export const getProducts = async (options: GetProductsOptions = {}) => {
 };
 
 export const getProductById = (id: string) => {
-
   const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(id);
 
   if (!isValidObjectId) {

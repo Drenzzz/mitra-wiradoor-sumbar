@@ -111,12 +111,7 @@ export default function InquiryManagementPage() {
           )}
         </Card>
       </Tabs>
-      <InquiryDetailDialog
-        isOpen={isDetailOpen}
-        onClose={() => setIsDetailOpen(false)}
-        inquiry={selectedInquiry}
-        onStatusChange={handleStatusChange} 
-      />
+      <InquiryDetailDialog isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} inquiry={selectedInquiry} onStatusChange={handleStatusChange} />
     </PageWrapper>
   );
 }

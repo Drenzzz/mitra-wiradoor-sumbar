@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { Prisma } from '@prisma/client';
+import { Prisma } from "@prisma/client";
 
 export type ArticleCategoryDto = {
   name: string;
@@ -7,7 +7,7 @@ export type ArticleCategoryDto = {
 };
 
 export type GetArticleCategoriesOptions = {
-  status?: 'active' | 'trashed';
+  status?: "active" | "trashed";
   search?: string;
   sort?: string;
   page?: number;
@@ -15,17 +15,17 @@ export type GetArticleCategoriesOptions = {
 };
 
 export const getArticleCategories = async (options: GetArticleCategoriesOptions = {}) => {
-  const { status = 'active', search, sort, page = 1, limit = 10 } = options;
+  const { status = "active", search, sort, page = 1, limit = 10 } = options;
   const skip = (page - 1) * limit;
 
   const whereClause: Prisma.ArticleCategoryWhereInput = {};
-  whereClause.deletedAt = status === 'trashed' ? { not: null } : null;
+  whereClause.deletedAt = status === "trashed" ? { not: null } : null;
 
   if (search) {
-    whereClause.name = { contains: search, mode: 'insensitive' };
+    whereClause.name = { contains: search, mode: "insensitive" };
   }
 
-  const [sortField, sortOrder] = sort?.split('-') || ['name', 'asc'];
+  const [sortField, sortOrder] = sort?.split("-") || ["name", "asc"];
   const orderByClause = { [sortField]: sortOrder };
 
   const [categories, totalCount] = await prisma.$transaction([

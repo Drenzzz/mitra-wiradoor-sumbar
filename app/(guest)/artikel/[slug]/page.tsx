@@ -1,11 +1,11 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { Badge } from '@/components/ui/badge';
-import { ArticleCard } from '@/components/guest/article-card';
-import { ShareButtons } from '@/components/guest/share-buttons';
-import { ChevronRight, Home, CalendarDays, UserCircle } from 'lucide-react';
-import type { Article } from '@/types';
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
+import { ArticleCard } from "@/components/guest/article-card";
+import { ShareButtons } from "@/components/guest/share-buttons";
+import { ChevronRight, Home, CalendarDays, UserCircle } from "lucide-react";
+import type { Article } from "@/types";
 
 interface ArticleData {
   article: Article | null;
@@ -18,42 +18,40 @@ async function getArticleData(slug: string): Promise<ArticleData> {
 
   try {
     const articleRes = await fetch(`${process.env.NEXTAUTH_URL}/api/articles/${slug}`, {
-      cache: 'no-store',
+      cache: "no-store",
     });
 
     if (articleRes.status === 404) {
       return { article: null, relatedArticles: [] };
     }
     if (!articleRes.ok) {
-      throw new Error('Gagal memuat data artikel utama.');
+      throw new Error("Gagal memuat data artikel utama.");
     }
-    
-    article = await articleRes.json() as (Article & { isReadyStock?: boolean; stock?: number | null });
 
+    article = (await articleRes.json()) as Article & { isReadyStock?: boolean; stock?: number | null };
 
-    if (article && article.status === 'PUBLISHED' && article.categoryId) {
+    if (article && article.status === "PUBLISHED" && article.categoryId) {
       const relatedQuery = new URLSearchParams({
-        status: 'active',
-        statusFilter: 'PUBLISHED',
-        limit: '3',
+        status: "active",
+        statusFilter: "PUBLISHED",
+        limit: "3",
         categoryId: article.categoryId,
-        sort: 'createdAt-desc',
+        sort: "createdAt-desc",
       });
 
       const relatedRes = await fetch(`${process.env.NEXTAUTH_URL}/api/articles?${relatedQuery.toString()}`, {
-        cache: 'no-store',
+        cache: "no-store",
       });
 
       if (relatedRes.ok) {
         const relatedData = await relatedRes.json();
-        relatedArticles = (relatedData.data as Article[]).filter(a => a.id !== article?.id);
+        relatedArticles = (relatedData.data as Article[]).filter((a) => a.id !== article?.id);
       } else {
         console.warn("Gagal memuat artikel terkait.");
       }
     }
 
     return { article, relatedArticles };
-
   } catch (error) {
     console.error("Fetch article data error:", error);
     return { article: null, relatedArticles: [] };
@@ -61,10 +59,10 @@ async function getArticleData(slug: string): Promise<ArticleData> {
 }
 
 function formatDate(dateString: Date | string): string {
-  return new Date(dateString).toLocaleDateString('id-ID', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+  return new Date(dateString).toLocaleDateString("id-ID", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 }
 
@@ -73,16 +71,15 @@ interface ArticleDetailPageProps {
 }
 
 export default async function ArticleDetailPage({ params }: ArticleDetailPageProps) {
-    const { slug } = await params;
-    const { article, relatedArticles } = await getArticleData(slug);
-    
-  if (!article || article.status !== 'PUBLISHED') {
+  const { slug } = await params;
+  const { article, relatedArticles } = await getArticleData(slug);
+
+  if (!article || article.status !== "PUBLISHED") {
     notFound();
   }
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
-      
       <nav className="mb-4 text-sm text-muted-foreground flex items-center space-x-2">
         <Link href="/" className="hover:text-primary">
           <Home className="h-4 w-4 inline-block mr-1" /> Beranda
@@ -97,15 +94,13 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
 
       <header className="mb-6">
         <Badge variant="outline" className="mb-3">
-          {article.category?.name || 'Lainnya'}
+          {article.category?.name || "Lainnya"}
         </Badge>
-        <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
-          {article.title}
-        </h1>
+        <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-foreground">{article.title}</h1>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground mt-4">
           <div className="flex items-center gap-1.5">
             <UserCircle className="w-4 h-4" />
-            <span>{article.author?.name || 'Admin'}</span>
+            <span>{article.author?.name || "Admin"}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <CalendarDays className="w-4 h-4" />
@@ -115,20 +110,10 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
       </header>
 
       <div className="relative aspect-video w-full rounded-lg overflow-hidden shadow-md bg-muted mb-8">
-        <Image
-          src={article.featuredImageUrl}
-          alt={article.title}
-          fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 75vw, 1024px"
-          priority
-        />
+        <Image src={article.featuredImageUrl} alt={article.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 75vw, 1024px" priority />
       </div>
 
-      <article 
-        className="text-foreground/90 leading-relaxed whitespace-pre-wrapspace-y-4max-w-none">
-        {article.content}
-      </article>
+      <article className="text-foreground/90 leading-relaxed whitespace-pre-wrapspace-y-4max-w-none">{article.content}</article>
 
       <div className="pt-8 mt-8 border-t">
         <ShareButtons title={article.title} />
@@ -139,10 +124,7 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
         {relatedArticles.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {relatedArticles.map((relatedArticle) => (
-              <ArticleCard
-                key={relatedArticle.id}
-                article={relatedArticle}
-              />
+              <ArticleCard key={relatedArticle.id} article={relatedArticle} />
             ))}
           </div>
         ) : (
@@ -155,10 +137,10 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
 
 export async function generateMetadata({ params }: ArticleDetailPageProps) {
   const { slug } = await params;
-  const { article } = await getArticleData(slug);   
+  const { article } = await getArticleData(slug);
 
   if (!article) {
-    return { title: 'Artikel Tidak Ditemukan' };
+    return { title: "Artikel Tidak Ditemukan" };
   }
 
   return {

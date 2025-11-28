@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { Prisma } from '@prisma/client';
+import { Prisma } from "@prisma/client";
 
 export type CategoryDto = {
   name: string;
@@ -7,7 +7,7 @@ export type CategoryDto = {
 };
 
 export type GetCategoriesOptions = {
-  status?: 'active' | 'trashed';
+  status?: "active" | "trashed";
   search?: string;
   sort?: string;
   page?: number;
@@ -15,20 +15,17 @@ export type GetCategoriesOptions = {
 };
 
 export const getCategories = async (options: GetCategoriesOptions = {}) => {
-  const { status = 'active', search, sort, page = 1, limit = 10 } = options;
+  const { status = "active", search, sort, page = 1, limit = 10 } = options;
   const skip = (page - 1) * limit;
 
   const whereClause: Prisma.CategoryWhereInput = {};
-  whereClause.deletedAt = status === 'trashed' ? { not: null } : null;
+  whereClause.deletedAt = status === "trashed" ? { not: null } : null;
 
   if (search) {
-    whereClause.OR = [
-      { name: { contains: search, mode: 'insensitive' } },
-      { description: { contains: search, mode: 'insensitive' } },
-    ];
+    whereClause.OR = [{ name: { contains: search, mode: "insensitive" } }, { description: { contains: search, mode: "insensitive" } }];
   }
 
-  const [sortField, sortOrder] = sort?.split('-') || ['name', 'asc'];
+  const [sortField, sortOrder] = sort?.split("-") || ["name", "asc"];
   const orderByClause = { [sortField]: sortOrder };
 
   const [categories, totalCount] = await prisma.$transaction([

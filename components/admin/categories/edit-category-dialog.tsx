@@ -1,31 +1,17 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { toast } from 'sonner';
-import { Category } from '@/types';
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { toast } from "sonner";
+import { Category } from "@/types";
 
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
   name: z.string().min(3, { message: "Nama kategori minimal 3 karakter." }),
@@ -43,8 +29,8 @@ export function EditCategoryDialog({ isOpen, onClose, onSuccess, category }: Edi
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      description: '',
+      name: "",
+      description: "",
     },
   });
 
@@ -52,7 +38,7 @@ export function EditCategoryDialog({ isOpen, onClose, onSuccess, category }: Edi
     if (category) {
       form.reset({
         name: category.name,
-        description: category.description || '',
+        description: category.description || "",
       });
     }
   }, [category, form]);
@@ -64,23 +50,23 @@ export function EditCategoryDialog({ isOpen, onClose, onSuccess, category }: Edi
 
     toast.promise(
       fetch(`/api/categories/${category.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
-      }).then(response => {
+      }).then((response) => {
         if (!response.ok) {
-          throw new Error('Gagal memperbarui kategori');
+          throw new Error("Gagal memperbarui kategori");
         }
         return response.json();
       }),
       {
-        loading: 'Memperbarui kategori...',
+        loading: "Memperbarui kategori...",
         success: () => {
           onSuccess();
           onClose();
-          return 'Kategori berhasil diperbarui!';
+          return "Kategori berhasil diperbarui!";
         },
-        error: 'Terjadi kesalahan.',
+        error: "Terjadi kesalahan.",
       }
     );
   };
@@ -90,9 +76,7 @@ export function EditCategoryDialog({ isOpen, onClose, onSuccess, category }: Edi
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit Kategori</DialogTitle>
-          <DialogDescription>
-            Ubah detail kategori produk Anda. Klik simpan jika sudah selesai.
-          </DialogDescription>
+          <DialogDescription>Ubah detail kategori produk Anda. Klik simpan jika sudah selesai.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
@@ -116,18 +100,16 @@ export function EditCategoryDialog({ isOpen, onClose, onSuccess, category }: Edi
                 <FormItem>
                   <FormLabel>Deskripsi (Opsional)</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Jelaskan tentang kategori ini..."
-                      className="resize-none"
-                      {...field}
-                    />
+                    <Textarea placeholder="Jelaskan tentang kategori ini..." className="resize-none" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>Batal</Button>
+              <Button type="button" variant="outline" onClick={onClose}>
+                Batal
+              </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
               </Button>

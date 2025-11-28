@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useTheme } from 'next-themes';
-import { useEffect, useRef } from 'react';
+import { useTheme } from "next-themes";
+import { useEffect, useRef } from "react";
 
 export function ForceLightTheme() {
   const { setTheme, theme } = useTheme();
@@ -12,8 +12,8 @@ export function ForceLightTheme() {
       originalThemeRef.current = theme;
     }
 
-    if (theme !== 'light') {
-      setTheme('light');
+    if (theme !== "light") {
+      setTheme("light");
     }
 
     return () => {

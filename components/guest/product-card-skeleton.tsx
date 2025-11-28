@@ -12,7 +12,7 @@ export function ProductCardSkeleton() {
         <div className="h-4 w-full bg-muted rounded"></div>
         <div className="h-4 w-5/6 bg-muted rounded"></div>
         <div className="pt-2">
-            <div className="h-9 w-1/2 bg-muted rounded-md"></div>
+          <div className="h-9 w-1/2 bg-muted rounded-md"></div>
         </div>
       </CardContent>
     </Card>

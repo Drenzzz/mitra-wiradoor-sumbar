@@ -7,7 +7,7 @@ import { portfolioItemSchema } from "@/lib/validations/portfolio.schema";
 
 async function isAdminSession() {
   const session = await getServerSession(authOptions);
-  if (session?.user?.role !== 'ADMIN') {
+  if (session?.user?.role !== "ADMIN") {
     return null;
   }
   return session;
@@ -17,13 +17,13 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const options = {
-      search: searchParams.get('search') || undefined,
-      sort: searchParams.get('sort') || undefined,
-      page: parseInt(searchParams.get('page') || '1', 10),
-      limit: parseInt(searchParams.get('limit') || '10', 10),
-      categoryId: searchParams.get('categoryId') || undefined,
+      search: searchParams.get("search") || undefined,
+      sort: searchParams.get("sort") || undefined,
+      page: parseInt(searchParams.get("page") || "1", 10),
+      limit: parseInt(searchParams.get("limit") || "10", 10),
+      categoryId: searchParams.get("categoryId") || undefined,
     };
-    
+
     const result = await service.getPortfolioItems(options);
     return NextResponse.json(result);
   } catch (error) {
