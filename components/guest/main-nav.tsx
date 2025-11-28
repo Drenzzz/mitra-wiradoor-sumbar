@@ -4,9 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { Menu, Package2, Home, Package, Newspaper, Briefcase, Building2 } from "lucide-react";
-import { useState } from "react";
+import { Menu, Package2, Home, Package, Newspaper, Briefcase, Building2, ShoppingCart } from "lucide-react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/hooks/use-cart";
 
 const navItems = [
   { href: "/", label: "Beranda", icon: Home },
@@ -19,6 +20,12 @@ const navItems = [
 export function MainNav() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const cart = useCart();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <header className="bg-white/80 backdrop-blur-sm sticky top-0 z-50 border-b">
@@ -37,12 +44,28 @@ export function MainNav() {
             ))}
           </nav>
 
-          <Button asChild>
-            <Link href="/kontak">Hubungi Kami</Link>
-          </Button>
+          <div className="flex items-center gap-4">
+            <Link href="/checkout">
+              <Button variant="outline" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                {isMounted && cart.items.length > 0 && <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">{cart.items.length}</span>}
+              </Button>
+            </Link>
+
+            <Button asChild>
+              <Link href="/kontak">Hubungi Kami</Link>
+            </Button>
+          </div>
         </div>
 
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-4">
+          <Link href="/checkout">
+            <Button variant="ghost" size="icon" className="relative">
+              <ShoppingCart className="h-5 w-5" />
+              {isMounted && cart.items.length > 0 && <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">{cart.items.length}</span>}
+            </Button>
+          </Link>
+
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon">

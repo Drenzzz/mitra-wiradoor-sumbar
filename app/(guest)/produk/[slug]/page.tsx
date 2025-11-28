@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ProductCard } from "@/components/guest/product-card";
+import { AddToCartButton } from "@/components/guest/add-to-cart-button";
 import { ArrowLeft, ChevronRight, Home, ShoppingCart, MessageCircle } from "lucide-react";
 import type { Product } from "@/types";
 
@@ -110,12 +111,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
           <div className="pt-4 flex flex-col sm:flex-row gap-3">
             {product.isReadyStock ? (
-              <Button size="lg" asChild>
-                <Link href={`/order/${product.id}`}>
-                  <ShoppingCart className="mr-2 h-5 w-5" />
-                  Pesan Sekarang
-                </Link>
-              </Button>
+              <AddToCartButton product={product} />
             ) : (
               <Button size="lg" asChild>
                 <a href={whatsappLink} target="_blank" rel="noopener noreferrer">

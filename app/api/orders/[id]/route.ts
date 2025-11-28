@@ -1,18 +1,26 @@
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import * as articleService from "@/lib/services/article.service";
+import * as orderService from "@/lib/services/order.service";
 import { hasPermission } from "@/lib/config/permissions";
+import prisma from "@/lib/prisma";
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
   try {
-    const article = await articleService.getArticleById((await context.params).id);
-    if (!article) {
-      return NextResponse.json({ error: "Artikel tidak ditemukan" }, { status: 404 });
+    const { id } = await context.params;
+    const order = await orderService.getOrderById(id);
+
+    if (!order) {
+      return NextResponse.json({ error: "Pesanan tidak ditemukan" }, { status: 404 });
     }
-    return NextResponse.json(article);
+    return NextResponse.json(order);
   } catch (error) {
-    return NextResponse.json({ error: "Gagal mengambil data artikel" }, { status: 500 });
+    return NextResponse.json({ error: "Gagal mengambil data pesanan" }, { status: 500 });
   }
 }
 
@@ -20,7 +28,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
-  if (!hasPermission(session.user.role, "article:edit")) {
+  if (!hasPermission(session.user.role, "order:process")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -28,22 +36,14 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const { id } = await context.params;
     const body = await request.json();
 
-    if (body.action === "restore") {
-      if (!hasPermission(session.user.role, "article:delete")) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-      }
-      await articleService.restoreArticleById(id);
-      return NextResponse.json({ message: "Artikel berhasil dipulihkan" });
-    }
+    delete body.id;
+    delete body.invoiceNumber;
 
-    if (body.status === "PUBLISHED" && !hasPermission(session.user.role, "article:publish")) {
-      return NextResponse.json({ error: "Anda tidak memiliki izin untuk mempublikasikan artikel." }, { status: 403 });
-    }
-
-    const updatedArticle = await articleService.updateArticleById(id, body);
-    return NextResponse.json(updatedArticle);
+    const updatedOrder = await orderService.updateOrder(id, body);
+    return NextResponse.json(updatedOrder);
   } catch (error) {
-    return NextResponse.json({ error: "Gagal memperbarui artikel" }, { status: 500 });
+    console.error("Error updating order:", error);
+    return NextResponse.json({ error: "Gagal memperbarui pesanan" }, { status: 500 });
   }
 }
 
@@ -51,23 +51,20 @@ export async function DELETE(request: NextRequest, context: { params: Promise<{ 
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
-  if (!hasPermission(session.user.role, "article:delete")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!hasPermission(session.user.role, "order:delete")) {
+    return NextResponse.json({ error: "Forbidden: Hanya Admin yang bisa menghapus pesanan." }, { status: 403 });
   }
 
   try {
-    const { searchParams } = new URL(request.url);
-    const force = searchParams.get("force") === "true";
     const { id } = await context.params;
 
-    if (force) {
-      await articleService.permanentDeleteArticleById(id);
-      return NextResponse.json({ message: "Artikel berhasil dihapus permanen" });
-    } else {
-      await articleService.softDeleteArticleById(id);
-      return NextResponse.json({ message: "Artikel berhasil dipindahkan ke sampah" });
-    }
+    await prisma.order.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ message: "Pesanan berhasil dihapus permanen" });
   } catch (error) {
-    return NextResponse.json({ error: "Gagal menghapus artikel" }, { status: 500 });
+    console.error("Error deleting order:", error);
+    return NextResponse.json({ error: "Gagal menghapus pesanan" }, { status: 500 });
   }
 }

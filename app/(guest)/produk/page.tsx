@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useDebounce } from "@/hooks/use-debounce";
 import { AlertTriangle, Info, ChevronLeft, ChevronRight, Search, Filter, ArrowDownUp } from "lucide-react";
+import { AddToCartButton } from "@/components/guest/add-to-cart-button"
 import type { Product, Category } from "@/types";
 
 const PRODUCTS_PER_PAGE = 9;
