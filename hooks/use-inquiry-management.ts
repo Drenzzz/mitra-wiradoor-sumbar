@@ -1,70 +1,51 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import type { Inquiry } from '@/types';
-import { useDebounce } from '@/hooks/use-debounce';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { InquiryStatus } from "@prisma/client";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export function useInquiryManagement() {
-  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('createdAt-desc');
-  const [activeTab, setActiveTab] = useState('NEW');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("createdAt-desc");
+  const [activeTab, setActiveTab] = useState<InquiryStatus | "ALL">("NEW");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  const fetchInquiries = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const params = new URLSearchParams({
-        sort: sortBy,
-        page: String(currentPage),
-        limit: String(rowsPerPage),
-      });
-      if (debouncedSearchTerm) {
-        params.append('search', debouncedSearchTerm);
-      }
-      if (activeTab !== 'ALL') {
-        params.append('status', activeTab);
-      }
-      
-      const response = await fetch(`/api/inquiries?${params.toString()}`);
-      if (!response.ok) {
-        throw new Error('Gagal memuat data pesan masuk');
-      }
-      
-      const { data, totalCount } = await response.json();
-      setInquiries(data);
-      setTotalCount(totalCount);
-
-    } catch (err: any) {
-      setError(err.message);
-      toast.error(err.message);
-    } finally {
-      setIsLoading(false);
+  const fetchInquiriesData = async () => {
+    const params = new URLSearchParams({
+      sort: sortBy,
+      page: String(currentPage),
+      limit: String(rowsPerPage),
+    });
+    if (debouncedSearchTerm) {
+      params.append("search", debouncedSearchTerm);
     }
-  }, [debouncedSearchTerm, sortBy, currentPage, rowsPerPage, activeTab]);
+    if (activeTab !== "ALL") {
+      params.append("status", activeTab);
+    }
 
-  useEffect(() => {
-    fetchInquiries();
-  }, [fetchInquiries]);
-  
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [debouncedSearchTerm, sortBy, activeTab]);
+    const response = await fetch(`/api/inquiries?${params.toString()}`);
+    if (!response.ok) {
+      throw new Error("Gagal memuat data pesan masuk");
+    }
+    return response.json();
+  };
+
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ["inquiries", { activeTab, currentPage, rowsPerPage, sortBy, debouncedSearchTerm }],
+    queryFn: fetchInquiriesData,
+    placeholderData: keepPreviousData,
+    refetchInterval: 30000,
+  });
 
   return {
-    inquiries,
-    totalCount,
+    inquiries: data?.data || [],
+    totalCount: data?.totalCount || 0,
     isLoading,
-    error,
+    error: error ? (error as Error).message : null,
     searchTerm,
     setSearchTerm,
     sortBy,
@@ -74,6 +55,7 @@ export function useInquiryManagement() {
     currentPage,
     setCurrentPage,
     rowsPerPage,
-    fetchInquiries,
+    setRowsPerPage,
+    fetchInquiries: refetch,
   };
 }

@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Package, Folder, LineChart, Mail, DollarSign, ShoppingBag, TrendingUp, Activity } from "lucide-react";
+import { Package, Folder, LineChart, Mail, DollarSign, TrendingUp, Activity } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
-import { toast } from "sonner";
+import { useDashboardStats } from "@/hooks/use-dashboard-stats";
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("id-ID", {
@@ -25,44 +24,10 @@ const STATUS_LABELS: Record<string, string> = {
   CANCELLED: "Batal",
 };
 
-type DashboardData = {
-  counts: {
-    products: number;
-    categories: number;
-    articles: number;
-    inquiries: number;
-  };
-  revenue: {
-    total: number;
-  };
-  charts: {
-    orderStatus: { status: string; count: number }[];
-    salesTrend: { name: string; total: number }[];
-  };
-};
-
 export default function DashboardPage() {
   const { data: session } = useSession();
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch("/api/admin/stats");
-        if (!response.ok) throw new Error("Gagal memuat data dashboard");
-        const jsonData = await response.json();
-        setData(jsonData);
-      } catch (error) {
-        console.error(error);
-        toast.error("Gagal memuat data statistik.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchStats();
-  }, []);
+  const { data, isLoading } = useDashboardStats();
 
   if (isLoading) {
     return (
