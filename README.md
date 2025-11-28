@@ -2,35 +2,39 @@
 
 ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
 
-Repositori ini berisi kode sumber Website Profil Perusahaan dan E-Katalog untuk MR Konstruksi sebagai distributor resmi Wiradoor di Sumatera Barat. Proyek masih dalam tahap pengembangan aktif (WIP).
+Repositori ini berisi kode sumber Website Profil Perusahaan dan E-Katalog untuk MR Konstruksi sebagai distributor resmi Wiradoor di Sumatera Barat. Sistem ini dirancang untuk memfasilitasi pemasaran digital, manajemen produk, dan pemesanan pelanggan (B2C/B2B).
 
-## Status Singkat
-- [x] Panel admin dasar (auth, dashboard, produk, kategori, artikel) sudah fungsional.
-- [x] Alur pemesanan guest untuk produk ready stock sudah bisa digunakan sampai halaman sukses + WhatsApp follow-up.
-- [ ] Manajemen transaksi di sisi admin belum tersedia; pencatatan baru terjadi via API guest.
-- [ ] Halaman publik (beranda, katalog produk, daftar artikel) masih berupa versi awal.
+## Status Pengembangan
+- [x] **Sistem Keranjang Belanja (Cart)** global menggunakan Zustand dengan persistensi data.
+- [x] **Guest Checkout** untuk memesan banyak barang sekaligus tanpa perlu login.
+- [x] **Panel Admin** lengkap (Dashboard, Produk, Kategori, Artikel, Order, Pengguna).
+- [x] **Manajemen Pesanan** di sisi admin (Lihat detail, Proses harga deal, Update status).
+- [x] **Optimasi UI/UX** (Sidebar persisten, loading states, skeleton loader).
+- [ ] Halaman publik (landing page) masih dalam penyempurnaan konten.
 
 ## Fitur Utama
 
 ### Panel Admin (`/admin`)
-- Otentikasi berbasis NextAuth dengan peran Admin/Staf.
-- Dashboard ringkasan data produk, artikel, dan pesan.
-- CRUD produk lengkap dengan *soft delete* serta opsi hapus permanen.
-- CRUD kategori produk.
-- CRUD artikel dan kategori artikel dengan status Draft/Published.
-- Pengaturan akun (ubah nama dan sandi).
-- Desain responsif dengan dukungan mode gelap/terang.
-- **WIP:** Manajemen pengguna staf (CRUD) masih dalam pengerjaan.
-- **WIP:** Inbox pesan dari publik hanya tercatat; UI pengelolaannya belum selesai.
-- **WIP:** Modul monitoring transaksi/order di panel admin belum tersedia.
+- **Otentikasi Aman:** Login berbasis NextAuth dengan peran Admin (Full Access) dan Staf (Limited).
+- **Dashboard Analitik:** Ringkasan statistik produk, pendapatan, dan tren penjualan.
+- **Manajemen Produk & Katalog:** CRUD lengkap dengan dukungan *soft delete*, *restore*, dan upload gambar ke Cloudinary.
+- **Manajemen Pesanan (Order):** 
+  - Melihat pesanan masuk dari guest.
+  - Memproses pesanan dengan input "Harga Kesepakatan" (Deal Price).
+  - Mengubah status pesanan (Pending -> Processed -> Shipped -> Completed).
+- **Konten Blog/Artikel:** Editor artikel untuk keperluan SEO dan edukasi pelanggan.
+- **Manajemen Pengguna:** Admin dapat mengelola akun staf.
+- **Optimasi UI:** Sidebar navigasi persisten (tidak re-render) menggunakan Layout terpisah dan Zustand store.
 
 ### Halaman Publik (Guest)
-- Halaman detail produk dinamis termasuk daftar produk terkait.
-- Form pemesanan khusus produk *ready stock* dengan validasi Zod + React Hook Form.
-- Endpoint API `POST /api/orders` untuk membuat order guest beserta item otomatis dan nomor invoice unik.
-- Halaman sukses pemesanan (`/order/success/[orderId]`) dengan ringkasan order serta CTA konfirmasi via WhatsApp.
-- Integrasi tombol WhatsApp dari halaman produk untuk konsultasi/pemesanan kustom.
-- **WIP:** Landing page/beranda, katalog produk dengan filter penuh, daftar artikel, dan halaman statis masih disempurnakan kontennya.
+- **E-Katalog Produk:** Daftar produk dengan filter kategori dan pencarian.
+- **Keranjang Belanja (Shopping Cart):** - User dapat menambahkan berbagai produk *ready stock* ke keranjang.
+  - Data keranjang tersimpan di browser (localStorage).
+  - Indikator jumlah item di navbar.
+- **Checkout Multi-Item:** Formulir pemesanan tunggal untuk semua item di keranjang.
+- **WhatsApp Integration:** - Konfirmasi pesanan otomatis via WhatsApp setelah checkout sukses.
+  - Tombol konsultasi khusus untuk produk *custom order*.
+- **Inquiry Form:** Formulir kontak umum untuk pertanyaan non-transaksi.
 
 ## Tumpukan Teknologi
 
@@ -97,3 +101,4 @@ Buka `http://localhost:3000` untuk halaman publik dan `http://localhost:3000/log
 - `pnpm prisma:push` - Sinkron Prisma schema ke database.
 - `pnpm prisma:seed` - Menjalankan seed akun admin.
 - `pnpm db:adduser` - Skrip CLI untuk menambah user admin/staf baru.
+  - Contoh: pnpm db:adduser user@test.com "Nama User" password123 STAF
