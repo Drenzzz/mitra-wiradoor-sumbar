@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { usePermission } from '@/hooks/use-permission';
 
 const itemVariants: any = {
   hidden: { y: 20, opacity: 0 },
@@ -59,6 +60,8 @@ export function ProductTable({
   onRestoreClick,
   onForceDeleteClick,
 }: ProductTableProps) {
+
+  const { can } = usePermission();
 
   const handleSelectAll = (checked: boolean) => {
     setSelectedRowKeys(checked ? products.map(p => p.id) : []);
@@ -146,13 +149,21 @@ export function ProductTable({
                     <DropdownMenuItem onSelect={() => onViewClick(product)}><Eye className="mr-2 h-4 w-4" />Lihat Detail</DropdownMenuItem>
                     {variant === 'active' ? (
                       <>
-                        <DropdownMenuItem onSelect={() => onEditClick(product)}><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-500" onSelect={() => onDeleteClick(product)}><Trash2 className="mr-2 h-4 w-4" />Hapus</DropdownMenuItem>
+                        {can('product:edit') && (
+                          <DropdownMenuItem onSelect={() => onEditClick(product)}><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
+                        )}
+                        {can('product:delete') && (
+                          <DropdownMenuItem className="text-red-500" onSelect={() => onDeleteClick(product)}><Trash2 className="mr-2 h-4 w-4" />Hapus</DropdownMenuItem>
+                        )}
                       </>
                     ) : (
                       <>
-                        <DropdownMenuItem onSelect={() => onRestoreClick(product)}><Undo className="mr-2 h-4 w-4" />Pulihkan</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-500" onSelect={() => onForceDeleteClick(product)}><Trash2 className="mr-2 h-4 w-4" />Hapus Permanen</DropdownMenuItem>
+                         {can('product:delete') && (
+                           <>
+                            <DropdownMenuItem onSelect={() => onRestoreClick(product)}><Undo className="mr-2 h-4 w-4" />Pulihkan</DropdownMenuItem>
+                            <DropdownMenuItem className="text-red-500" onSelect={() => onForceDeleteClick(product)}><Trash2 className="mr-2 h-4 w-4" />Hapus Permanen</DropdownMenuItem>
+                           </>
+                         )}
                       </>
                     )}
                   </DropdownMenuContent>

@@ -1,68 +1,82 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { OrderStatus } from "@prisma/client";
-import * as orderService from "@/lib/services/order.service";
+import * as articleService from "@/lib/services/article.service";
+import { hasPermission } from "@/lib/config/permissions";
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) { 
+    try {
+        const article = await articleService.getArticleById((await context.params).id);
+        if (!article) {
+            return NextResponse.json({ error: "Artikel tidak ditemukan" }, { status: 404 });
+        }
+        return NextResponse.json(article);
+    } catch (error) {
+        return NextResponse.json({ error: "Gagal mengambil data artikel" }, { status: 500 });
+    }
+}
+
+export async function PATCH(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+
+  if (!hasPermission(session.user.role, 'article:edit')) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
-    const { id } = await params;
-
-    const order = await orderService.getOrderById(id);
-
-    if (!order) {
-      return NextResponse.json({ error: "Pesanan tidak ditemukan." }, { status: 404 });
+    const { id } = await context.params;
+    const body = await request.json();
+    
+    if (body.action === 'restore') {
+        if (!hasPermission(session.user.role, 'article:delete')) {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
+        await articleService.restoreArticleById(id);
+        return NextResponse.json({ message: "Artikel berhasil dipulihkan" });
     }
 
-    return NextResponse.json(order);
-  } catch (error: any) {
-    console.error("Error fetching order detail:", error);
-    if (error.message.includes("Format Order ID tidak valid")) {
-      return NextResponse.json({ error: "Format ID Pesanan tidak valid." }, { status: 400 });
+    if (body.status === 'PUBLISHED' && !hasPermission(session.user.role, 'article:publish')) {
+        return NextResponse.json({ error: "Anda tidak memiliki izin untuk mempublikasikan artikel." }, { status: 403 });
     }
-    return NextResponse.json({ error: "Terjadi kesalahan pada server." }, { status: 500 });
+
+    const updatedArticle = await articleService.updateArticleById(id, body);
+    return NextResponse.json(updatedArticle);
+  } catch (error) {
+    return NextResponse.json({ error: "Gagal memperbarui artikel" }, { status: 500 });
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+
+  if (!hasPermission(session.user.role, 'article:delete')) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
-    const { id } = await params;
-    const body = await request.json();
-    const { status, dealPrice } = body;
-
-    if (!status || !Object.values(OrderStatus).includes(status)) {
-      return NextResponse.json({ error: "Status tidak valid." }, { status: 400 });
+    const { searchParams } = new URL(request.url);
+    const force = searchParams.get('force') === 'true';
+    const { id } = await context.params;
+    
+    if (force) {
+      await articleService.permanentDeleteArticleById(id);
+      return NextResponse.json({ message: "Artikel berhasil dihapus permanen" });
+    } else {
+      await articleService.softDeleteArticleById(id);
+      return NextResponse.json({ message: "Artikel berhasil dipindahkan ke sampah" });
     }
-
-    if (status === "PROCESSED" && (dealPrice === undefined || dealPrice === null)) {
-      return NextResponse.json({ error: "Harga kesepakatan wajib diisi untuk memproses pesanan." }, { status: 400 });
-    }
-
-    const updateData: any = { status };
-    if (dealPrice !== undefined && dealPrice !== null) {
-      updateData.dealPrice = parseFloat(dealPrice);
-    }
-
-    const updatedOrder = await orderService.updateOrder(id, updateData);
-
-    return NextResponse.json(updatedOrder);
-  } catch (error: any) {
-    console.error("Error updating order:", error);
-
-    if (error.code === "P2025" || error.message.includes("Format Order ID tidak valid")) {
-      return NextResponse.json({ error: "Pesanan tidak ditemukan atau ID tidak valid." }, { status: 404 });
-    }
-
-    return NextResponse.json({ error: "Terjadi kesalahan pada server." }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json({ error: "Gagal menghapus artikel" }, { status: 500 });
   }
 }

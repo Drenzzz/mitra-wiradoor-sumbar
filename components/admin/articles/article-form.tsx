@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImageUploader } from '@/components/admin/products/image-uploader';
+import { usePermission } from '@/hooks/use-permission';
 
 export const formSchema = z.object({
   title: z.string().min(5, { message: 'Judul artikel minimal 5 karakter.' }),
@@ -29,6 +30,7 @@ interface ArticleFormProps {
 
 export function ArticleForm({ form, onSubmit, formId }: ArticleFormProps) {
   const [categories, setCategories] = useState<ArticleCategory[]>([]);
+  const { can } = usePermission();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -47,7 +49,6 @@ export function ArticleForm({ form, onSubmit, formId }: ArticleFormProps) {
     <Form {...form}>
       <form id={formId} onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto pr-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Kolom Kiri untuk Judul dan Konten */}
           <div className="md:col-span-2 space-y-4">
             <FormField control={form.control} name="title" render={({ field }) => (
               <FormItem>
@@ -64,7 +65,6 @@ export function ArticleForm({ form, onSubmit, formId }: ArticleFormProps) {
               </FormItem>
             )} />
           </div>
-          {/* Kolom Kanan untuk Metadata */}
           <div className="space-y-4">
             <FormField control={form.control} name="featuredImageUrl" render={({ field }) => (
               <FormItem>
@@ -89,21 +89,28 @@ export function ArticleForm({ form, onSubmit, formId }: ArticleFormProps) {
                 <FormMessage />
               </FormItem>
             )} />
-             <FormField control={form.control} name="status" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status</FormLabel>
-                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger><SelectValue placeholder="Pilih status publikasi" /></SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="DRAFT">Draft</SelectItem>
-                      <SelectItem value="PUBLISHED">Published</SelectItem>
-                    </SelectContent>
-                  </Select>
-                <FormMessage />
-              </FormItem>
-            )} />
+             
+             {can('article:publish') ? (
+               <FormField control={form.control} name="status" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                   <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Pilih status publikasi" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="DRAFT">Draft</SelectItem>
+                        <SelectItem value="PUBLISHED">Published</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
+             ) : (
+               <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md text-sm text-yellow-800">
+                  Status artikel otomatis diset ke <strong>Draft</strong>. Hubungi Admin untuk publikasi.
+               </div>
+             )}
           </div>
         </div>
       </form>

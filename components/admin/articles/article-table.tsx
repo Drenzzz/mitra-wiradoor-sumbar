@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { usePermission } from '@/hooks/use-permission';
 
 interface ArticleTableProps {
   variant: 'active' | 'trashed';
@@ -26,6 +27,8 @@ interface ArticleTableProps {
 }
 
 export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditClick, onDeleteClick, onRestoreClick, onForceDeleteClick, selectedRowKeys, setSelectedRowKeys, onViewClick }: ArticleTableProps) {
+  const { can } = usePermission();
+  
   if (isLoading) return <div className="text-center p-8 text-muted-foreground">Memuat data artikel...</div>;
   if (articles.length === 0) return <div className="text-center p-8 text-muted-foreground">{variant === 'active' ? 'Belum ada artikel.' : 'Tidak ada artikel di sampah.'}</div>;
 
@@ -42,9 +45,6 @@ export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditCl
     setSelectedRowKeys(prev => checked ? [...prev, id] : prev.filter(key => key !== id));
   };
 
-  if (isLoading) return <div className="text-center p-8 text-muted-foreground">Memuat data artikel...</div>;
-  if (articles.length === 0) return <div className="text-center p-8 text-muted-foreground">{variant === 'active' ? 'Belum ada artikel.' : 'Tidak ada artikel di sampah.'}</div>;
-
   return (
     <Table>
       <TableHeader>
@@ -54,6 +54,7 @@ export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditCl
               checked={rowCount > 0 && numSelected === rowCount ? true : (numSelected > 0 ? 'indeterminate' : false)}
               onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
               aria-label="Select all"
+              disabled={!can('article:delete') && variant === 'active'} 
             />
           </TableHead>
           <TableHead className="w-[80px]">Gambar</TableHead>
@@ -73,6 +74,7 @@ export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditCl
                 checked={selectedRowKeys.includes(article.id)}
                 onCheckedChange={(checked) => handleRowSelect(article.id, Boolean(checked))}
                 aria-label="Select row"
+                disabled={!can('article:delete') && variant === 'active'}
               />
             </TableCell>
             <TableCell>
@@ -98,21 +100,29 @@ export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditCl
                   </DropdownMenuItem>
                   {variant === 'active' ? (
                     <>
-                      <DropdownMenuItem onSelect={() => onEditClick(article)}>
-                        <Pencil className="mr-2 h-4 w-4" />Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-500" onSelect={() => onDeleteClick(article)}>
-                        <Trash2 className="mr-2 h-4 w-4" />Hapus
-                      </DropdownMenuItem>
+                      {can('article:edit') && (
+                        <DropdownMenuItem onSelect={() => onEditClick(article)}>
+                            <Pencil className="mr-2 h-4 w-4" />Edit
+                        </DropdownMenuItem>
+                      )}
+                      {can('article:delete') && (
+                        <DropdownMenuItem className="text-red-500" onSelect={() => onDeleteClick(article)}>
+                            <Trash2 className="mr-2 h-4 w-4" />Hapus
+                        </DropdownMenuItem>
+                      )}
                     </>
                   ) : (
                     <>
-                      <DropdownMenuItem onSelect={() => onRestoreClick(article)}>
-                        <Undo className="mr-2 h-4 w-4" />Pulihkan
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-500" onSelect={() => onForceDeleteClick(article)}>
-                        <Trash2 className="mr-2 h-4 w-4" />Hapus Permanen
-                      </DropdownMenuItem>
+                      {can('article:delete') && (
+                        <>
+                            <DropdownMenuItem onSelect={() => onRestoreClick(article)}>
+                                <Undo className="mr-2 h-4 w-4" />Pulihkan
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-red-500" onSelect={() => onForceDeleteClick(article)}>
+                                <Trash2 className="mr-2 h-4 w-4" />Hapus Permanen
+                            </DropdownMenuItem>
+                        </>
+                      )}
                     </>
                   )}
                 </DropdownMenuContent>
