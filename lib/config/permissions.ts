@@ -28,6 +28,7 @@ export type Permission =
   | "portfolio:edit"
   | "portfolio:delete"
   | "user:manage"
+  | "report:view"
   | "all";
 
 export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {

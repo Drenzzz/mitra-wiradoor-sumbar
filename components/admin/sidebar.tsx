@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { Home, Package, Folder, LineChart, Mail, Package2, LogOut, Moon, Sun, Settings, User, CreditCard, Users, Briefcase } from "lucide-react";
+import { Home, Package, Folder, LineChart, Mail, Package2, LogOut, Moon, Sun, Settings, User, CreditCard, Users, Briefcase, BarChart } from "lucide-react";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -27,6 +27,7 @@ export function Sidebar() {
     { href: "/admin/products", label: "Produk", icon: Package, permission: "product:view" },
     { href: "/admin/categories", label: "Kategori", icon: Folder, permission: "category:view" },
     { href: "/admin/orders", label: "Pesanan", icon: CreditCard, permission: "order:view" },
+    { href: "/admin/reports", label: "Laporan", icon: BarChart, permission: "report:view" },
     { href: "/admin/portfolio", label: "Portofolio", icon: Briefcase, permission: "portfolio:view" },
     { href: "/admin/articles", label: "Artikel", icon: LineChart, permission: "article:view" },
     { href: "/admin/inquiries", label: "Pesan Masuk", icon: Mail, permission: "inquiry:view" },
