@@ -3,14 +3,16 @@
 import { useState } from "react";
 import { format, subDays } from "date-fns";
 import { PageWrapper } from "@/components/admin/page-wrapper";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useReportData } from "@/hooks/use-report-data";
 import { SalesChart } from "@/components/admin/reports/sales-chart";
 import { OrderTypeChart } from "@/components/admin/reports/order-type-chart";
 import { TransactionTable } from "@/components/admin/reports/transaction-table";
-import { DollarSign, ShoppingBag, XCircle, TrendingUp } from "lucide-react";
+import { DollarSign, ShoppingBag, XCircle, TrendingUp, Download, FileSpreadsheet, FileText } from "lucide-react";
+import { exportToExcel, exportToPDF } from "@/lib/export-utils";
+import { toast } from "sonner";
 
 export default function ReportsPage() {
   const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
@@ -28,6 +30,26 @@ export default function ReportsPage() {
     }));
   };
 
+  const handleExport = (type: "excel" | "pdf") => {
+    if (!data || !dateRange.from || !dateRange.to) {
+      toast.error("Data belum siap untuk diekspor.");
+      return;
+    }
+
+    try {
+      if (type === "excel") {
+        exportToExcel(data, dateRange.from, dateRange.to);
+        toast.success("Laporan Excel berhasil diunduh.");
+      } else {
+        exportToPDF(data, dateRange.from, dateRange.to);
+        toast.success("Laporan PDF berhasil diunduh.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Gagal mengunduh laporan.");
+    }
+  };
+
   const formatCurrency = (val: number) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(val);
 
   return (
@@ -37,6 +59,16 @@ export default function ReportsPage() {
           <div>
             <h1 className="text-2xl font-bold">Laporan & Analitik</h1>
             <p className="text-muted-foreground">Pantau performa penjualan dan tren pasar.</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => handleExport("excel")} disabled={isLoading || !data}>
+              <FileSpreadsheet className="mr-2 h-4 w-4 text-green-600" />
+              Excel
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleExport("pdf")} disabled={isLoading || !data}>
+              <FileText className="mr-2 h-4 w-4 text-red-600" />
+              PDF
+            </Button>
           </div>
         </div>
 
