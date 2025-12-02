@@ -12,7 +12,6 @@ import { useEffect, useState } from "react";
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const { isCollapsed, toggleSidebar } = useSidebar();
-
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -24,22 +23,22 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen w-full bg-muted/40 relative">
+    <div className="flex h-screen w-full bg-muted/40 overflow-hidden relative">
       <Button
         variant="outline"
         size="icon"
         onClick={toggleSidebar}
-        className={cn("hidden md:inline-flex absolute top-1/2 -translate-y-1/2 z-20 h-7 w-7 transition-all duration-300 ease-in-out", isCollapsed ? "left-[50px]" : "left-[242px]")}
+        className={cn("hidden md:inline-flex absolute top-1/2 -translate-y-1/2 z-50 h-7 w-7 transition-all duration-300 ease-in-out shadow-md bg-background", isCollapsed ? "left-[50px]" : "left-[242px]")}
       >
         {isCollapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
       </Button>
 
-      <div className="hidden md:flex">
+      <div className="hidden md:flex h-full flex-col border-r bg-background">
         <Sidebar />
       </div>
 
-      <div className="flex flex-col flex-1 w-full min-w-0">
-        <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 md:hidden">
+      <div className="flex flex-col flex-1 w-full min-w-0 h-full">
+        <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-4 border-b bg-background px-4 md:hidden">
           <Sheet>
             <SheetTrigger asChild>
               <Button size="icon" variant="outline" className="sm:hidden">
@@ -57,7 +56,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </Link>
         </header>
 
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 lg:p-6">
+          <div className="mx-auto max-w-7xl space-y-4">{children}</div>
+        </main>
       </div>
 
       <Toaster position="top-center" />
