@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useReportData } from "@/hooks/use-report-data";
 import { SalesChart } from "@/components/admin/reports/sales-chart";
 import { OrderTypeChart } from "@/components/admin/reports/order-type-chart";
+import { TransactionTable } from "@/components/admin/reports/transaction-table";
 import { DollarSign, ShoppingBag, XCircle, TrendingUp } from "lucide-react";
 
 export default function ReportsPage() {
@@ -114,6 +115,8 @@ export default function ReportsPage() {
               <SalesChart data={data.salesTrend} />
               <OrderTypeChart data={data.orderTypeStats} />
             </div>
+
+            <TransactionTable data={data.recentTransactions} />
           </div>
         )}
       </div>
