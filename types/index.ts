@@ -123,3 +123,49 @@ export type PortfolioItem = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type SalesTrend = {
+  date: string;
+  revenue: number;
+  orderCount: number;
+};
+
+export type OrderTypeStat = {
+  isReadyStock: boolean;
+  count: number;
+  label: string;
+};
+
+export type TopProduct = {
+  name: string;
+  quantity: number;
+};
+
+export type OrderStatusStat = {
+  status: string;
+  count: number;
+  label: string;
+};
+
+export type TransactionSummary = {
+  id: string;
+  invoiceNumber: string;
+  customerName: string;
+  date: Date;
+  amount: number;
+  status: string;
+};
+
+export type ReportData = {
+  summary: {
+    totalRevenue: number;
+    totalOrders: number;
+    averageOrderValue: number;
+    cancelledOrders: number;
+  };
+  salesTrend: SalesTrend[];
+  orderTypeStats: OrderTypeStat[];
+  topProducts: TopProduct[];
+  orderStatusStats: OrderStatusStat[];
+  recentTransactions: TransactionSummary[];
+};
