@@ -10,7 +10,8 @@ import { useReportData } from "@/hooks/use-report-data";
 import { SalesChart } from "@/components/admin/reports/sales-chart";
 import { OrderTypeChart } from "@/components/admin/reports/order-type-chart";
 import { TransactionTable } from "@/components/admin/reports/transaction-table";
-import { DollarSign, ShoppingBag, XCircle, TrendingUp, Download, FileSpreadsheet, FileText } from "lucide-react";
+import { ReportsSkeleton } from "@/components/admin/reports/reports-skeleton";
+import { DollarSign, ShoppingBag, XCircle, TrendingUp, FileSpreadsheet, FileText } from "lucide-react";
 import { exportToExcel, exportToPDF } from "@/lib/export-utils";
 import { toast } from "sonner";
 
@@ -95,11 +96,15 @@ export default function ReportsPage() {
           </CardContent>
         </Card>
 
-        {isLoading && <div className="py-12 text-center text-muted-foreground animate-pulse">Sedang memproses data laporan...</div>}
-        {error && <div className="py-12 text-center text-destructive">Gagal memuat data laporan. Silakan coba lagi.</div>}
-
-        {data && !isLoading && (
-          <div className="space-y-6">
+        {isLoading ? (
+          <ReportsSkeleton />
+        ) : error ? (
+          <div className="py-12 text-center text-destructive border border-dashed border-destructive/50 rounded-lg bg-destructive/5">
+            <p className="font-medium">Gagal memuat data laporan.</p>
+            <p className="text-sm mt-1 text-muted-foreground">Silakan periksa koneksi internet atau coba lagi nanti.</p>
+          </div>
+        ) : data ? (
+          <div className="space-y-6 animate-in fade-in duration-500">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -150,7 +155,7 @@ export default function ReportsPage() {
 
             <TransactionTable data={data.recentTransactions} />
           </div>
-        )}
+        ) : null}
       </div>
     </PageWrapper>
   );
