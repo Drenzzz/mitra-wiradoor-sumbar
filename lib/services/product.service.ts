@@ -6,6 +6,7 @@ export type ProductDto = {
   description: string;
   specifications: string;
   imageUrl: string;
+  images?: string[];
   categoryId: string;
 };
 

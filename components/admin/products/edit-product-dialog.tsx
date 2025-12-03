@@ -30,6 +30,7 @@ export function EditProductDialog({ product, isOpen, onClose, onSuccess }: EditP
         specifications: product.specifications,
         categoryId: product.categoryId,
         imageUrl: product.imageUrl,
+        images: product.images && product.images.length > 0 ? product.images : [product.imageUrl],
         isReadyStock: product.isReadyStock || false,
       });
     }

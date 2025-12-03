@@ -10,16 +10,19 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ImageUploader } from "./image-uploader";
+import { MultiImageUploader } from "./multi-image-uploader";
+import { CategoryManager } from "./category-manager";
 
 export const formSchema = z.object({
   name: z.string().min(3, { message: "Nama produk minimal 3 karakter." }),
   description: z.string().min(10, { message: "Deskripsi minimal 10 karakter." }),
   specifications: z.string().min(10, { message: "Spesifikasi minimal 10 karakter." }),
   categoryId: z.string().min(1, { message: "Kategori wajib dipilih." }),
-  imageUrl: z.string().min(1, { message: "Gambar produk wajib diunggah." }).url({ message: "URL gambar tidak valid." }),
+  images: z.array(z.string()).min(1, { message: "Minimal 1 gambar produk wajib diunggah." }),
+  imageUrl: z.string().optional(),
   isReadyStock: z.boolean({ message: "Status produk wajib dipilih." }),
 });
+
 export type ProductFormValues = z.infer<typeof formSchema>;
 
 interface ProductFormProps {
@@ -31,73 +34,95 @@ interface ProductFormProps {
 export function ProductForm({ form, onSubmit, formId }: ProductFormProps) {
   const [categories, setCategories] = useState<Category[]>([]);
 
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch("/api/categories?status=active");
+      const data = await response.json();
+      setCategories(data.data || []);
+    } catch (error) {
+      toast.error("Gagal memuat daftar kategori.");
+    }
+  };
+
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch("/api/categories?status=active");
-        const data = await response.json();
-        setCategories(data.data);
-      } catch (error) {
-        toast.error("Gagal memuat daftar kategori.");
-      }
-    };
     fetchCategories();
   }, []);
 
+  const handleSubmit = (values: ProductFormValues) => {
+    if (values.images && values.images.length > 0) {
+      values.imageUrl = values.images[0];
+    }
+    onSubmit(values);
+  };
+
   return (
     <Form {...form}>
-      <form id={formId} onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 max-h-[60vh] overflow-y-auto pr-6">
+      <form id={formId} onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 py-4 max-h-[70vh] overflow-y-auto pr-2">
         <FormField
           control={form.control}
-          name="imageUrl"
+          name="images"
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <ImageUploader onUploadSuccess={(url) => form.setValue("imageUrl", url, { shouldValidate: true })} initialImageUrl={field.value} />
+                <MultiImageUploader
+                  value={field.value || []}
+                  onChange={(urls) => {
+                    field.onChange(urls);
+                    if (urls.length > 0) {
+                      form.setValue("imageUrl", urls[0]);
+                    }
+                  }}
+                  maxFiles={5}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nama Produk</FormLabel>
-              <FormControl>
-                <Input placeholder="cth: Pintu Solid Merbau" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="categoryId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Kategori Produk</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nama Produk</FormLabel>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih kategori untuk produk ini" />
-                  </SelectTrigger>
+                  <Input placeholder="cth: Pintu Solid Merbau" {...field} />
                 </FormControl>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="categoryId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Kategori Produk</FormLabel>
+                <div className="flex gap-2">
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Pilih kategori" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <CategoryManager onCategoryChange={fetchCategories} />
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <FormField
           control={form.control}
@@ -108,7 +133,7 @@ export function ProductForm({ form, onSubmit, formId }: ProductFormProps) {
               <Select onValueChange={(value) => field.onChange(value === "true")} value={String(field.value)}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Pilih status ketersediaan produk" />
+                    <SelectValue placeholder="Pilih status ketersediaan" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -128,7 +153,7 @@ export function ProductForm({ form, onSubmit, formId }: ProductFormProps) {
             <FormItem>
               <FormLabel>Deskripsi</FormLabel>
               <FormControl>
-                <Textarea placeholder="Jelaskan produk ini..." className="resize-y min-h-[100px]" {...field} />
+                <Textarea placeholder="Jelaskan detail produk ini. Mendukung format teks sederhana." className="resize-y min-h-[150px] font-mono text-sm leading-relaxed" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -142,7 +167,7 @@ export function ProductForm({ form, onSubmit, formId }: ProductFormProps) {
             <FormItem>
               <FormLabel>Spesifikasi Teknis</FormLabel>
               <FormControl>
-                <Textarea placeholder="cth: Ukuran: 90x210cm..." className="resize-y min-h-[100px]" {...field} />
+                <Textarea placeholder="cth: \n- Ukuran: 90x210cm\n- Material: Kayu Merbau\n- Finishing: Melamine" className="resize-y min-h-[150px] font-mono text-sm" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

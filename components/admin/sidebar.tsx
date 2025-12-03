@@ -52,7 +52,7 @@ export function Sidebar() {
   const navItems = [
     { href: "/admin", label: "Dashboard", icon: Home, permission: "dashboard:view" },
     { href: "/admin/products", label: "Produk", icon: Package, permission: "product:view" },
-    { href: "/admin/categories", label: "Kategori", icon: Folder, permission: "category:view" },
+
     { href: "/admin/orders", label: "Pesanan", icon: CreditCard, permission: "order:view" },
     { href: "/admin/reports", label: "Laporan", icon: BarChart, permission: "report:view" },
     { href: "/admin/portfolio", label: "Portofolio", icon: Briefcase, permission: "portfolio:view" },

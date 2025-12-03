@@ -11,6 +11,7 @@ export type Product = {
   description: string;
   specifications: string;
   imageUrl: string;
+  images?: string[];
   deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;

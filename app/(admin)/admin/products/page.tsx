@@ -4,19 +4,13 @@ import { useState, useEffect } from "react";
 import { Product, Category } from "@/types";
 import { useProductManagement } from "@/hooks/use-product-management";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CreateProductButton } from "@/components/admin/products/create-product-button";
-import { ProductTable } from "@/components/admin/products/product-table";
 import { ProductDetailDialog } from "@/components/admin/products/product-detail-dialog";
 import { EditProductDialog } from "@/components/admin/products/edit-product-dialog";
-import { motion, AnimatePresence } from "framer-motion";
-import { Undo, Trash2 } from "lucide-react";
 import { PageWrapper } from "@/components/admin/page-wrapper";
 import { ConfirmationDialog } from "@/components/admin/shared/confirmation-dialog";
+import { ProductListCard } from "@/components/admin/products/product-list-card";
 
 export default function ProductManagementPage() {
   const {
@@ -42,6 +36,7 @@ export default function ProductManagementPage() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
 
   const [categories, setCategories] = useState<Category[]>([]);
 
@@ -182,111 +177,6 @@ export default function ProductManagementPage() {
     setIsConfirmOpen(true);
   };
 
-  const ProductListCard = ({ variant }: { variant: "active" | "trashed" }) => {
-    const productList = products[variant] || [];
-    const totalCount = totals[variant] || 0;
-    const totalPages = Math.ceil(totalCount / rowsPerPage);
-
-    return (
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-        <Card>
-          <CardHeader>
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
-              <div className="flex-1">
-                <CardTitle>{variant === "active" ? "Produk Aktif" : "Produk di Sampah"}</CardTitle>
-                <CardDescription className="mt-1">{variant === "active" ? "Daftar semua produk yang tersedia di katalog Anda." : "Daftar produk yang telah dipindahkan ke sampah."}</CardDescription>
-              </div>
-              <div className="flex items-center gap-2 w-full md:w-auto">
-                <AnimatePresence>
-                  {selectedRowKeys.length > 0 && (
-                    <motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "auto" }} exit={{ opacity: 0, width: 0 }} className="flex items-center gap-2">
-                      {variant === "active" ? (
-                        <Button variant="destructive" size="sm" onClick={() => handleBulkAction("delete")}>
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Hapus ({selectedRowKeys.length})
-                        </Button>
-                      ) : (
-                        <>
-                          <Button variant="outline" size="sm" onClick={() => handleBulkAction("restore")}>
-                            <Undo className="mr-2 h-4 w-4" />
-                            Pulihkan ({selectedRowKeys.length})
-                          </Button>
-                          <Button variant="destructive" size="sm" onClick={() => handleBulkAction("forceDelete")}>
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Hapus Permanen
-                          </Button>
-                        </>
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-            <div className="flex flex-col md:flex-row items-center gap-2 pt-4">
-              <Input placeholder="Cari nama produk..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full md:flex-1" />
-              <Select value={filterByCategory} onValueChange={(value) => setFilterByCategory(value === "all" ? "" : value)}>
-                <SelectTrigger className="w-full md:w-[200px]">
-                  <SelectValue placeholder="Filter berdasarkan Kategori" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Kategori</SelectItem>
-                  {categories &&
-                    categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full md:w-[180px]">
-                  <SelectValue placeholder="Urutkan berdasarkan" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="name-asc">Nama (A-Z)</SelectItem>
-                  <SelectItem value="name-desc">Nama (Z-A)</SelectItem>
-                  <SelectItem value="createdAt-desc">Terbaru</SelectItem>
-                  <SelectItem value="createdAt-asc">Terlama</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <ProductTable
-              variant={variant}
-              products={productList}
-              isLoading={isLoading}
-              error={null}
-              onEditClick={handleEditClick}
-              onViewClick={handleViewClick}
-              onRefresh={fetchProducts}
-              selectedRowKeys={selectedRowKeys}
-              setSelectedRowKeys={setSelectedRowKeys}
-              onDeleteClick={(product) => handleSingleAction(product, "delete")}
-              onRestoreClick={(product) => handleSingleAction(product, "restore")}
-              onForceDeleteClick={(product) => handleSingleAction(product, "forceDelete")}
-            />
-          </CardContent>
-          {totalPages > 1 && (
-            <CardFooter>
-              <div className="text-xs text-muted-foreground">
-                Halaman <strong>{currentPage}</strong> dari <strong>{totalPages}</strong>
-              </div>
-              <div className="flex items-center space-x-2 ml-auto">
-                <Button variant="outline" size="sm" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage <= 1}>
-                  Sebelumnya
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage >= totalPages}>
-                  Selanjutnya
-                </Button>
-              </div>
-            </CardFooter>
-          )}
-        </Card>
-      </motion.div>
-    );
-  };
-
   return (
     <PageWrapper>
       <>
@@ -306,10 +196,58 @@ export default function ProductManagementPage() {
               <TabsTrigger value="trashed">Sampah ({totals.trashed})</TabsTrigger>
             </TabsList>
             <TabsContent value="active" className="mt-4">
-              <ProductListCard variant="active" />
+              <ProductListCard
+                variant="active"
+                products={products.active || []}
+                totalCount={totals.active || 0}
+                isLoading={isLoading}
+                viewMode={viewMode}
+                setViewMode={setViewMode}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                filterByCategory={filterByCategory}
+                setFilterByCategory={setFilterByCategory}
+                categories={categories}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                selectedRowKeys={selectedRowKeys}
+                setSelectedRowKeys={setSelectedRowKeys}
+                handleBulkAction={handleBulkAction}
+                handleEditClick={handleEditClick}
+                handleViewClick={handleViewClick}
+                fetchProducts={fetchProducts}
+                handleSingleAction={handleSingleAction}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                rowsPerPage={rowsPerPage}
+              />
             </TabsContent>
             <TabsContent value="trashed" className="mt-4">
-              <ProductListCard variant="trashed" />
+              <ProductListCard
+                variant="trashed"
+                products={products.trashed || []}
+                totalCount={totals.trashed || 0}
+                isLoading={isLoading}
+                viewMode={viewMode}
+                setViewMode={setViewMode}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                filterByCategory={filterByCategory}
+                setFilterByCategory={setFilterByCategory}
+                categories={categories}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                selectedRowKeys={selectedRowKeys}
+                setSelectedRowKeys={setSelectedRowKeys}
+                handleBulkAction={handleBulkAction}
+                handleEditClick={handleEditClick}
+                handleViewClick={handleViewClick}
+                fetchProducts={fetchProducts}
+                handleSingleAction={handleSingleAction}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                rowsPerPage={rowsPerPage}
+              />
             </TabsContent>
           </Tabs>
         </div>

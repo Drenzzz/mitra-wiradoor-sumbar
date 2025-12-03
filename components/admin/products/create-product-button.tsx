@@ -21,6 +21,7 @@ export function CreateProductButton({ onSuccess }: { onSuccess: () => void }) {
       specifications: "",
       categoryId: "",
       imageUrl: "",
+      images: [],
       isReadyStock: false,
     },
   });
