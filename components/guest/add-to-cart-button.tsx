@@ -5,12 +5,15 @@ import { useCart } from "@/hooks/use-cart";
 import { Product } from "@/types";
 import { ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
-interface AddToCartButtonProps {
+type ButtonProps = React.ComponentProps<typeof Button>;
+
+interface AddToCartButtonProps extends ButtonProps {
   product: Product;
 }
 
-export function AddToCartButton({ product }: AddToCartButtonProps) {
+export function AddToCartButton({ product, className, ...props }: AddToCartButtonProps) {
   const cart = useCart();
 
   const onAddToCart = () => {
@@ -19,8 +22,8 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
   };
 
   return (
-    <Button onClick={onAddToCart} className="w-full gap-2">
-      <ShoppingCart className="h-4 w-4" />
+    <Button onClick={onAddToCart} className={cn("w-full gap-2", className)} {...props}>
+      <ShoppingCart className="h-5 w-5" />
       Tambah ke Keranjang
     </Button>
   );
