@@ -36,6 +36,7 @@ export type Article = {
   title: string;
   slug: string;
   content: string;
+  excerpt?: string;
   featuredImageUrl: string;
   status: "PUBLISHED" | "DRAFT";
   deletedAt: Date | null;

@@ -5,7 +5,17 @@ import * as articleService from "@/lib/services/article.service";
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    const article = await articleService.getArticleById((await context.params).id);
+    const idOrSlug = (await context.params).id;
+    let article;
+
+    if (/^[0-9a-fA-F]{24}$/.test(idOrSlug)) {
+      article = await articleService.getArticleById(idOrSlug);
+    }
+
+    if (!article) {
+      article = await articleService.getArticleBySlug(idOrSlug);
+    }
+
     if (!article) {
       return NextResponse.json({ error: "Artikel tidak ditemukan" }, { status: 404 });
     }

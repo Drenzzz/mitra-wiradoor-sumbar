@@ -114,22 +114,32 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
         <Image src={article.featuredImageUrl} alt={article.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 75vw, 1024px" priority />
       </div>
 
-      <article className="text-foreground/90 leading-relaxed whitespace-pre-wrapspace-y-4max-w-none">{article.content}</article>
+      <article className="prose prose-lg dark:prose-invert max-w-none prose-img:rounded-xl prose-headings:font-bold prose-a:text-primary hover:prose-a:text-primary/80">
+        <div dangerouslySetInnerHTML={{ __html: article.content }} />
+      </article>
 
-      <div className="pt-8 mt-8 border-t">
+      <div className="pt-8 mt-12 border-t">
         <ShareButtons title={article.title} />
       </div>
 
-      <div className="mt-12 pt-8 border-t">
-        <h2 className="text-2xl font-semibold mb-6">Artikel Terkait</h2>
+      <div className="mt-16 pt-10 border-t bg-muted/30 -mx-4 px-4 sm:-mx-0 sm:px-0 sm:bg-transparent sm:border-t-0">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold tracking-tight">Artikel Terkait</h2>
+          <Link href="/artikel" className="text-sm font-medium text-primary hover:underline flex items-center">
+            Lihat Semua <ChevronRight className="ml-1 h-4 w-4" />
+          </Link>
+        </div>
+
         {relatedArticles.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {relatedArticles.map((relatedArticle) => (
               <ArticleCard key={relatedArticle.id} article={relatedArticle} />
             ))}
           </div>
         ) : (
-          <p className="text-muted-foreground">Tidak ada artikel terkait lainnya dalam kategori ini.</p>
+          <div className="text-center py-12 bg-muted/50 rounded-lg border border-dashed">
+            <p className="text-muted-foreground">Tidak ada artikel terkait lainnya dalam kategori ini.</p>
+          </div>
         )}
       </div>
     </div>

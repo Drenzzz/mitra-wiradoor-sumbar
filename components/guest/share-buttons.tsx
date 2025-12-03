@@ -1,55 +1,64 @@
 "use client";
 
-import { useState } from "react";
-import { usePathname } from "next/navigation";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Copy, Check, MessageCircle } from "lucide-react";
+import { Facebook, Twitter, Linkedin, Link as LinkIcon, Check } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 interface ShareButtonsProps {
   title: string;
 }
 
 export function ShareButtons({ title }: ShareButtonsProps) {
-  const pathname = usePathname();
-  const [isCopied, setIsCopied] = useState(false);
-
-  const url = typeof window !== "undefined" ? `${window.location.origin}${pathname}` : "";
+  const [copied, setCopied] = useState(false);
 
   const handleCopyLink = () => {
-    if (!navigator.clipboard) {
-      toast.error("Browser Anda tidak mendukung fitur salin link.");
-      return;
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      toast.success("Tautan berhasil disalin!");
+      setTimeout(() => setCopied(false), 2000);
     }
-
-    navigator.clipboard
-      .writeText(url)
-      .then(() => {
-        setIsCopied(true);
-        toast.success("Link berhasil disalin ke clipboard!");
-        setTimeout(() => setIsCopied(false), 2000);
-      })
-      .catch((err) => {
-        console.error("Failed to copy: ", err);
-        toast.error("Gagal menyalin link.");
-      });
   };
 
-  const whatsappShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(title)}%20-%20${encodeURIComponent(url)}`;
+  const shareUrl = typeof window !== "undefined" ? encodeURIComponent(window.location.href) : "";
+  const shareTitle = encodeURIComponent(title);
 
   return (
-    <div className="flex items-center gap-2">
-      <p className="text-xs text-muted-foreground">Bagikan:</p>
-
-      <Button variant="outline" size="icon" asChild>
-        <a href={whatsappShareUrl} target="_blank" rel="noopener noreferrer" aria-label="Bagikan ke WhatsApp">
-          <MessageCircle className="h-4 w-4" />
-        </a>
-      </Button>
-
-      <Button variant="outline" size="icon" onClick={handleCopyLink} aria-label="Salin link">
-        {isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-      </Button>
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+      <span className="text-sm font-medium text-muted-foreground">Bagikan artikel ini:</span>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-full h-9 w-9 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+          onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, "_blank")}
+          title="Bagikan ke Facebook"
+        >
+          <Facebook className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-full h-9 w-9 text-sky-500 hover:text-sky-600 hover:bg-sky-50"
+          onClick={() => window.open(`https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}`, "_blank")}
+          title="Bagikan ke Twitter"
+        >
+          <Twitter className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-full h-9 w-9 text-blue-700 hover:text-blue-800 hover:bg-blue-50"
+          onClick={() => window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${shareTitle}`, "_blank")}
+          title="Bagikan ke LinkedIn"
+        >
+          <Linkedin className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="icon" className="rounded-full h-9 w-9" onClick={handleCopyLink} title="Salin Tautan">
+          {copied ? <Check className="h-4 w-4 text-green-600" /> : <LinkIcon className="h-4 w-4" />}
+        </Button>
+      </div>
     </div>
   );
 }

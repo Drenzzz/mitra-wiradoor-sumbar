@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -52,10 +53,10 @@
   --popover-foreground: oklch(0.145 0 0);
 
   /* ===== PERUBAHAN UTAMA DI SINI ===== */
-  --primary: oklch(0.7 0.16 54);         /* Warna Oranye Khas Wiradoor */
+  --primary: oklch(0.7 0.16 54); /* Warna Oranye Khas Wiradoor */
   --primary-foreground: oklch(0.985 0 0); /* Teks di atas oranye (putih agar kontras) */
   /* ==================================== */
-  
+
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -65,7 +66,7 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  
+
   /* ===== SESUAIKAN WARNA RING AGAR KONSISTEN ===== */
   --ring: oklch(0.7 0.16 54 / 70%); /* Ring/outline saat fokus, gunakan warna oranye */
   /* =============================================== */
@@ -94,7 +95,7 @@
   --popover-foreground: oklch(0.985 0 0);
 
   /* ===== PERUBAHAN UTAMA DI SINI ===== */
-  --primary: oklch(0.7 0.16 54);            /* Warna Oranye Khas Wiradoor */
+  --primary: oklch(0.7 0.16 54); /* Warna Oranye Khas Wiradoor */
   --primary-foreground: oklch(0.15 0 0); /* Teks di atas oranye (gelap agar kontras) */
   /* ==================================== */
 
@@ -146,14 +147,10 @@
   --animate-aurora: aurora 60s linear infinite;
   @keyframes aurora {
     from {
-      background-position:
-        50% 50%,
-        50% 50%;
+      background-position: 50% 50%, 50% 50%;
     }
     to {
-      background-position:
-        350% 50%,
-        350% 50%;
+      background-position: 350% 50%, 350% 50%;
     }
   }
 }

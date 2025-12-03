@@ -76,6 +76,16 @@ export const getArticleById = (id: string) => {
   });
 };
 
+export const getArticleBySlug = (slug: string) => {
+  return prisma.article.findUnique({
+    where: { slug },
+    include: {
+      author: { select: { name: true } },
+      category: { select: { name: true } },
+    },
+  });
+};
+
 export const updateArticleById = (id: string, data: Partial<ArticleDto>) => {
   return prisma.article.update({
     where: { id },
