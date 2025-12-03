@@ -1,11 +1,10 @@
-import * as XLSX from "xlsx";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { ReportData } from "@/types";
 
-export function exportToExcel(data: ReportData, startDate: Date, endDate: Date) {
+export async function exportToExcel(data: ReportData, startDate: Date, endDate: Date) {
+  const XLSX = await import("xlsx");
+
   const workbook = XLSX.utils.book_new();
 
   const summaryData = [
@@ -44,7 +43,10 @@ export function exportToExcel(data: ReportData, startDate: Date, endDate: Date) 
   XLSX.writeFile(workbook, fileName);
 }
 
-export function exportToPDF(data: ReportData, startDate: Date, endDate: Date) {
+export async function exportToPDF(data: ReportData, startDate: Date, endDate: Date) {
+  const jsPDF = (await import("jspdf")).default;
+  const autoTable = (await import("jspdf-autotable")).default;
+
   const doc = new jsPDF();
 
   doc.setFontSize(18);

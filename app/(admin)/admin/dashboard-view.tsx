@@ -1,8 +1,21 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Package, Folder, LineChart, Mail, DollarSign, TrendingUp, Activity } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { Package, LineChart, Mail, DollarSign, TrendingUp, Activity } from "lucide-react";
+
+// Lazy load Recharts components
+const BarChart = dynamic(() => import("recharts").then((mod) => mod.BarChart), { ssr: false });
+const Bar = dynamic(() => import("recharts").then((mod) => mod.Bar), { ssr: false });
+const XAxis = dynamic(() => import("recharts").then((mod) => mod.XAxis), { ssr: false });
+const YAxis = dynamic(() => import("recharts").then((mod) => mod.YAxis), { ssr: false });
+const CartesianGrid = dynamic(() => import("recharts").then((mod) => mod.CartesianGrid), { ssr: false });
+const Tooltip = dynamic(() => import("recharts").then((mod) => mod.Tooltip), { ssr: false });
+const ResponsiveContainer = dynamic(() => import("recharts").then((mod) => mod.ResponsiveContainer), { ssr: false });
+const PieChart = dynamic(() => import("recharts").then((mod) => mod.PieChart), { ssr: false });
+const Pie = dynamic(() => import("recharts").then((mod) => mod.Pie), { ssr: false });
+const Cell = dynamic(() => import("recharts").then((mod) => mod.Cell), { ssr: false });
+const Legend = dynamic(() => import("recharts").then((mod) => mod.Legend), { ssr: false });
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("id-ID", {
@@ -109,7 +122,7 @@ export function DashboardView({ data, userName }: DashboardViewProps) {
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
                   <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `Rp${value / 1000}k`} />
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} contentStyle={{ backgroundColor: "var(--background)", borderColor: "var(--border)" }} itemStyle={{ color: "var(--foreground)" }} />
+                  <Tooltip formatter={(value: any) => formatCurrency(value as number)} contentStyle={{ backgroundColor: "var(--background)", borderColor: "var(--border)" }} itemStyle={{ color: "var(--foreground)" }} />
                   <Bar dataKey="total" fill="var(--primary)" radius={[4, 4, 0, 0]} name="Pendapatan" />
                 </BarChart>
               </ResponsiveContainer>
@@ -135,11 +148,7 @@ export function DashboardView({ data, userName }: DashboardViewProps) {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip
-                      formatter={(value: number, name: string) => [value, STATUS_LABELS[name] || name]}
-                      contentStyle={{ backgroundColor: "var(--background)", borderColor: "var(--border)" }}
-                      itemStyle={{ color: "var(--foreground)" }}
-                    />
+                    <Tooltip formatter={(value: any, name: any) => [value, STATUS_LABELS[name] || name]} contentStyle={{ backgroundColor: "var(--background)", borderColor: "var(--border)" }} itemStyle={{ color: "var(--foreground)" }} />
                     <Legend formatter={(value) => STATUS_LABELS[value] || value} layout="horizontal" verticalAlign="bottom" align="center" />
                   </PieChart>
                 </ResponsiveContainer>

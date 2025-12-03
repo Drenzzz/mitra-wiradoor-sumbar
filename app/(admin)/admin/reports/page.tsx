@@ -1,19 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { format, subDays } from "date-fns";
 import { PageWrapper } from "@/components/admin/page-wrapper";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useReportData } from "@/hooks/use-report-data";
-import { SalesChart } from "@/components/admin/reports/sales-chart";
-import { OrderTypeChart } from "@/components/admin/reports/order-type-chart";
 import { TransactionTable } from "@/components/admin/reports/transaction-table";
 import { ReportsSkeleton } from "@/components/admin/reports/reports-skeleton";
 import { DollarSign, ShoppingBag, XCircle, TrendingUp, FileSpreadsheet, FileText } from "lucide-react";
 import { exportToExcel, exportToPDF } from "@/lib/export-utils";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const SalesChart = dynamic(() => import("@/components/admin/reports/sales-chart").then((mod) => mod.SalesChart), {
+  loading: () => <Skeleton className="h-[350px] w-full rounded-xl" />,
+  ssr: false,
+});
+const OrderTypeChart = dynamic(() => import("@/components/admin/reports/order-type-chart").then((mod) => mod.OrderTypeChart), {
+  loading: () => <Skeleton className="h-[350px] w-full rounded-xl" />,
+  ssr: false,
+});
 
 export default function ReportsPage() {
   const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
@@ -31,7 +40,7 @@ export default function ReportsPage() {
     }));
   };
 
-  const handleExport = (type: "excel" | "pdf") => {
+  const handleExport = async (type: "excel" | "pdf") => {
     if (!data || !dateRange.from || !dateRange.to) {
       toast.error("Data belum siap untuk diekspor.");
       return;
@@ -39,10 +48,10 @@ export default function ReportsPage() {
 
     try {
       if (type === "excel") {
-        exportToExcel(data, dateRange.from, dateRange.to);
+        await exportToExcel(data, dateRange.from, dateRange.to);
         toast.success("Laporan Excel berhasil diunduh.");
       } else {
-        exportToPDF(data, dateRange.from, dateRange.to);
+        await exportToPDF(data, dateRange.from, dateRange.to);
         toast.success("Laporan PDF berhasil diunduh.");
       }
     } catch (error) {

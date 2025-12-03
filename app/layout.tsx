@@ -5,7 +5,7 @@ import AuthProvider from "@/components/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { QueryProvider } from "@/components/query-provider";
 
-const onest = Onest({ subsets: ["latin"], variable: "--font-onest" });
+const onest = Onest({ subsets: ["latin"], variable: "--font-onest", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
