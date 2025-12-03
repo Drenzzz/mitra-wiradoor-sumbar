@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -153,7 +154,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   );
 }
 
-export async function generateMetadata({ params }: ProductDetailPageProps) {
+export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
   const { product } = await getProductData(slug);
 
@@ -161,8 +162,31 @@ export async function generateMetadata({ params }: ProductDetailPageProps) {
     return { title: "Produk Tidak Ditemukan" };
   }
 
+  const title = `${product.name} - Wiradoor Sumbar`;
+  const description = product.description.substring(0, 160);
+  const imageUrl = product.imageUrl;
+
   return {
-    title: `${product.name} - Wiradoor Sumbar`,
-    description: product.description.substring(0, 160),
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [
+        {
+          url: imageUrl,
+          width: 800,
+          height: 600,
+          alt: product.name,
+        },
+      ],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
+    },
   };
 }

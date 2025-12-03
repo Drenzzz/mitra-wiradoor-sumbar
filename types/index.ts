@@ -40,6 +40,7 @@ export type Article = {
   deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
+  publishedAt: Date | null;
 
   categoryId: string;
   category: {

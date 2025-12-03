@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -135,7 +136,7 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
   );
 }
 
-export async function generateMetadata({ params }: ArticleDetailPageProps) {
+export async function generateMetadata({ params }: ArticleDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
   const { article } = await getArticleData(slug);
 
@@ -143,8 +144,33 @@ export async function generateMetadata({ params }: ArticleDetailPageProps) {
     return { title: "Artikel Tidak Ditemukan" };
   }
 
+  const title = `${article.title} - Wiradoor Sumbar`;
+  const description = article.content.substring(0, 160);
+  const imageUrl = article.featuredImageUrl;
+
   return {
-    title: `${article.title} - Wiradoor Sumbar`,
-    description: article.content.substring(0, 160),
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [
+        {
+          url: imageUrl,
+          width: 800,
+          height: 600,
+          alt: article.title,
+        },
+      ],
+      type: "article",
+      publishedTime: article.publishedAt ? new Date(article.publishedAt).toISOString() : undefined,
+      authors: [article.author?.name || "Wiradoor Sumbar"],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
+    },
   };
 }
