@@ -127,6 +127,7 @@ model Article {
   title            String
   slug             String        @unique
   content          String
+  excerpt          String?
   featuredImageUrl String
   status           ArticleStatus @default(DRAFT)
   publishedAt      DateTime?

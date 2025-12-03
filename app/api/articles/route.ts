@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     const payload = {
       ...body,
       authorId: session.user.id,
-      slug: title.toLowerCase().replace(/\s+/g, "-").slice(0, 50),
+      slug: body.slug || title.toLowerCase().replace(/\s+/g, "-").slice(0, 50),
       status: hasPermission(session.user.role, "article:publish") ? status : "DRAFT",
     };
 

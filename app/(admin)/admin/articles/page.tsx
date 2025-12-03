@@ -56,14 +56,7 @@ export default function ArticleManagementPage() {
 
   const [isArticleEditDialogOpen, setIsArticleEditDialogOpen] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
-  const [isCategoryEditDialogOpen, setIsCategoryEditDialogOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<ArticleCategory | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-
-  const handleEditCategoryClick = (category: ArticleCategory) => {
-    setSelectedCategory(category);
-    setIsCategoryEditDialogOpen(true);
-  };
 
   const handleEditArticleClick = (article: Article) => {
     setSelectedArticle(article);
@@ -347,39 +340,8 @@ export default function ArticleManagementPage() {
         <TabsContent value="active">{renderArticleListCard("active")}</TabsContent>
         <TabsContent value="trashed">{renderArticleListCard("trashed")}</TabsContent>
       </Tabs>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Kategori Artikel</CardTitle>
-            <CardDescription>Kelompokkan artikel Anda ke dalam kategori yang relevan.</CardDescription>
-          </div>
-          <CreateArticleCategoryButton onSuccess={fetchCategories} />
-        </CardHeader>
-        <CardContent>
-          <ArticleCategoryTable
-            variant="active"
-            categories={articleCategories.active}
-            isLoading={false}
-            error={null}
-            onRefresh={fetchCategories}
-            onEditClick={handleEditCategoryClick}
-            selectedRowKeys={[]}
-            setSelectedRowKeys={() => {}}
-            searchTerm=""
-          />
-        </CardContent>
-      </Card>
       <ArticleDetailDialog isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} article={selectedArticle} />
       <EditArticleDialog isOpen={isArticleEditDialogOpen} onClose={() => setIsArticleEditDialogOpen(false)} article={selectedArticle} onSuccess={fetchArticles} />
-      <EditArticleCategoryDialog
-        isOpen={isCategoryEditDialogOpen}
-        onClose={() => setIsCategoryEditDialogOpen(false)}
-        category={selectedCategory}
-        onSuccess={() => {
-          fetchCategories();
-          toast.success("Kategori berhasil diperbarui!");
-        }}
-      />
       <ConfirmationDialog
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}

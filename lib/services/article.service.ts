@@ -3,8 +3,9 @@ import { Prisma } from "@prisma/client";
 
 export type ArticleDto = {
   title: string;
-  slug: string;
+  slug?: string;
   content: string;
+  excerpt?: string;
   featuredImageUrl: string;
   status: "PUBLISHED" | "DRAFT";
   authorId: string;
@@ -59,8 +60,9 @@ export const getArticles = async (options: GetArticlesOptions = {}) => {
 };
 
 export const createArticle = (data: ArticleDto) => {
+  const slug = data.slug || data.title.toLowerCase().replace(/\s+/g, "-").slice(0, 50);
   return prisma.article.create({
-    data: { ...data, deletedAt: null },
+    data: { ...data, slug, deletedAt: null },
   });
 };
 
