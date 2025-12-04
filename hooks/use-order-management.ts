@@ -4,6 +4,7 @@ import { useState } from "react";
 import { OrderStatus } from "@prisma/client";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useDebounce } from "@/hooks/use-debounce";
+import { DateRange } from "react-day-picker";
 
 export function useOrderManagement() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -11,8 +12,10 @@ export function useOrderManagement() {
   const [activeTab, setActiveTab] = useState<OrderStatus>(OrderStatus.PENDING);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const debouncedSearchTerm = useDebounce(searchTerm, 1000);
 
   const fetchOrdersData = async () => {
     const params = new URLSearchParams({
@@ -26,6 +29,13 @@ export function useOrderManagement() {
       params.append("search", debouncedSearchTerm);
     }
 
+    if (dateRange?.from) {
+      params.append("startDate", dateRange.from.toISOString());
+    }
+    if (dateRange?.to) {
+      params.append("endDate", dateRange.to.toISOString());
+    }
+
     const response = await fetch(`/api/orders?${params.toString()}`);
 
     if (!response.ok) {
@@ -36,11 +46,38 @@ export function useOrderManagement() {
   };
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["orders", { activeTab, currentPage, rowsPerPage, sortBy, debouncedSearchTerm }],
+    queryKey: ["orders", { activeTab, currentPage, rowsPerPage, sortBy, debouncedSearchTerm, dateRange }],
     queryFn: fetchOrdersData,
     placeholderData: keepPreviousData,
     refetchInterval: 30000,
   });
+
+  const handleBulkAction = async (action: "updateStatus" | "delete", status?: OrderStatus) => {
+    if (selectedRowKeys.length === 0) return;
+
+    try {
+      const response = await fetch("/api/orders/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderIds: selectedRowKeys,
+          action,
+          status,
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || "Gagal melakukan aksi massal");
+      }
+
+      setSelectedRowKeys([]);
+      refetch();
+      return true;
+    } catch (error: any) {
+      throw error;
+    }
+  };
 
   return {
     orders: data?.data || [],
@@ -58,5 +95,10 @@ export function useOrderManagement() {
     rowsPerPage,
     setRowsPerPage,
     fetchOrders: refetch,
+    dateRange,
+    setDateRange,
+    selectedRowKeys,
+    setSelectedRowKeys,
+    handleBulkAction,
   };
 }

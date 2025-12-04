@@ -43,8 +43,8 @@ export async function POST(request: Request) {
           data: {
             orderId: order.id,
             productId: item.id,
-            productName: item.name, 
-            isReadyStock: true, 
+            productName: item.name,
+            isReadyStock: true,
             quantity: item.quantity,
           },
         });
@@ -79,6 +79,8 @@ export async function GET(request: NextRequest) {
       sort: searchParams.get("sort") || undefined,
       page: parseInt(searchParams.get("page") || "1", 10),
       limit: parseInt(searchParams.get("limit") || "10", 10),
+      startDate: searchParams.get("startDate") ? new Date(searchParams.get("startDate")!) : undefined,
+      endDate: searchParams.get("endDate") ? new Date(searchParams.get("endDate")!) : undefined,
     };
 
     const result = await getOrders(options);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { PageWrapper } from "@/components/admin/page-wrapper";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,10 +14,30 @@ import { useOrderManagement } from "@/hooks/use-order-management";
 import { OrderTable } from "@/components/admin/orders/order-table";
 import { OrderDetailDialog } from "@/components/admin/orders/order-detail-dialog";
 import { ProcessOrderDialog } from "@/components/admin/orders/process-order-dialog";
+import { DatePickerWithRange } from "@/components/admin/date-range-picker";
 import type { Order, OrderDetail } from "@/types";
 
 export default function OrderManagementPage() {
-  const { orders, totalCount, isLoading, activeTab, setActiveTab, searchTerm, setSearchTerm, sortBy, setSortBy, currentPage, setCurrentPage, rowsPerPage, fetchOrders } = useOrderManagement();
+  const {
+    orders,
+    totalCount,
+    isLoading,
+    activeTab,
+    setActiveTab,
+    searchTerm,
+    setSearchTerm,
+    sortBy,
+    setSortBy,
+    currentPage,
+    setCurrentPage,
+    rowsPerPage,
+    fetchOrders,
+    dateRange,
+    setDateRange,
+    selectedRowKeys,
+    setSelectedRowKeys,
+    handleBulkAction,
+  } = useOrderManagement();
 
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isProcessDialogOpen, setIsProcessDialogOpen] = useState(false);
@@ -27,7 +47,7 @@ export default function OrderManagementPage() {
   const [isDialogLoading, setIsDialogLoading] = useState(false);
   const [isProcessLoading, setIsProcessLoading] = useState(false);
 
-  const handleViewClick = async (order: Order) => {
+  const handleViewClick = useCallback(async (order: Order) => {
     setIsDialogLoading(true);
     setIsDetailOpen(true);
     setSelectedOrder(null);
@@ -45,12 +65,12 @@ export default function OrderManagementPage() {
     } finally {
       setIsDialogLoading(false);
     }
-  };
+  }, []);
 
-  const handleProcessClick = (order: Order) => {
+  const handleProcessClick = useCallback((order: Order) => {
     setSelectedOrderToProcess(order);
     setIsProcessDialogOpen(true);
-  };
+  }, []);
 
   const confirmProcessOrder = async (dealPrice: number) => {
     if (!selectedOrderToProcess) return;
@@ -82,33 +102,36 @@ export default function OrderManagementPage() {
     }
   };
 
-  const handleStatusChange = async (id: string, status: OrderStatus) => {
-    toast.promise(
-      fetch(`/api/orders/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      }).then(async (res) => {
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || "Gagal mengubah status");
+  const handleStatusChange = useCallback(
+    async (id: string, status: OrderStatus) => {
+      toast.promise(
+        fetch(`/api/orders/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        }).then(async (res) => {
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || "Gagal mengubah status");
+          }
+          return res.json();
+        }),
+        {
+          loading: "Memperbarui status...",
+          success: () => {
+            fetchOrders();
+            return "Status pesanan berhasil diperbarui!";
+          },
+          error: (err) => err.message,
         }
-        return res.json();
-      }),
-      {
-        loading: "Memperbarui status...",
-        success: () => {
-          fetchOrders();
-          return "Status pesanan berhasil diperbarui!";
-        },
-        error: (err) => err.message,
-      }
-    );
-  };
+      );
+    },
+    [fetchOrders]
+  );
 
   const totalPages = Math.ceil(totalCount / rowsPerPage);
 
-  const OrderListCard = ({ status }: { status: OrderStatus }) => {
+  const renderOrderListCard = (status: OrderStatus) => {
     return (
       <Card>
         <CardHeader>
@@ -128,6 +151,7 @@ export default function OrderManagementPage() {
           </CardDescription>
           <div className="flex flex-col md:flex-row items-center gap-2 pt-4">
             <Input placeholder="Cari nama, email, atau invoice..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full" />
+            <DatePickerWithRange date={dateRange} setDate={setDateRange} />
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-full md:w-[200px]">
                 <SelectValue placeholder="Urutkan berdasarkan" />
@@ -139,9 +163,33 @@ export default function OrderManagementPage() {
               </SelectContent>
             </Select>
           </div>
+          {selectedRowKeys.length > 0 && (
+            <div className="flex items-center gap-2 pt-2 animate-in fade-in slide-in-from-top-2">
+              <span className="text-sm text-muted-foreground">{selectedRowKeys.length} dipilih</span>
+              <div className="h-4 w-px bg-border mx-2" />
+              {status === "PENDING" && (
+                <Button size="sm" variant="outline" onClick={() => handleBulkAction("updateStatus", "CANCELLED")} disabled={isProcessLoading}>
+                  Batalkan Terpilih
+                </Button>
+              )}
+              {status === "PROCESSED" && (
+                <Button size="sm" variant="default" onClick={() => handleBulkAction("updateStatus", "SHIPPED")} disabled={isProcessLoading}>
+                  Kirim Terpilih
+                </Button>
+              )}
+              {status === "SHIPPED" && (
+                <Button size="sm" variant="default" onClick={() => handleBulkAction("updateStatus", "COMPLETED")} disabled={isProcessLoading}>
+                  Selesaikan Terpilih
+                </Button>
+              )}
+              <Button size="sm" variant="destructive" onClick={() => handleBulkAction("delete")} disabled={isProcessLoading}>
+                Hapus Terpilih
+              </Button>
+            </div>
+          )}
         </CardHeader>
         <CardContent>
-          <OrderTable orders={orders} isLoading={isLoading} onViewClick={handleViewClick} onStatusChange={handleStatusChange} onProcessClick={handleProcessClick} />
+          <OrderTable orders={orders} isLoading={isLoading} onViewClick={handleViewClick} onStatusChange={handleStatusChange} onProcessClick={handleProcessClick} selectedRowKeys={selectedRowKeys} setSelectedRowKeys={setSelectedRowKeys} />
         </CardContent>
         {totalPages > 1 && (
           <CardFooter>
@@ -181,19 +229,19 @@ export default function OrderManagementPage() {
         </TabsList>
 
         <TabsContent value={OrderStatus.PENDING} className="mt-4">
-          <OrderListCard status={OrderStatus.PENDING} />
+          {renderOrderListCard(OrderStatus.PENDING)}
         </TabsContent>
         <TabsContent value={OrderStatus.PROCESSED} className="mt-4">
-          <OrderListCard status={OrderStatus.PROCESSED} />
+          {renderOrderListCard(OrderStatus.PROCESSED)}
         </TabsContent>
         <TabsContent value={OrderStatus.SHIPPED} className="mt-4">
-          <OrderListCard status={OrderStatus.SHIPPED} />
+          {renderOrderListCard(OrderStatus.SHIPPED)}
         </TabsContent>
         <TabsContent value={OrderStatus.COMPLETED} className="mt-4">
-          <OrderListCard status={OrderStatus.COMPLETED} />
+          {renderOrderListCard(OrderStatus.COMPLETED)}
         </TabsContent>
         <TabsContent value={OrderStatus.CANCELLED} className="mt-4">
-          <OrderListCard status={OrderStatus.CANCELLED} />
+          {renderOrderListCard(OrderStatus.CANCELLED)}
         </TabsContent>
       </Tabs>
 

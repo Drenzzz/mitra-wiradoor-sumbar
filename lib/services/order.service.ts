@@ -28,16 +28,33 @@ export type GetOrdersOptions = {
   sort?: string;
   page?: number;
   limit?: number;
+  startDate?: Date;
+  endDate?: Date;
 };
 
 export const getOrders = async (options: GetOrdersOptions = {}) => {
-  const { status, search, sort, page = 1, limit = 10 } = options;
+  const { status, search, sort, page = 1, limit = 10, startDate, endDate } = options;
   const skip = (page - 1) * limit;
 
   const whereClause: Prisma.OrderWhereInput = {};
 
   if (status) {
     whereClause.status = status;
+  }
+
+  if (startDate && endDate) {
+    whereClause.createdAt = {
+      gte: startDate,
+      lte: endDate,
+    };
+  } else if (startDate) {
+    whereClause.createdAt = {
+      gte: startDate,
+    };
+  } else if (endDate) {
+    whereClause.createdAt = {
+      lte: endDate,
+    };
   }
 
   if (search) {
