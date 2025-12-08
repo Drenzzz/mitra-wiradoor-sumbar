@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { BadgeCheck, ShieldCheck, Factory, Globe } from "lucide-react";
-import MitraImage from "@/public/foto_mitra_usaha.jpg"; // Impor gambar mitra
+import MitraImage from "@/assets/foto_mitra_usaha.jpg";
 
 function FeatureItem({ icon: Icon, title, description }: { icon: React.ElementType; title: string; description: string }) {
   return (
