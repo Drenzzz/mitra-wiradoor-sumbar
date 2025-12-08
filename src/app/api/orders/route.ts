@@ -6,6 +6,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getOrders } from "@/lib/services/order.service";
 import { OrderStatus } from "@prisma/client";
+import { globalLimiter } from "@/lib/rate-limit";
 
 function generateInvoiceNumber(): string {
   const timestamp = new Date().getTime().toString().slice(-8);
@@ -15,8 +16,15 @@ function generateInvoiceNumber(): string {
   return `WIR-${timestamp}-${randomSuffix}`;
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
+    const isAllowed = globalLimiter.check(ip, 5);
+
+    if (!isAllowed) {
+      return NextResponse.json({ error: "Terlalu banyak permintaan transaksi. Tunggu sebentar." }, { status: 429 });
+    }
+
     const body = await request.json();
     const { items, ...customerData } = body;
 
