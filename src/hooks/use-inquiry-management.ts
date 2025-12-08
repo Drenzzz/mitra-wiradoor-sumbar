@@ -38,6 +38,8 @@ export function useInquiryManagement() {
     queryKey: ["inquiries", { activeTab, currentPage, rowsPerPage, sortBy, debouncedSearchTerm }],
     queryFn: fetchInquiriesData,
     placeholderData: keepPreviousData,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
     refetchInterval: 30000,
   });
 

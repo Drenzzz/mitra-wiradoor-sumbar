@@ -49,7 +49,9 @@ export function useOrderManagement() {
     queryKey: ["orders", { activeTab, currentPage, rowsPerPage, sortBy, debouncedSearchTerm, dateRange }],
     queryFn: fetchOrdersData,
     placeholderData: keepPreviousData,
-    refetchInterval: 30000,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000, 
   });
 
   const handleBulkAction = async (action: "updateStatus" | "delete", status?: OrderStatus) => {
