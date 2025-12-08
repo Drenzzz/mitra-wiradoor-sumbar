@@ -7,9 +7,21 @@ export const customerInfoSchema = z.object({
   customerEmail: z.string().email({
     message: "Format email tidak valid.",
   }),
-  customerPhone: z.string().min(10, {
-    message: "Nomor WhatsApp/telepon wajib diisi (minimal 10 digit).",
-  }),
+  customerPhone: z
+    .string()
+    .transform((val) => val.replace(/\D/g, ""))
+    .refine((val) => val.length >= 10, {
+      message: "Nomor WhatsApp/telepon wajib diisi (minimal 10 digit).",
+    })
+    .transform((val) => {
+      if (val.startsWith("0")) {
+        return "62" + val.slice(1);
+      }
+      return val;
+    })
+    .refine((val) => val.startsWith("62"), {
+      message: "Format nomor tidak valid. Gunakan awalan 08... atau 628...",
+    }),
   customerAddress: z.string().min(10, {
     message: "Alamat pengiriman wajib diisi (minimal 10 karakter).",
   }),
