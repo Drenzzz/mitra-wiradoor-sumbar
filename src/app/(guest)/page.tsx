@@ -1,4 +1,5 @@
 import { HeroSection } from "@/components/sections/hero-section";
+import { CategoryBento } from "@/components/sections/category-bento";
 import { FeaturesSection } from "@/components/sections/features-section";
 import { FeaturedProductsSection } from "@/components/sections/featured-products-section";
 import { getProducts } from "@/lib/services/product.service";
@@ -26,8 +27,9 @@ export default async function HomePage() {
   return (
     <>
       <HeroSection />
-      <FeaturesSection />
+      <CategoryBento />
       <FeaturedProductsSection products={products} />
+      <FeaturesSection />
     </>
   );
 }
