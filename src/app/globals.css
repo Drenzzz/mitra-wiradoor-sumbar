@@ -45,7 +45,7 @@
 
 :root {
   --background: hsl(40 30% 96%);
-  
+
   --foreground: hsl(20 14.3% 4.1%);
 
   --card: hsl(40 30% 98%);
@@ -71,15 +71,15 @@
 
   --border: hsl(30 10% 85%);
   --input: hsl(30 10% 85%);
-  
+
   --ring: hsl(15 75% 50% / 0.7);
 
   --radius: 0.6rem;
 
-  --chart-1: hsl(15 75% 50%);   /* Terracotta */
-  --chart-2: hsl(140 25% 30%);  /* Moss Green */
-  --chart-3: hsl(30 40% 40%);   /* Wood Brown */
-  --chart-4: hsl(40 30% 60%);   /* Dark Beige */
+  --chart-1: hsl(15 75% 50%); /* Terracotta */
+  --chart-2: hsl(140 25% 30%); /* Moss Green */
+  --chart-3: hsl(30 40% 40%); /* Wood Brown */
+  --chart-4: hsl(40 30% 60%); /* Dark Beige */
   --chart-5: hsl(20 14.3% 20%); /* Charcoal Light */
 
   /* SIDEBAR (Admin Panel - Nuansa Kayu Gelap) */
@@ -121,13 +121,13 @@
   --border: hsl(12 6.5% 15.1%);
   --input: hsl(12 6.5% 15.1%);
   --ring: hsl(15 75% 55%);
-  
+
   --chart-1: hsl(15 75% 55%);
   --chart-2: hsl(140 30% 40%);
   --chart-3: hsl(30 50% 50%);
   --chart-4: hsl(40 40% 70%);
   --chart-5: hsl(20 20% 40%);
-  
+
   --sidebar: hsl(20 14.3% 4.1%);
   --sidebar-foreground: hsl(40 30% 96%);
   --sidebar-primary: hsl(15 75% 55%);
@@ -156,5 +156,24 @@
     to {
       background-position: 350% 50%, 350% 50%;
     }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

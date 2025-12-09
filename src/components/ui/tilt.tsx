@@ -1,13 +1,25 @@
 "use client";
 
-import React, { useRef } from "react";
-import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from "framer-motion";
+import React, { useRef, useEffect, useState } from "react";
+import { motion, useMotionTemplate, useMotionValue, useSpring } from "framer-motion";
 
 const ROTATION_RANGE = 20;
 const HALF_ROTATION_RANGE = 20 / 2;
 
 export const Tilt = ({ children, className }: { children: React.ReactNode; className?: string }) => {
   const ref = useRef<HTMLDivElement>(null);
+  // State untuk deteksi mobile
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Cek ukuran layar saat mount
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -18,7 +30,8 @@ export const Tilt = ({ children, className }: { children: React.ReactNode; class
   const transform = useMotionTemplate`rotateX(${xSpring}deg) rotateY(${ySpring}deg)`;
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
+    // OPTIMASI: Jangan jalankan logika berat jika di mobile
+    if (!ref.current || isMobile) return;
 
     const rect = ref.current.getBoundingClientRect();
     const width = rect.width;
@@ -35,6 +48,7 @@ export const Tilt = ({ children, className }: { children: React.ReactNode; class
   };
 
   const handleMouseLeave = () => {
+    if (isMobile) return;
     x.set(0);
     y.set(0);
   };
@@ -46,7 +60,8 @@ export const Tilt = ({ children, className }: { children: React.ReactNode; class
       onMouseLeave={handleMouseLeave}
       style={{
         transformStyle: "preserve-3d",
-        transform,
+        // OPTIMASI: Hanya apply transform jika BUKAN mobile
+        transform: isMobile ? "none" : transform,
       }}
       className={className}
     >
