@@ -1,79 +1,90 @@
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
-import { PortfolioItemFormValues } from "@/lib/validations/portfolio.schema";
 
-export type GetPortfolioItemsOptions = {
-  search?: string;
-  sort?: string;
+export type GetPortfolioOptions = {
   page?: number;
   limit?: number;
+  search?: string;
   categoryId?: string;
+  sort?: string;
 };
 
-export const getPortfolioItems = async (options: GetPortfolioItemsOptions = {}) => {
-  const { search, sort, page = 1, limit = 10, categoryId } = options;
-  const skip = (page - 1) * limit;
+export async function getPortfolioItems(options: GetPortfolioOptions = {}) {
+  const { page = 1, limit = 10, search, categoryId, sort = "createdAt-desc" } = options;
 
-  const whereClause: Prisma.PortfolioItemWhereInput = {};
+  const whereClause: Prisma.PortfolioItemWhereInput = {
+    AND: [
+      search
+        ? {
+            title: { contains: search, mode: "insensitive" },
+          }
+        : {},
+      categoryId && categoryId !== "all"
+        ? {
+            portfolioCategoryId: categoryId,
+          }
+        : {},
+    ],
+  };
 
-  if (search) {
-    whereClause.OR = [{ title: { contains: search, mode: "insensitive" } }, { description: { contains: search, mode: "insensitive" } }];
+  const orderByClause: Prisma.PortfolioItemOrderByWithRelationInput = {};
+  if (sort) {
+    const [field, direction] = sort.split("-");
+    const sortField = field === "createdAt" ? "createdAt" : "title";
+    const sortOrder = direction === "asc" ? "asc" : "desc";
+
+    orderByClause[sortField] = sortOrder;
   }
 
-  if (categoryId) {
-    whereClause.portfolioCategoryId = categoryId;
-  }
-
-  const [sortField, sortOrder] = sort?.split("-") || ["projectDate", "desc"];
-  const orderByClause = { [sortField]: sortOrder };
-
-  const [items, totalCount] = await prisma.$transaction([
+  const [items, totalCount] = await Promise.all([
     prisma.portfolioItem.findMany({
       where: whereClause,
-      include: { category: { select: { name: true } } },
+      include: {
+        category: {
+          select: { name: true },
+        },
+      },
       orderBy: orderByClause,
-      skip,
+      skip: (page - 1) * limit,
       take: limit,
     }),
-    prisma.portfolioItem.count({ where: whereClause }),
+    prisma.portfolioItem.count({
+      where: whereClause,
+    }),
   ]);
 
-  return { data: items, totalCount };
-};
+  return {
+    data: items,
+    totalCount,
+    totalPages: Math.ceil(totalCount / limit),
+    currentPage: page,
+  };
+}
 
-export const getPortfolioItemById = (id: string) => {
-  const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(id);
-  if (!isValidObjectId) return null;
-
-  return prisma.portfolioItem.findUnique({
+export async function getPortfolioItemById(id: string) {
+  return await prisma.portfolioItem.findUnique({
     where: { id },
     include: {
-      category: { select: { id: true, name: true } },
+      category: true,
     },
   });
-};
+}
 
-export const createPortfolioItem = (data: PortfolioItemFormValues) => {
-  return prisma.portfolioItem.create({
-    data: {
-      ...data,
-      portfolioCategoryId: data.portfolioCategoryId || null,
-    },
+export async function createPortfolioItem(data: any) {
+  return await prisma.portfolioItem.create({
+    data,
   });
-};
+}
 
-export const updatePortfolioItemById = (id: string, data: Partial<PortfolioItemFormValues>) => {
-  return prisma.portfolioItem.update({
+export async function updatePortfolioItem(id: string, data: any) {
+  return await prisma.portfolioItem.update({
     where: { id },
-    data: {
-      ...data,
-      portfolioCategoryId: data.portfolioCategoryId || null,
-    },
+    data,
   });
-};
+}
 
-export const deletePortfolioItemById = (id: string) => {
-  return prisma.portfolioItem.delete({
+export async function deletePortfolioItem(id: string) {
+  return await prisma.portfolioItem.delete({
     where: { id },
   });
-};
+}

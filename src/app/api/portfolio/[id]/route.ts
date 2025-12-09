@@ -39,7 +39,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const body = await request.json();
     const validatedData = portfolioItemSchema.partial().parse(body);
 
-    const updatedItem = await service.updatePortfolioItemById(id, validatedData);
+    const updatedItem = await service.updatePortfolioItem(id, validatedData);
     return NextResponse.json(updatedItem);
   } catch (error) {
     if (error instanceof ZodError) {
@@ -58,7 +58,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
   try {
     const { id } = await params;
-    await service.deletePortfolioItemById(id);
+    await service.deletePortfolioItem(id);
     return NextResponse.json({ message: "Item portofolio berhasil dihapus." }, { status: 200 });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {

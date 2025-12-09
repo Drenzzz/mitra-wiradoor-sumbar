@@ -1,38 +1,55 @@
+"use client";
+
 import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CalendarDays } from "lucide-react";
-import type { PortfolioItem } from "@/types";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { ArrowUpRight, MapPin } from "lucide-react";
 
 interface PortfolioCardProps {
-  item: PortfolioItem;
+  id: string;
+  title: string;
+  category: string;
+  location?: string;
+  imageUrl: string;
+  index: number;
 }
 
-const formatDate = (dateString: Date) => new Date(dateString).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
-
-export function PortfolioCard({ item }: PortfolioCardProps) {
+export function PortfolioCard({ id, title, category, location, imageUrl, index }: PortfolioCardProps) {
   return (
-    <Card className="overflow-hidden flex flex-col group h-full hover:shadow-lg transition-all duration-300">
-      <CardHeader className="p-0">
-        <div className="relative aspect-video w-full overflow-hidden">
-          <Image src={item.imageUrl} alt={item.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: index * 0.1 }} className="group relative mb-6 break-inside-avoid">
+      <Link href={`/portfolio/${id}`} className="block w-full">
+        <div className="relative w-full overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-800">
+          <Image
+            src={imageUrl}
+            alt={title}
+            width={800}
+            height={600}
+            className="h-auto w-full object-cover transition-transform duration-700 will-change-transform group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+
+          <div className="absolute inset-0 p-6 flex flex-col justify-end opacity-0 translate-y-4 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-2">{category}</p>
+                <h3 className="font-serif text-xl font-bold text-white leading-tight mb-1">{title}</h3>
+                {location && (
+                  <div className="flex items-center gap-1 text-white/70 text-xs">
+                    <MapPin className="h-3 w-3" />
+                    <span>{location}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white border border-white/20 transition-colors hover:bg-primary hover:border-primary">
+                <ArrowUpRight className="h-5 w-5" />
+              </div>
+            </div>
+          </div>
         </div>
-      </CardHeader>
-      <CardContent className="p-5 flex-grow flex flex-col">
-        <div className="flex justify-between items-start mb-3">
-          <Badge variant="secondary" className="mb-2">
-            {item.category?.name || "Proyek"}
-          </Badge>
-        </div>
-        <CardTitle className="text-xl mb-2 line-clamp-2 group-hover:text-primary transition-colors">{item.title}</CardTitle>
-        <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed">{item.description}</p>
-      </CardContent>
-      <CardFooter className="p-5 pt-0 mt-auto text-xs text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <CalendarDays className="w-4 h-4" />
-          <span>Diselesaikan: {formatDate(item.projectDate)}</span>
-        </div>
-      </CardFooter>
-    </Card>
+      </Link>
+    </motion.div>
   );
 }
