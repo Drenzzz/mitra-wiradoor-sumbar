@@ -4,6 +4,8 @@ import Link from "next/link";
 import { MapPin, Phone, Clock, FileText, ArrowRight, Instagram, Facebook, ShieldCheck, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import Image from "next/image";
+import wiradoorLogo from "@/assets/wiradoor.png";
 
 export function SiteFooter() {
   const companyName = process.env.NEXT_PUBLIC_COMPANY_NAME || "MR KONSTRUKSI";
@@ -21,7 +23,9 @@ export function SiteFooter() {
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           <div className="space-y-6">
-            <h3 className="text-2xl font-bold tracking-tight text-white">{companyName}</h3>
+            <div className="flex items-center">
+              <Image src={wiradoorLogo} alt={companyName} height={50} width={180} className="h-12 w-auto object-contain brightness-0 invert opacity-90" />
+            </div>
             <p className="text-slate-400 text-sm leading-relaxed">Distributor resmi Wiradoor untuk wilayah Sumatera Barat. Menyediakan solusi pintu kayu engineering standar ekspor untuk hunian, komersial, dan proyek pemerintahan.</p>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs font-medium text-emerald-400">
               <ShieldCheck className="h-3.5 w-3.5" />

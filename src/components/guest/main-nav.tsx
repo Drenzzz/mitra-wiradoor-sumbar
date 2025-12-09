@@ -2,8 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ClipboardList, Menu, X } from "lucide-react";
+import wiradoorLogo from "@/assets/wiradoor.png";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
@@ -75,15 +77,8 @@ export function MainNav() {
       )}
     >
       <div className="container mx-auto flex items-center justify-between px-4">
-        <Link
-          href="/"
-          className={cn(
-            "text-xl font-bold tracking-tighter transition-colors duration-300 relative z-50",
-            isScrolled ? "text-slate-900" : "text-white drop-shadow-md",
-            isOpen && "text-slate-900"
-          )}
-        >
-          WIRADOOR SUMBAR
+        <Link href="/" className={cn("transition-opacity duration-300 relative z-50 hover:opacity-90", isOpen && "opacity-100")}>
+          <Image src={wiradoorLogo} alt="Wiradoor Logo" height={40} width={140} className="h-10 w-auto object-contain" priority />
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
@@ -109,15 +104,7 @@ export function MainNav() {
 
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "md:hidden hover:bg-white/20 transition-colors z-50 relative",
-                  isScrolled ? "text-slate-900" : "text-white",
-                  isOpen && "text-slate-900 hover:bg-slate-100"
-                )}
-              >
+              <Button variant="ghost" size="icon" className={cn("md:hidden hover:bg-white/20 transition-colors z-50 relative", isScrolled ? "text-slate-900" : "text-white", isOpen && "text-slate-900 hover:bg-slate-100")}>
                 {isOpen ? <X className="h-6 w-6 animate-in spin-in-90 duration-300" /> : <Menu className="h-6 w-6 animate-in zoom-in duration-300" />}
                 <span className="sr-only">Toggle menu</span>
               </Button>

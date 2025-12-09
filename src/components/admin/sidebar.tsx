@@ -8,6 +8,9 @@ import { useTheme } from "next-themes";
 import { motion, Variants, AnimatePresence } from "framer-motion";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
+import Image from "next/image";
+import wiradoorIcon from "@/assets/wiradoor-icon.png";
+import wiradoorLogo from "@/assets/wiradoor.png";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -74,8 +77,8 @@ export function Sidebar() {
     >
       <div className={cn("flex h-14 items-center gap-3 border-b px-3 shrink-0", isCollapsed && "justify-center")}>
         <Link href="/admin" className="flex items-center gap-3 overflow-hidden">
-          <motion.div className="grid size-8 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20" whileHover={{ scale: 1.05, rotate: 5 }} whileTap={{ scale: 0.95 }}>
-            <Package2 className="size-4" />
+          <motion.div className="grid size-8 place-items-center rounded-xl bg-primary/10 text-primary-foreground shadow-lg shadow-primary/20 p-1.5" whileHover={{ scale: 1.05, rotate: 5 }} whileTap={{ scale: 0.95 }}>
+            <Image src={wiradoorIcon} alt="Wiradoor" width={32} height={32} className="w-full h-full object-contain" />
           </motion.div>
           {!isCollapsed && (
             <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="flex items-baseline gap-2 whitespace-nowrap">
