@@ -20,6 +20,7 @@ export type Product = {
     name: string;
   };
   isReadyStock: boolean;
+  price: number;
 };
 
 export type ArticleCategory = {

@@ -11,7 +11,7 @@ async function getProduct(productId: string): Promise<Product | null> {
       return null;
     }
 
-    return product as Product;
+    return { ...product, price: 0 } as Product;
   } catch (error) {
     console.error("Gagal mengambil data produk untuk halaman order:", error);
     return null;
