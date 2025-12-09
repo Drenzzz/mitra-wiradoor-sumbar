@@ -44,94 +44,98 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --background: hsl(40 30% 96%);
+  
+  --foreground: hsl(20 14.3% 4.1%);
 
-  /* ===== PERUBAHAN UTAMA DI SINI ===== */
-  --primary: oklch(0.7 0.16 54); /* Warna Oranye Khas Wiradoor */
-  --primary-foreground: oklch(0.985 0 0); /* Teks di atas oranye (putih agar kontras) */
-  /* ==================================== */
+  --card: hsl(40 30% 98%);
+  --card-foreground: hsl(20 14.3% 4.1%);
 
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  --popover: hsl(40 30% 98%);
+  --popover-foreground: hsl(20 14.3% 4.1%);
 
-  /* ===== SESUAIKAN WARNA RING AGAR KONSISTEN ===== */
-  --ring: oklch(0.7 0.16 54 / 70%); /* Ring/outline saat fokus, gunakan warna oranye */
-  /* =============================================== */
+  --primary: hsl(15 75% 50%);
+  --primary-foreground: hsl(60 9.1% 97.8%);
 
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --secondary: hsl(140 25% 30%);
+  --secondary-foreground: hsl(40 30% 96%);
+
+  --muted: hsl(30 20% 90%);
+  --muted-foreground: hsl(25 5.3% 44.7%);
+
+  --accent: hsl(15 50% 92%);
+  --accent-foreground: hsl(24 9.8% 10%);
+
+  --destructive: hsl(0 84.2% 60.2%);
+  --destructive-foreground: hsl(60 9.1% 97.8%);
+
+  --border: hsl(30 10% 85%);
+  --input: hsl(30 10% 85%);
+  
+  --ring: hsl(15 75% 50% / 0.7);
+
+  --radius: 0.6rem;
+
+  --chart-1: hsl(15 75% 50%);   /* Terracotta */
+  --chart-2: hsl(140 25% 30%);  /* Moss Green */
+  --chart-3: hsl(30 40% 40%);   /* Wood Brown */
+  --chart-4: hsl(40 30% 60%);   /* Dark Beige */
+  --chart-5: hsl(20 14.3% 20%); /* Charcoal Light */
+
+  /* SIDEBAR (Admin Panel - Nuansa Kayu Gelap) */
+  --sidebar: hsl(24 10% 10%);
+  --sidebar-foreground: hsl(40 30% 96%);
+  --sidebar-primary: hsl(15 75% 50%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(12 6.5% 15.1%);
+  --sidebar-accent-foreground: hsl(40 30% 96%);
+  --sidebar-border: hsl(12 6.5% 15.1%);
+  --sidebar-ring: hsl(15 75% 50%);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
+  --background: hsl(20 14.3% 4.1%);
+  --foreground: hsl(40 30% 96%);
 
-  /* ===== PERUBAHAN UTAMA DI SINI ===== */
-  --primary: oklch(0.7 0.16 54); /* Warna Oranye Khas Wiradoor */
-  --primary-foreground: oklch(0.15 0 0); /* Teks di atas oranye (gelap agar kontras) */
-  /* ==================================== */
+  --card: hsl(24 10% 10%);
+  --card-foreground: hsl(40 30% 96%);
 
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
+  --popover: hsl(24 10% 10%);
+  --popover-foreground: hsl(40 30% 96%);
 
-  /* ===== SESUAIKAN WARNA RING AGAR KONSISTEN ===== */
-  --ring: oklch(0.7 0.16 54 / 70%); /* Ring/outline saat fokus, gunakan warna oranye */
-  /* =============================================== */
+  --primary: hsl(15 75% 55%);
+  --primary-foreground: hsl(60 9.1% 97.8%);
 
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  /* ... (variabel lain tidak berubah) ... */
+  --secondary: hsl(140 20% 25%);
+  --secondary-foreground: hsl(40 30% 96%);
 
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
+  --muted: hsl(12 6.5% 15.1%);
+  --muted-foreground: hsl(24 5.4% 63.9%);
 
-  /* ===== UBAH BARIS DI BAWAH INI ===== */
-  --sidebar-primary: oklch(28.5% 0.1 255); /* Biru Tua Gelap khas Wiradoor */
-  /* ==================================== */
+  --accent: hsl(12 6.5% 15.1%);
+  --accent-foreground: hsl(40 30% 96%);
 
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --destructive: hsl(0 62.8% 30.6%);
+  --destructive-foreground: hsl(40 30% 96%);
+
+  --border: hsl(12 6.5% 15.1%);
+  --input: hsl(12 6.5% 15.1%);
+  --ring: hsl(15 75% 55%);
+  
+  --chart-1: hsl(15 75% 55%);
+  --chart-2: hsl(140 30% 40%);
+  --chart-3: hsl(30 50% 50%);
+  --chart-4: hsl(40 40% 70%);
+  --chart-5: hsl(20 20% 40%);
+  
+  --sidebar: hsl(20 14.3% 4.1%);
+  --sidebar-foreground: hsl(40 30% 96%);
+  --sidebar-primary: hsl(15 75% 55%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(12 6.5% 15.1%);
+  --sidebar-accent-foreground: hsl(40 30% 96%);
+  --sidebar-border: hsl(12 6.5% 15.1%);
+  --sidebar-ring: hsl(15 75% 55%);
 }
 
 @layer base {
