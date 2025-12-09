@@ -28,7 +28,7 @@ export default async function HomePage() {
     <>
       <HeroSection />
       <CategoryBento />
-      <FeaturedProductsSection products={products} />
+      <FeaturedProductsSection />
       <FeaturesSection />
     </>
   );

@@ -1,68 +1,76 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
-import { Product } from '@/types';
+"use client";
 
-interface FeaturedProductsSectionProps {
-  products: Product[];
-}
+import { useQuery } from "@tanstack/react-query";
+import { FeaturedProductCard } from "@/components/guest/featured-product-card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { motion } from "framer-motion";
+import { MagneticButton } from "@/components/ui/magnetic-button";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
-export function FeaturedProductsSection({ products }: FeaturedProductsSectionProps) {
+export function FeaturedProductsSection() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["featured-products"],
+    queryFn: async () => {
+      const res = await fetch("/api/products?limit=3&sort=createdAt-desc");
+      if (!res.ok) throw new Error("Gagal memuat produk");
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const products = data?.data || [];
+
   return (
-    <section className="py-24 sm:py-32">
-      <div className="container mx-auto px-4">
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Produk Terbaru Kami</h2>
-          <p className="mt-4 text-lg leading-8 text-muted-foreground">
-            Pilihan produk pintu terbaru dengan kualitas terbaik untuk hunian Anda.
-          </p>
-        </div>
-        
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.length > 0 ? (
-            products.map((product) => (
-              <Card key={product.id} className="overflow-hidden flex flex-col hover:shadow-lg transition-all">
-                <CardHeader className="p-0">
-                  <div className="relative h-64 w-full overflow-hidden">
-                    <Image 
-                      src={product.imageUrl} 
-                      alt={product.name} 
-                      fill 
-                      className="object-cover transition-transform duration-300 hover:scale-105" 
-                    />
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6 flex-grow">
-                  <CardDescription className="mb-2">{product.category.name}</CardDescription>
-                  <CardTitle className="text-xl mb-2 line-clamp-1">{product.name}</CardTitle>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {product.description}
-                  </p>
-                </CardContent>
-                <CardFooter className="p-6 pt-0">
-                  <Button variant="outline" asChild className="w-full">
-                    <Link href={`/produk/${product.id}`}>
-                      Lihat Detail <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12 text-muted-foreground">
-              Belum ada produk yang ditampilkan.
-            </div>
-          )}
+    <section className="relative overflow-hidden bg-background py-32">
+      <div className="container relative z-10 mx-auto px-4">
+        <div className="mb-20 flex flex-col items-end justify-between gap-8 md:flex-row md:items-end">
+          <div className="max-w-2xl">
+            <motion.span initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-4 block text-sm font-medium uppercase tracking-widest text-primary">
+              Masterpiece Collection
+            </motion.span>
+            <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="font-serif text-4xl font-bold leading-tight text-foreground md:text-5xl">
+              Karya Seni Pintu <br />
+              <span className="text-muted-foreground/50">Untuk Hunian Berkelas</span>
+            </motion.h2>
+          </div>
+
+          <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="hidden md:block">
+            <Link href="/produk">
+              <MagneticButton className="flex items-center gap-2 border-b border-primary pb-1 text-sm font-medium text-primary transition-colors hover:text-primary/80">
+                Lihat Semua Koleksi <ArrowRight className="h-4 w-4" />
+              </MagneticButton>
+            </Link>
+          </motion.div>
         </div>
 
-        <div className="mt-12 text-center">
-          <Button size="lg" asChild>
-            <Link href="/produk">Lihat Semua Produk</Link>
-          </Button>
+        {isLoading ? (
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-[450px] w-full rounded-2xl bg-muted/20">
+                <Skeleton className="h-full w-full rounded-2xl" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            {products.map((product: any, index: number) => (
+              <motion.div key={product.id} initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.2 }}>
+                <FeaturedProductCard id={product.id} name={product.name} category={product.category?.name || "Premium Door"} price={product.price || 0} imageUrl={product.imageUrl} index={index} />
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-12 flex justify-center md:hidden">
+          <Link href="/produk">
+            <MagneticButton className="flex h-12 items-center justify-center rounded-full bg-primary px-8 text-sm font-medium text-white shadow-lg shadow-primary/20 transition-transform hover:scale-105">Lihat Semua Koleksi</MagneticButton>
+          </Link>
         </div>
       </div>
+
+      <div className="absolute right-0 top-1/4 -z-0 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[120px]" />
+      <div className="absolute bottom-0 left-0 -z-0 h-[300px] w-[300px] rounded-full bg-secondary/5 blur-[100px]" />
     </section>
   );
 }
