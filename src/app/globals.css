@@ -145,6 +145,26 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Custom Scrollbar - Simple & Elegant */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--muted-foreground);
+    border-radius: 10px;
+    opacity: 0.8;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+  }
 }
 
 @theme inline {
@@ -161,6 +181,8 @@
 
 html {
   scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted-foreground) transparent;
 }
 
 @media (prefers-reduced-motion: reduce) {

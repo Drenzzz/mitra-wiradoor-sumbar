@@ -5,64 +5,63 @@
 Repositori ini berisi kode sumber Website Profil Perusahaan dan E-Katalog untuk MR Konstruksi sebagai distributor resmi Wiradoor di Sumatera Barat. Sistem ini dirancang untuk memfasilitasi pemasaran digital, manajemen produk, dan pemesanan pelanggan (B2C/B2B).
 
 ## Status Pengembangan
+
 - [x] **Sistem Keranjang Belanja (Cart)** global menggunakan Zustand dengan persistensi data.
 - [x] **Guest Checkout** untuk memesan banyak barang sekaligus tanpa perlu login.
 - [x] **Panel Admin** lengkap (Dashboard, Produk, Kategori, Artikel, Order, Pengguna).
 - [x] **Manajemen Pesanan** di sisi admin (Lihat detail, Proses harga deal, Update status).
 - [x] **Optimasi UI/UX** (Sidebar persisten, loading states, skeleton loader).
-- [ ] Halaman publik (landing page) masih dalam penyempurnaan konten.
+- [x] **Halaman publik** (landing page) dengan tampilan yang stylish dan elegan.
 
 ## Fitur Utama
 
 ### Panel Admin (`/admin`)
-- **Otentikasi Aman:** Login berbasis NextAuth dengan peran Admin (Full Access) dan Staf (Limited).
-- **Dashboard Analitik:** Ringkasan statistik produk, pendapatan, dan tren penjualan.
-- **Manajemen Produk & Katalog:** CRUD lengkap dengan dukungan *soft delete*, *restore*, dan upload gambar ke Cloudinary.
-- **Manajemen Pesanan (Order):** 
-  - Melihat pesanan masuk dari guest.
-  - Memproses pesanan dengan input "Harga Kesepakatan" (Deal Price).
-  - Mengubah status pesanan (Pending -> Processed -> Shipped -> Completed).
-- **Konten Blog/Artikel:** Editor artikel untuk keperluan SEO dan edukasi pelanggan.
-- **Manajemen Pengguna:** Admin dapat mengelola akun staf.
-- **Optimasi UI:** Sidebar navigasi persisten (tidak re-render) menggunakan Layout terpisah dan Zustand store.
+
+- **Dashboard Analitik:** Visualisasi data penjualan, statistik pengunjung, dan tren produk terlaris.
+- **Manajemen Produk Lengkap:** CRUD Produk, Kategori, Galeri Foto (Cloudinary), dan Stok.
+- **Order Management:** Pemantauan status pesanan (Pending -> Paid -> Processed -> Completed).
+- **Inquiry & Lead Tracking:** Pusat pengelolaan pesan masuk dari pelanggan.
+- **CMS Artikel:** Editor teks kaya (_Rich Text Editor_) untuk menulis artikel SEO.
+- **Role-Based Access Control:** Pembedaan hak akses antara Super Admin dan Staff.
 
 ### Halaman Publik (Guest)
-- **E-Katalog Produk:** Daftar produk dengan filter kategori dan pencarian.
-- **Keranjang Belanja (Shopping Cart):** - User dapat menambahkan berbagai produk *ready stock* ke keranjang.
-  - Data keranjang tersimpan di browser (localStorage).
-  - Indikator jumlah item di navbar.
-- **Checkout Multi-Item:** Formulir pemesanan tunggal untuk semua item di keranjang.
-- **WhatsApp Integration:** - Konfirmasi pesanan otomatis via WhatsApp setelah checkout sukses.
-  - Tombol konsultasi khusus untuk produk *custom order*.
-- **Inquiry Form:** Formulir kontak umum untuk pertanyaan non-transaksi.
+
+- **Digital Showroom Premium:** Katalog produk dengan _filtering_, pencarian, dan tampilan visual _high-end_.
+- **Hybrid Checkout System:** Alur pemesanan fleksibel tanpa wajib login (Guest Checkout). Pesanan tercatat di database sistem sebelum diarahkan ke WhatsApp untuk finalisasi pembayaran manual.
+- **Project Inquiry:** Keranjang belanja difungsikan sebagai "Inquiry List" untuk memudahkan kontraktor menyusun RAB.
+- **Editorial Journal:** Modul artikel/blog untuk edukasi pelanggan mengenai material pintu.
+- **Corporate Profile:** Halaman "Tentang Kami" interaktif dengan visualisasi data perusahaan (_Bento Grid_).
 
 ## Tumpukan Teknologi
 
-| Kategori | Teknologi |
-| --- | --- |
-| Framework | Next.js 16 (App Router) |
-| Bahasa | TypeScript |
-| Styling | Tailwind CSS, shadcn/ui |
-| Animasi | Framer Motion |
-| Ikon | Lucide React |
-| Database | MongoDB Atlas |
-| ORM | Prisma |
-| Otentikasi | NextAuth.js |
-| Validasi Form | React Hook Form, Zod |
-| Notifikasi | Sonner |
-| Upload Gambar | Cloudinary |
-| Email | Nodemailer |
-| Package Manager | pnpm |
+| Kategori         | Teknologi                                      |
+| ---------------- | ---------------------------------------------- |
+| Framework        | Next.js 16 (App Router)                        |
+| Bahasa           | TypeScript                                     |
+| Styling          | Tailwind CSS, shadcn/ui                        |
+| Animasi          | Framer Motion                                  |
+| Ikon             | Lucide React                                   |
+| Database         | MongoDB Atlas                                  |
+| ORM              | Prisma                                         |
+| Otentikasi       | NextAuth.js                                    |
+| Validasi Form    | React Hook Form, Zod                           |
+| State Management | Zustand (Cart) + TanStack Query (Server State) |
+| Notifikasi       | Sonner                                         |
+| Upload Gambar    | Cloudinary                                     |
+| Email            | Nodemailer                                     |
+| Package Manager  | pnpm                                           |
 
 ## Instalasi & Konfigurasi Lokal
 
 ### Prasyarat
+
 - Node.js v18+
 - pnpm
 - Git
 - Akun MongoDB Atlas & Cloudinary (untuk koneksi DB dan upload media)
 
 ### Langkah
+
 1. Clone repo lalu masuk ke folder proyek.
    ```bash
    git clone https://github.com/Drenzzz/mitra-wiradoor-sumbar.git
