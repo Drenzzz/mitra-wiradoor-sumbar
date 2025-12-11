@@ -57,8 +57,18 @@ export function usePortfolioManagement() {
     staleTime: 1000 * 60 * 10,
   });
 
+  const deletePortfolio = async (id: string) => {
+    const response = await fetch(`/api/portfolio/${id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      throw new Error("Gagal menghapus portfolio");
+    }
+    refetch();
+  };
+
   return {
-    items: data?.data || [],
+    portfolio: data?.data || [],
     totalCount: data?.totalCount || 0,
     categories,
     isLoading,
@@ -71,7 +81,8 @@ export function usePortfolioManagement() {
     setCurrentPage,
     rowsPerPage,
     setRowsPerPage,
-    fetchItems: refetch,
+    fetchportfolio: refetch,
+    deletePortfolio,
     fetchCategories: async () => {},
   };
 }

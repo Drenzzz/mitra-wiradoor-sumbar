@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as service from "@/lib/services/portfolio.service";
 import { ZodError } from "zod";
-import { portfolioItemSchema } from "@/lib/validations/portfolio.schema";
+import { portfolioSchema, portfolioApiSchema } from "@/lib/validations/portfolio.schema";
 import { Prisma } from "@prisma/client";
 
 async function isAdminSession() {
@@ -37,7 +37,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   try {
     const { id } = await params;
     const body = await request.json();
-    const validatedData = portfolioItemSchema.partial().parse(body);
+    const validatedData = portfolioApiSchema.partial().parse(body);
 
     const updatedItem = await service.updatePortfolioItem(id, validatedData);
     return NextResponse.json(updatedItem);

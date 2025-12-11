@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as service from "@/lib/services/portfolio.service";
 import { ZodError } from "zod";
-import { portfolioItemSchema } from "@/lib/validations/portfolio.schema";
+import { portfolioSchema, portfolioApiSchema } from "@/lib/validations/portfolio.schema";
 
 async function isAdminSession() {
   const session = await getServerSession(authOptions);
@@ -40,7 +40,8 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const validatedData = portfolioItemSchema.parse(body);
+    const validatedData = portfolioApiSchema.parse(body);
+
     const newItem = await service.createPortfolioItem(validatedData);
     return NextResponse.json(newItem, { status: 201 });
   } catch (error) {

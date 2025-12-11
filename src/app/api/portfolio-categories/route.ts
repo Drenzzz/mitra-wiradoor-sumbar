@@ -54,7 +54,7 @@ export async function POST(request: Request) {
     if (error instanceof ZodError) {
       return NextResponse.json({ error: "Data tidak valid.", details: error.issues }, { status: 400 });
     }
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+    if ((error instanceof Error && error.message === "CATEGORY_EXISTS") || (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002")) {
       return NextResponse.json({ error: "Nama kategori ini sudah ada." }, { status: 409 });
     }
     return NextResponse.json({ error: "Terjadi kesalahan pada server." }, { status: 500 });

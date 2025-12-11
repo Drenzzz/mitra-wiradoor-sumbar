@@ -41,7 +41,24 @@ export const getPortfolioCategories = async (options: GetPortfolioCategoriesOpti
   return { data: categories, totalCount };
 };
 
-export const createPortfolioCategory = (data: PortfolioCategoryDto) => {
+export const createPortfolioCategory = async (data: PortfolioCategoryDto) => {
+  const existing = await prisma.portfolioCategory.findUnique({
+    where: { name: data.name },
+  });
+
+  if (existing) {
+    if (existing.deletedAt) {
+      return prisma.portfolioCategory.update({
+        where: { id: existing.id },
+        data: {
+          ...data,
+          deletedAt: null,
+        },
+      });
+    }
+    throw new Error("CATEGORY_EXISTS");
+  }
+
   return prisma.portfolioCategory.create({
     data: { ...data, deletedAt: null },
   });

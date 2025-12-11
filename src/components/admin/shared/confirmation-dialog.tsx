@@ -13,9 +13,10 @@ interface ConfirmationDialogProps {
   description: string;
   variant?: "destructive" | "default";
   isLoading?: boolean;
+  confirmLabel?: string;
 }
 
-export function ConfirmationDialog({ isOpen, onClose, onConfirm, title, description, variant = "default", isLoading = false }: ConfirmationDialogProps) {
+export function ConfirmationDialog({ isOpen, onClose, onConfirm, title, description, variant = "default", isLoading = false, confirmLabel = "Ya, Lanjutkan" }: ConfirmationDialogProps) {
   const Icon = variant === "destructive" ? Trash2 : Undo2;
 
   return (
@@ -39,7 +40,7 @@ export function ConfirmationDialog({ isOpen, onClose, onConfirm, title, descript
             Batal
           </Button>
           <Button type="button" variant={variant} onClick={onConfirm} disabled={isLoading}>
-            {isLoading ? "Memproses..." : "Ya, Lanjutkan"}
+            {isLoading ? "Memproses..." : confirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

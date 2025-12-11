@@ -10,17 +10,17 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface PortfolioTableProps {
-  items: PortfolioItem[];
+  portfolio: PortfolioItem[];
   isLoading: boolean;
-  onEditClick: (item: PortfolioItem) => void;
-  onDeleteClick: (item: PortfolioItem) => void;
+  onEdit: (item: PortfolioItem) => void;
+  onDelete: (id: string) => void;
 }
 
 const formatDate = (dateString: Date) => new Date(dateString).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
 
-export function PortfolioTable({ items, isLoading, onEditClick, onDeleteClick }: PortfolioTableProps) {
+export function PortfolioTable({ portfolio, isLoading, onEdit, onDelete }: PortfolioTableProps) {
   if (isLoading) return <div className="text-center p-8 text-muted-foreground">Memuat data portofolio...</div>;
-  if (items.length === 0) return <div className="text-center p-8 text-muted-foreground">Belum ada item portofolio.</div>;
+  if (portfolio.length === 0) return <div className="text-center p-8 text-muted-foreground">Belum ada item portofolio.</div>;
 
   return (
     <Table>
@@ -34,7 +34,7 @@ export function PortfolioTable({ items, isLoading, onEditClick, onDeleteClick }:
         </TableRow>
       </TableHeader>
       <TableBody>
-        {items.map((item) => (
+        {portfolio.map((item) => (
           <motion.tr key={item.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="hover:bg-muted/50">
             <TableCell>
               <div className="relative w-12 h-12 rounded-md overflow-hidden">
@@ -55,10 +55,10 @@ export function PortfolioTable({ items, isLoading, onEditClick, onDeleteClick }:
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-                  <DropdownMenuItem onSelect={() => onEditClick(item)}>
+                  <DropdownMenuItem onSelect={() => onEdit(item)}>
                     <Pencil className="mr-2 h-4 w-4" /> Edit
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-red-500" onSelect={() => onDeleteClick(item)}>
+                  <DropdownMenuItem className="text-red-500" onSelect={() => onDelete(item.id)}>
                     <Trash2 className="mr-2 h-4 w-4" /> Hapus
                   </DropdownMenuItem>
                 </DropdownMenuContent>
