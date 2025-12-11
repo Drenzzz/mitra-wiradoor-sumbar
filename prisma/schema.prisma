@@ -80,16 +80,14 @@ model Category {
 model Product {
   id             String    @id @default(auto()) @map("_id") @db.ObjectId
   name           String
-  description    String
-  specifications String
+  description    String?   // Changed to Optional
+  specifications String?   // Changed to Optional
   imageUrl       String
   images         String[]  @default([])
   deletedAt      DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   isReadyStock   Boolean?  @default(false)
-  // stock          Int?
-  // price          Float?
 
   // Kunci relasi ke Kategori
   categoryId String   @db.ObjectId

@@ -3,6 +3,41 @@ import { ZodError } from "zod";
 import { inquirySchema } from "@/lib/validations/inquiry.schema";
 import * as inquiryService from "@/lib/services/inquiry.service";
 import { globalLimiter } from "@/lib/rate-limit";
+import { InquiryStatus } from "@prisma/client";
+
+export const dynamic = "force-dynamic";
+
+export async function GET(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams;
+
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const search = searchParams.get("search") || undefined;
+    const sort = searchParams.get("sort") || undefined;
+    const statusParam = searchParams.get("status");
+
+    let status: InquiryStatus | undefined = undefined;
+    if (statusParam && statusParam !== "ALL") {
+      if (Object.values(InquiryStatus).includes(statusParam as InquiryStatus)) {
+        status = statusParam as InquiryStatus;
+      }
+    }
+
+    const result = await inquiryService.getInquiries({
+      page,
+      limit,
+      search,
+      sort,
+      status,
+    });
+
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error("Error fetching inquiries:", error);
+    return NextResponse.json({ error: "Gagal memuat data inquiry." }, { status: 500 });
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
