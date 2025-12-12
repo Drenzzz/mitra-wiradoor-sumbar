@@ -1,70 +1,69 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { Calendar, User, ArrowLeft, Clock, Share2, Loader2, ChevronRight } from "lucide-react";
+import { notFound } from "next/navigation";
+import { Calendar, User, ArrowLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { ArticleCard } from "@/components/guest/article-card";
 import { formatDate } from "@/lib/utils";
+import { getArticleBySlug, getArticles } from "@/lib/services/article.service";
+import { ShareButtons } from "@/components/guest/share-buttons";
 
-export default function ArticleDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const [article, setArticle] = useState<any>(null);
-  const [relatedArticles, setRelatedArticles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+interface ArticleData {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string | null;
+  featuredImageUrl: string;
+  createdAt: Date;
+  author: { name: string | null } | null;
+  category: { name: string } | null;
+}
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch(`/api/articles/${params.slug}`);
-        if (!res.ok) throw new Error("Artikel tidak ditemukan");
-        const data = await res.json();
-        setArticle(data);
+async function getArticleData(slug: string): Promise<{
+  article: ArticleData | null;
+  relatedArticles: ArticleData[];
+}> {
+  try {
+    const article = await getArticleBySlug(slug);
 
-        const resRelated = await fetch("/api/articles");
-        const dataRelated = await resRelated.json();
-        if (dataRelated.data) {
-          const others = dataRelated.data.filter((a: any) => a.id !== data.id).slice(0, 3);
-          setRelatedArticles(others);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      } finally {
-        setLoading(false);
-      }
+    if (!article || article.status !== "PUBLISHED" || article.deletedAt) {
+      return { article: null, relatedArticles: [] };
     }
 
-    if (params.slug) {
-      fetchData();
-    }
-  }, [params.slug, router]);
+    const { data: allArticles } = await getArticles({
+      status: "active",
+      statusFilter: "PUBLISHED",
+      limit: 4,
+    });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-white pt-32 flex justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-orange-600" />
-          <p className="text-slate-500 text-sm animate-pulse">Memuat artikel...</p>
-        </div>
-      </div>
-    );
+    const relatedArticles = allArticles.filter((a) => a.id !== article.id).slice(0, 3) as ArticleData[];
+
+    return {
+      article: article as ArticleData,
+      relatedArticles,
+    };
+  } catch (error) {
+    console.error("Error fetching article:", error);
+    return { article: null, relatedArticles: [] };
   }
+}
+
+interface ArticleDetailPageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export default async function ArticleDetailPage({ params }: ArticleDetailPageProps) {
+  const { slug } = await params;
+  const { article, relatedArticles } = await getArticleData(slug);
 
   if (!article) {
-    return (
-      <div className="min-h-screen bg-white pt-32 pb-20 px-4 text-center">
-        <h1 className="text-2xl font-bold text-slate-900 mb-4">Artikel Tidak Ditemukan</h1>
-        <Button onClick={() => router.push("/artikel")} variant="outline">
-          Kembali ke Jurnal
-        </Button>
-      </div>
-    );
+    notFound();
   }
+
+  const articleUrl = `${process.env.NEXTAUTH_URL || "https://wiradoorsumbar.com"}/artikel/${article.slug}`;
 
   return (
     <div className="min-h-screen bg-white">
@@ -104,12 +103,7 @@ export default function ArticleDetailPage() {
         </article>
 
         <div className="mt-16 pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-4">
-            <span className="text-slate-500 font-medium text-sm">Bagikan artikel ini:</span>
-            <Button variant="outline" size="icon" className="rounded-full h-10 w-10 text-slate-600 hover:text-[#1877F2] hover:border-[#1877F2]">
-              <Share2 className="h-4 w-4" />
-            </Button>
-          </div>
+          <ShareButtons title={article.title} />
         </div>
       </div>
 
@@ -135,4 +129,45 @@ export default function ArticleDetailPage() {
       )}
     </div>
   );
+}
+
+export async function generateMetadata({ params }: ArticleDetailPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const { article } = await getArticleData(slug);
+
+  if (!article) {
+    return { title: "Artikel Tidak Ditemukan" };
+  }
+
+  const title = article.title;
+  const description = article.excerpt || article.title.substring(0, 160);
+  const imageUrl = article.featuredImageUrl;
+  const articleUrl = `${process.env.NEXTAUTH_URL || "https://wiradoorsumbar.com"}/artikel/${article.slug}`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: articleUrl,
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: article.title,
+        },
+      ],
+      type: "article",
+      publishedTime: article.createdAt.toISOString(),
+      authors: [article.author?.name || "Wiradoor Sumbar"],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
+    },
+  };
 }
