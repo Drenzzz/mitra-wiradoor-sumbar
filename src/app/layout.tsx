@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Onest } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { QueryProvider } from "@/components/query-provider";
 import { OrganizationJsonLd, LocalBusinessJsonLd } from "@/components/seo/json-ld";
+import { NavigationProgress } from "@/components/navigation-progress";
 
 const onest = Onest({ subsets: ["latin"], variable: "--font-onest", display: "swap" });
 
@@ -78,6 +80,9 @@ export default function RootLayout({
         <LocalBusinessJsonLd />
       </head>
       <body className={onest.className}>
+        <Suspense fallback={null}>
+          <NavigationProgress />
+        </Suspense>
         <QueryProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
             <AuthProvider>{children}</AuthProvider>

@@ -120,6 +120,9 @@ importers:
       nodemailer:
         specifier: ^7.0.6
         version: 7.0.6
+      nprogress:
+        specifier: ^0.2.0
+        version: 0.2.0
       react:
         specifier: 19.2.0
         version: 19.2.0
@@ -169,6 +172,9 @@ importers:
       '@types/nodemailer':
         specifier: ^7.0.1
         version: 7.0.1
+      '@types/nprogress':
+        specifier: ^0.2.3
+        version: 0.2.3
       '@types/react':
         specifier: 19.2.2
         version: 19.2.2
@@ -1733,6 +1739,9 @@ packages:
 
   '@types/nodemailer@7.0.1':
     resolution: {integrity: sha512-UfHAghPmGZVzaL8x9y+mKZMWyHC399+iq0MOmya5tIyenWX3lcdSb60vOmp0DocR6gCDTYTozv/ULQnREyyjkg==}
+
+  '@types/nprogress@0.2.3':
+    resolution: {integrity: sha512-k7kRA033QNtC+gLc4VPlfnue58CM1iQLgn1IMAU8VPHGOj7oIHPp9UlhedEnD/Gl8evoCjwkZjlBORtZ3JByUA==}
 
   '@types/pako@2.0.4':
     resolution: {integrity: sha512-VWDCbrLeVXJM9fihYodcLiIv0ku+AlOa/TQ1SvYOaBuyrSKgEcro95LJyIsJ4vSo6BXIxOKxiJAat04CmST9Fw==}
@@ -3301,6 +3310,9 @@ packages:
   npm-run-path@6.0.0:
     resolution: {integrity: sha512-9qny7Z9DsQU8Ou39ERsPU4OZQlSTP47ShQzuKZ6PRXpYLtIFgl/DEBYEXKlvcEa+9tHVcK8CF81Y2V72qaZhWA==}
     engines: {node: '>=18'}
+
+  nprogress@0.2.0:
+    resolution: {integrity: sha512-I19aIingLgR1fmhftnbWWO3dXc0hSxqHQHQb3H8m+K3TnEn/iSeTZZOyvKXWqQESMwuUVnatlCnZdLBZZt2VSA==}
 
   nypm@0.6.1:
     resolution: {integrity: sha512-hlacBiRiv1k9hZFiphPUkfSQ/ZfQzZDzC+8z0wL3lvDAOUu/2NnChkKuMoMjNur/9OpKuz2QsIeiPVN0xM5Q0w==}
@@ -6116,6 +6128,8 @@ snapshots:
     transitivePeerDependencies:
       - aws-crt
 
+  '@types/nprogress@0.2.3': {}
+
   '@types/pako@2.0.4': {}
 
   '@types/raf@3.4.3':
@@ -7827,6 +7841,8 @@ snapshots:
     dependencies:
       path-key: 4.0.0
       unicorn-magic: 0.3.0
+
+  nprogress@0.2.0: {}
 
   nypm@0.6.1:
     dependencies:
