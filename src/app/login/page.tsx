@@ -7,11 +7,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-import { AuroraBackground } from "@/components/ui/aurora-background";
+import { DotPattern } from "@/components/ui/dot-pattern";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import LoginImage from "@/assets/foto_mitra_usaha.jpg";
 
 export default function LoginPage() {
@@ -42,7 +43,8 @@ export default function LoginPage() {
   };
 
   return (
-    <AuroraBackground>
+    <div className="relative min-h-screen flex items-center justify-center bg-neutral-950">
+      <DotPattern className={cn("[mask-image:radial-gradient(600px_circle_at_center,white,transparent)]", "fill-neutral-700/50")} />
       <motion.div
         initial={{ opacity: 0.0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -51,13 +53,13 @@ export default function LoginPage() {
           duration: 0.8,
           ease: "easeInOut",
         }}
-        className="relative flex flex-col gap-4 items-center justify-center px-4 w-full h-full"
+        className="relative z-10 flex flex-col gap-4 items-center justify-center px-4 w-full h-full"
       >
         <div className="w-full max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-2xl grid md:grid-cols-2 bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-60">
           <div className="relative hidden md:block">
             <Image src={LoginImage} alt="Elegant interior with a modern door" layout="fill" objectFit="cover" className="opacity-90" />
             <div className="absolute inset-0 bg-black/60 flex items-end p-8">
-              <div className="text-white"> 
+              <div className="text-white">
                 <p className="text-xl italic">&quot;temp quotes wak.&quot;</p>
                 <p className="mt-4 font-semibold">- Manajemen WiraDoor</p>
               </div>
@@ -98,6 +100,6 @@ export default function LoginPage() {
           </div>
         </div>
       </motion.div>
-    </AuroraBackground>
+    </div>
   );
 }

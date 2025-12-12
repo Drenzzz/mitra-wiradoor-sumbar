@@ -1,16 +1,16 @@
-// app/forgot-password/page.tsx
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { AuroraBackground } from "@/components/ui/aurora-background";
+import { DotPattern } from "@/components/ui/dot-pattern";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { MailCheck } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -38,13 +38,9 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <AuroraBackground>
-      <motion.div
-        initial={{ opacity: 0.0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.8, ease: "easeInOut" }}
-        className="w-full max-w-md mx-auto relative z-10"
-      >
+    <div className="relative min-h-screen flex items-center justify-center bg-neutral-950">
+      <DotPattern className={cn("[mask-image:radial-gradient(500px_circle_at_center,white,transparent)]", "fill-neutral-700/50")} />
+      <motion.div initial={{ opacity: 0.0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.8, ease: "easeInOut" }} className="w-full max-w-md mx-auto relative z-10 px-4">
         <Card className="w-full bg-zinc-900/80 border-zinc-700 text-white shadow-2xl">
           {isSubmitted ? (
             <div>
@@ -90,6 +86,6 @@ export default function ForgotPasswordPage() {
           )}
         </Card>
       </motion.div>
-    </AuroraBackground>
+    </div>
   );
 }

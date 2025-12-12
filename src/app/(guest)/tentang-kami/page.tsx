@@ -3,9 +3,10 @@ import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import Link from "next/link";
 import { ShieldCheck, MapPin, Users, Truck, Building2 } from "lucide-react";
-import { AuroraBackground } from "@/components/ui/aurora-background";
+import { DotPattern } from "@/components/ui/dot-pattern";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 import fotoMitra from "@/assets/foto_mitra_usaha.jpg";
 import packingImg from "@/assets/packing.jpg";
@@ -28,16 +29,21 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-white">
-      <AuroraBackground className="min-h-[60vh] h-auto py-20">
+      <div className="relative flex min-h-[60vh] h-auto flex-col items-center justify-center overflow-hidden bg-white py-20 border-b border-slate-100">
+        <DotPattern className={cn("[mask-image:radial-gradient(600px_circle_at_center,white,transparent)]", "opacity-50")} />
+
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4 max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 rounded-full bg-slate-900/5 border border-slate-900/10 text-xs font-semibold tracking-widest uppercase text-slate-800">
-            <ShieldCheck className="w-4 h-4" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold tracking-widest uppercase text-slate-800 shadow-sm">
+            <ShieldCheck className="w-4 h-4 text-orange-600" />
             <span>Authorized Distributor Wiradoor Sumbar</span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tighter text-slate-900 mb-6 leading-tight">Membangun Kepercayaan Melalui Kualitas</h1>
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tighter text-slate-900 mb-6 leading-tight">
+            Membangun Kepercayaan <br />
+            <span className="text-orange-600">Melalui Kualitas</span>
+          </h1>
           <p className="text-lg md:text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto">MR Konstruksi hadir sebagai jembatan inovasi, menghadirkan teknologi pintu kayu engineering standar ekspor ke jantung Sumatera Barat.</p>
         </div>
-      </AuroraBackground>
+      </div>
 
       <section className="py-24 bg-white">
         <div className="container mx-auto px-4">

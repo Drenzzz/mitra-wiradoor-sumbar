@@ -1,9 +1,10 @@
 import { InquiryForm } from "@/components/guest/inquiry-form";
 import { Metadata } from "next";
 import { MapPin, Phone, Mail, Clock, Instagram, Facebook, ArrowUpRight } from "lucide-react";
-import { AuroraBackground } from "@/components/ui/aurora-background";
+import { DotPattern } from "@/components/ui/dot-pattern";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Hubungi Kami | Wiradoor Sumbar",
@@ -12,7 +13,8 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <AuroraBackground className="bg-neutral-950 min-h-screen h-auto justify-start">
+    <div className="relative min-h-screen bg-neutral-950">
+      <DotPattern className={cn("[mask-image:radial-gradient(800px_circle_at_center,white,transparent)]", "fill-neutral-700/50")} />
       <div className="relative z-10 container mx-auto px-4 pt-32 pb-24">
         <div className="w-full max-w-6xl mx-auto overflow-hidden rounded-3xl border border-white/10 bg-neutral-900/50 shadow-2xl backdrop-blur-xl">
           <div className="grid grid-cols-1 lg:grid-cols-5">
@@ -92,6 +94,6 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
-    </AuroraBackground>
+    </div>
   );
 }
