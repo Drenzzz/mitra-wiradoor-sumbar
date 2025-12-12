@@ -4,6 +4,7 @@ import "./globals.css";
 import AuthProvider from "@/components/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { QueryProvider } from "@/components/query-provider";
+import { OrganizationJsonLd, LocalBusinessJsonLd } from "@/components/seo/json-ld";
 
 const onest = Onest({ subsets: ["latin"], variable: "--font-onest", display: "swap" });
 
@@ -72,6 +73,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" suppressHydrationWarning>
+      <head>
+        <OrganizationJsonLd />
+        <LocalBusinessJsonLd />
+      </head>
       <body className={onest.className}>
         <QueryProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>

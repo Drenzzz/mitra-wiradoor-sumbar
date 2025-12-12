@@ -6,6 +6,7 @@ import { ChevronRight, Home } from "lucide-react";
 import type { Product } from "@/types";
 import { ProductGallery } from "@/components/guest/product-gallery";
 import { ProductInfo } from "@/components/guest/product-info";
+import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 
 interface ProductData {
   product: (Product & { isReadyStock?: boolean; stock?: number | null }) | null;
@@ -67,67 +68,76 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     notFound();
   }
 
-  // Ensure images array exists, fallback to imageUrl if empty
   const images = product.images && product.images.length > 0 ? product.images : [product.imageUrl];
 
+  const breadcrumbItems = [
+    { name: "Beranda", url: "/" },
+    { name: "Produk", url: "/produk" },
+    { name: product.name, url: `/produk/${product.id}` },
+  ];
+
   return (
-    <div className="min-h-screen bg-background pb-20">
-      {/* Breadcrumb Section */}
-      <div className="bg-muted/30 border-b">
-        <div className="container mx-auto px-4 py-4">
-          <nav className="text-sm text-muted-foreground flex items-center space-x-2 overflow-hidden">
-            <Link href="/" className="hover:text-primary transition-colors flex items-center gap-1 shrink-0">
-              <Home className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Beranda</span>
-            </Link>
-            <ChevronRight className="h-4 w-4 shrink-0" />
-            <Link href="/produk" className="hover:text-primary transition-colors shrink-0">
-              Produk
-            </Link>
-            <ChevronRight className="h-4 w-4 shrink-0" />
-            <span className="font-medium text-foreground truncate">{product.name}</span>
-          </nav>
+    <>
+      <ProductJsonLd product={product} />
+      <BreadcrumbJsonLd items={breadcrumbItems} />
+      <div className="min-h-screen bg-background pb-20">
+        {/* Breadcrumb Section */}
+        <div className="bg-muted/30 border-b">
+          <div className="container mx-auto px-4 py-4">
+            <nav className="text-sm text-muted-foreground flex items-center space-x-2 overflow-hidden">
+              <Link href="/" className="hover:text-primary transition-colors flex items-center gap-1 shrink-0">
+                <Home className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Beranda</span>
+              </Link>
+              <ChevronRight className="h-4 w-4 shrink-0" />
+              <Link href="/produk" className="hover:text-primary transition-colors shrink-0">
+                Produk
+              </Link>
+              <ChevronRight className="h-4 w-4 shrink-0" />
+              <span className="font-medium text-foreground truncate">{product.name}</span>
+            </nav>
+          </div>
+        </div>
+
+        <div className="container mx-auto px-4 py-8 lg:py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
+            {/* Left Column: Gallery */}
+            <div className="lg:col-span-7 xl:col-span-7">
+              <div className="sticky top-24">
+                <ProductGallery images={images} title={product.name} />
+              </div>
+            </div>
+
+            {/* Right Column: Info */}
+            <div className="lg:col-span-5 xl:col-span-5">
+              <ProductInfo product={product} />
+            </div>
+          </div>
+
+          {/* Related Products Section */}
+          <div className="mt-24 pt-12 border-t">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Produk Terkait</h2>
+              <Link href="/produk" className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+                Lihat Semua <ChevronRight className="h-4 w-4" />
+              </Link>
+            </div>
+
+            {relatedProducts.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {relatedProducts.map((relatedProduct) => (
+                  <ProductCard key={relatedProduct.id} slug={relatedProduct.id} imageUrl={relatedProduct.imageUrl} category={relatedProduct.category?.name || "Lainnya"} name={relatedProduct.name} description={relatedProduct.description} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-muted/30 rounded-xl border border-dashed">
+                <p className="text-muted-foreground">Tidak ada produk terkait lainnya dalam kategori ini.</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-
-      <div className="container mx-auto px-4 py-8 lg:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
-          {/* Left Column: Gallery */}
-          <div className="lg:col-span-7 xl:col-span-7">
-            <div className="sticky top-24">
-              <ProductGallery images={images} title={product.name} />
-            </div>
-          </div>
-
-          {/* Right Column: Info */}
-          <div className="lg:col-span-5 xl:col-span-5">
-            <ProductInfo product={product} />
-          </div>
-        </div>
-
-        {/* Related Products Section */}
-        <div className="mt-24 pt-12 border-t">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Produk Terkait</h2>
-            <Link href="/produk" className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
-              Lihat Semua <ChevronRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          {relatedProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {relatedProducts.map((relatedProduct) => (
-                <ProductCard key={relatedProduct.id} slug={relatedProduct.id} imageUrl={relatedProduct.imageUrl} category={relatedProduct.category?.name || "Lainnya"} name={relatedProduct.name} description={relatedProduct.description} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 bg-muted/30 rounded-xl border border-dashed">
-              <p className="text-muted-foreground">Tidak ada produk terkait lainnya dalam kategori ini.</p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+    </>
   );
 }
 
