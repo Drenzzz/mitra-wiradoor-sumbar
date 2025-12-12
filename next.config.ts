@@ -20,6 +20,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      {
+        protocol: "https",
+        hostname: "www.wiradoor.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.stimberindo.co.id",
+      },
     ],
   },
   async headers() {

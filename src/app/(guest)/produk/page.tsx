@@ -29,7 +29,7 @@ export default async function ProdukPage() {
     <div className="min-h-screen bg-white">
       <section className="relative h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <Image src="https://images.pexels.com/photos/271816/pexels-photo-271816.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Wood Texture Background" fill className="object-cover" priority />
+          <Image src="https://images.unsplash.com/photo-1525947088131-b701cd0f6dc3?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Wood Texture Background" fill className="object-cover" priority />
           <div className="absolute inset-0 bg-black/70" />
         </div>
 

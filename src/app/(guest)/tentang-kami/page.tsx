@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import Link from "next/link";
 import { ShieldCheck, MapPin, Users, Truck, Building2 } from "lucide-react";
@@ -7,6 +8,7 @@ import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import { Button } from "@/components/ui/button";
 
 import fotoMitra from "@/assets/foto_mitra_usaha.jpg";
+import packingImg from "@/assets/packing.jpg";
 
 export const metadata: Metadata = {
   title: "Tentang Kami - MR Konstruksi",
@@ -44,14 +46,7 @@ export default function AboutPage() {
               <div className="absolute inset-0 bg-orange-500 rounded-2xl transform rotate-3 opacity-20 translate-x-4 translate-y-4 transition-transform group-hover:rotate-6"></div>
 
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-100 aspect-[4/3] bg-slate-100">
-                <Image
-                  src={fotoMitra}
-                  alt="Showroom MR Konstruksi"
-                  fill
-                  className="object-cover hover:scale-105 transition-transform duration-700"
-                  priority
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
+                <Image src={fotoMitra} alt="Showroom MR Konstruksi" fill className="object-cover hover:scale-105 transition-transform duration-700" priority sizes="(max-width: 768px) 100vw, 50vw" />
               </div>
             </div>
 
@@ -116,8 +111,7 @@ export default function AboutPage() {
   );
 }
 
-
-const BentoImage = ({ src }: { src: string }) => (
+const BentoImage = ({ src }: { src: string | StaticImageData }) => (
   <div className="relative w-full h-full min-h-[6rem] rounded-xl overflow-hidden">
     <Image src={src} alt="Feature Image" fill className="object-cover transition-transform duration-500 group-hover/bento:scale-110" sizes="(max-width: 768px) 100vw, 33vw" />
     <div className="absolute inset-0 bg-black/20 group-hover/bento:bg-black/10 transition-colors" />
@@ -128,19 +122,19 @@ const features = [
   {
     title: "Authorized Distributor",
     description: "Jaminan produk asli Wiradoor dengan garansi resmi pabrik.",
-    header: <BentoImage src="https://images.unsplash.com/photo-1621645592814-245943c4c66d?q=80&w=800&auto=format&fit=crop" />,
+    header: <BentoImage src={fotoMitra} />,
     icon: <ShieldCheck className="h-4 w-4 text-white" />,
   },
   {
     title: "Teknologi Pabrikasi",
     description: "Pintu diproses dengan mesin presisi tinggi dan teknologi oven terkini.",
-    header: <BentoImage src="https://images.unsplash.com/photo-1617103996702-96ff29b1c467?q=80&w=800&auto=format&fit=crop" />,
+    header: <BentoImage src="https://www.wiradoor.com/img/about-door.jpg" />,
     icon: <Building2 className="h-4 w-4 text-white" />,
   },
   {
     title: "Konsultasi Ahli",
     description: "Tim kami siap membantu pemilihan spesifikasi teknis yang tepat.",
-    header: <BentoImage src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=800&auto=format&fit=crop" />,
+    header: <BentoImage src="https://www.stimberindo.co.id/wp-content/uploads/2023/02/parallax11-768x432.jpg" />,
     icon: <Users className="h-4 w-4 text-white" />,
   },
   {
@@ -152,7 +146,7 @@ const features = [
   {
     title: "Jangkauan Luas",
     description: "Melayani pengiriman dan pemasangan ke seluruh Sumatera Barat.",
-    header: <BentoImage src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=800&auto=format&fit=crop" />,
+    header: <BentoImage src={packingImg} />,
     icon: <Truck className="h-4 w-4 text-white" />,
   },
 ];
