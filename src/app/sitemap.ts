@@ -1,5 +1,7 @@
 import { MetadataRoute } from "next";
-import prisma from "@/lib/prisma";
+import { db } from "@/db";
+import { products, articles, portfolioItems } from "@/db/schema";
+import { isNull, eq, and } from "drizzle-orm";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXTAUTH_URL || "https://wiradoorsumbar.com";
@@ -45,12 +47,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let productPages: MetadataRoute.Sitemap = [];
   try {
-    const products = await prisma.product.findMany({
-      where: { deletedAt: null },
-      select: { id: true, updatedAt: true },
+    const productsList = await db.query.products.findMany({
+      where: isNull(products.deletedAt),
+      columns: { id: true, updatedAt: true },
     });
 
-    productPages = products.map((product) => ({
+    productPages = productsList.map((product) => ({
       url: `${baseUrl}/produk/${product.id}`,
       lastModified: product.updatedAt,
       changeFrequency: "weekly" as const,
@@ -62,12 +64,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let articlePages: MetadataRoute.Sitemap = [];
   try {
-    const articles = await prisma.article.findMany({
-      where: { status: "PUBLISHED", deletedAt: null },
-      select: { slug: true, updatedAt: true },
+    const articlesList = await db.query.articles.findMany({
+      where: and(eq(articles.status, "PUBLISHED"), isNull(articles.deletedAt)),
+      columns: { slug: true, updatedAt: true },
     });
 
-    articlePages = articles.map((article) => ({
+    articlePages = articlesList.map((article) => ({
       url: `${baseUrl}/artikel/${article.slug}`,
       lastModified: article.updatedAt,
       changeFrequency: "monthly" as const,
@@ -79,11 +81,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let portfolioPages: MetadataRoute.Sitemap = [];
   try {
-    const portfolios = await prisma.portfolioItem.findMany({
-      select: { id: true, updatedAt: true },
+    const portfoliosList = await db.query.portfolioItems.findMany({
+      columns: { id: true, updatedAt: true },
     });
 
-    portfolioPages = portfolios.map((portfolio) => ({
+    portfolioPages = portfoliosList.map((portfolio) => ({
       url: `${baseUrl}/portfolio/${portfolio.id}`,
       lastModified: portfolio.updatedAt,
       changeFrequency: "monthly" as const,

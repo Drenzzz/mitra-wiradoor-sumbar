@@ -4,7 +4,7 @@ import { useState } from "react";
 import { PortfolioCard } from "@/components/guest/portfolio-card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { PortfolioItem } from "@prisma/client";
+import type { PortfolioItem } from "@/db/schema";
 import { motion, AnimatePresence } from "framer-motion";
 
 type PortfolioWithCategory = PortfolioItem & {

@@ -3,7 +3,9 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as orderService from "@/lib/services/order.service";
 import { hasPermission } from "@/lib/config/permissions";
-import prisma from "@/lib/prisma";
+import { db } from "@/db";
+import { orders } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -58,9 +60,7 @@ export async function DELETE(request: NextRequest, context: { params: Promise<{ 
   try {
     const { id } = await context.params;
 
-    await prisma.order.delete({
-      where: { id },
-    });
+    await db.delete(orders).where(eq(orders.id, id));
 
     return NextResponse.json({ message: "Pesanan berhasil dihapus permanen" });
   } catch (error) {

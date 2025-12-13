@@ -1,5 +1,6 @@
-import prisma from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { db } from "@/db";
+import { portfolioItems, portfolioCategories } from "@/db/schema";
+import { eq, ilike, desc, asc, and, count, SQL } from "drizzle-orm";
 
 export type GetPortfolioOptions = {
   page?: number;
@@ -11,80 +12,83 @@ export type GetPortfolioOptions = {
 
 export async function getPortfolioItems(options: GetPortfolioOptions = {}) {
   const { page = 1, limit = 10, search, categoryId, sort = "createdAt-desc" } = options;
+  const offset = (page - 1) * limit;
 
-  const whereClause: Prisma.PortfolioItemWhereInput = {
-    AND: [
-      search
-        ? {
-            title: { contains: search, mode: "insensitive" },
-          }
-        : {},
-      categoryId && categoryId !== "all"
-        ? {
-            portfolioCategoryId: categoryId,
-          }
-        : {},
-    ],
-  };
+  const conditions: SQL[] = [];
 
-  const orderByClause: Prisma.PortfolioItemOrderByWithRelationInput = {};
-  if (sort) {
-    const [field, direction] = sort.split("-");
-    const sortField = field === "createdAt" ? "createdAt" : "title";
-    const sortOrder = direction === "asc" ? "asc" : "desc";
-
-    orderByClause[sortField] = sortOrder;
+  if (search) {
+    conditions.push(ilike(portfolioItems.title, `%${search}%`));
   }
 
-  const [items, totalCount] = await Promise.all([
-    prisma.portfolioItem.findMany({
+  if (categoryId && categoryId !== "all") {
+    conditions.push(eq(portfolioItems.portfolioCategoryId, categoryId));
+  }
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  let orderByClause: SQL | undefined;
+  if (sort) {
+    const [field, direction] = sort.split("-");
+    if (field === "createdAt") {
+      orderByClause = direction === "asc" ? asc(portfolioItems.createdAt) : desc(portfolioItems.createdAt);
+    } else if (field === "title") {
+      orderByClause = direction === "asc" ? asc(portfolioItems.title) : desc(portfolioItems.title);
+    }
+  }
+  if (!orderByClause) {
+    orderByClause = desc(portfolioItems.createdAt);
+  }
+
+  const [items, countResult] = await Promise.all([
+    db.query.portfolioItems.findMany({
       where: whereClause,
-      include: {
+      with: {
         category: {
-          select: { name: true },
+          columns: { name: true },
         },
       },
       orderBy: orderByClause,
-      skip: (page - 1) * limit,
-      take: limit,
+      offset,
+      limit,
     }),
-    prisma.portfolioItem.count({
-      where: whereClause,
-    }),
+    db.select({ count: count() }).from(portfolioItems).where(whereClause),
   ]);
 
   return {
     data: items,
-    totalCount,
-    totalPages: Math.ceil(totalCount / limit),
+    totalCount: countResult[0].count,
+    totalPages: Math.ceil(countResult[0].count / limit),
     currentPage: page,
   };
 }
 
 export async function getPortfolioItemById(id: string) {
-  return await prisma.portfolioItem.findUnique({
-    where: { id },
-    include: {
+  return db.query.portfolioItems.findFirst({
+    where: eq(portfolioItems.id, id),
+    with: {
       category: true,
     },
   });
 }
 
-export async function createPortfolioItem(data: any) {
-  return await prisma.portfolioItem.create({
-    data,
-  });
+export async function createPortfolioItem(data: typeof portfolioItems.$inferInsert) {
+  const result = await db.insert(portfolioItems).values(data).returning();
+  return result[0];
 }
 
-export async function updatePortfolioItem(id: string, data: any) {
-  return await prisma.portfolioItem.update({
-    where: { id },
-    data,
-  });
+export async function updatePortfolioItem(id: string, data: Partial<typeof portfolioItems.$inferInsert>) {
+  const result = await db
+    .update(portfolioItems)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(portfolioItems.id, id))
+    .returning();
+  return result[0];
 }
 
 export async function deletePortfolioItem(id: string) {
-  return await prisma.portfolioItem.delete({
-    where: { id },
-  });
+  const result = await db.delete(portfolioItems).where(eq(portfolioItems.id, id)).returning();
+  return result[0];
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { Inquiry } from "@/types";
-import { InquiryStatus } from "@prisma/client";
+import type { InquiryStatus } from "@/db/schema";
 import { motion } from "framer-motion";
 import { MoreHorizontal, Eye, CheckCheck, Send } from "lucide-react";
 import { Badge } from "@/components/ui/badge";

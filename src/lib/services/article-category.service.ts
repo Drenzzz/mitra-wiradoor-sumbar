@@ -1,5 +1,6 @@
-import prisma from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { db } from "@/db";
+import { articleCategories } from "@/db/schema";
+import { eq, ilike, isNull, isNotNull, desc, asc, and, count, SQL } from "drizzle-orm";
 
 export type ArticleCategoryDto = {
   name: string;
@@ -16,62 +17,89 @@ export type GetArticleCategoriesOptions = {
 
 export const getArticleCategories = async (options: GetArticleCategoriesOptions = {}) => {
   const { status = "active", search, sort, page = 1, limit = 10 } = options;
-  const skip = (page - 1) * limit;
+  const offset = (page - 1) * limit;
 
-  const whereClause: Prisma.ArticleCategoryWhereInput = {};
-  whereClause.deletedAt = status === "trashed" ? { not: null } : null;
+  const conditions: SQL[] = [];
 
-  if (search) {
-    whereClause.name = { contains: search, mode: "insensitive" };
+  if (status === "trashed") {
+    conditions.push(isNotNull(articleCategories.deletedAt));
+  } else {
+    conditions.push(isNull(articleCategories.deletedAt));
   }
 
-  const [sortField, sortOrder] = sort?.split("-") || ["name", "asc"];
-  const orderByClause = { [sortField]: sortOrder };
+  if (search) {
+    conditions.push(ilike(articleCategories.name, `%${search}%`));
+  }
 
-  const [categories, totalCount] = await prisma.$transaction([
-    prisma.articleCategory.findMany({
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  let orderByClause: SQL | undefined;
+  if (sort) {
+    const [field, order] = sort.split("-");
+    if (field === "name") {
+      orderByClause = order === "asc" ? asc(articleCategories.name) : desc(articleCategories.name);
+    } else if (field === "createdAt") {
+      orderByClause = order === "asc" ? asc(articleCategories.createdAt) : desc(articleCategories.createdAt);
+    }
+  }
+  if (!orderByClause) {
+    orderByClause = asc(articleCategories.name);
+  }
+
+  const [data, countResult] = await Promise.all([
+    db.query.articleCategories.findMany({
       where: whereClause,
       orderBy: orderByClause,
-      skip,
-      take: limit,
+      offset,
+      limit,
     }),
-    prisma.articleCategory.count({ where: whereClause }),
+    db.select({ count: count() }).from(articleCategories).where(whereClause),
   ]);
 
-  return { data: categories, totalCount };
+  return { data, totalCount: countResult[0].count };
 };
 
-export const createArticleCategory = (data: ArticleCategoryDto) => {
-  return prisma.articleCategory.create({
-    data: { ...data, deletedAt: null },
-  });
+export const createArticleCategory = async (data: ArticleCategoryDto) => {
+  const result = await db
+    .insert(articleCategories)
+    .values({
+      name: data.name,
+      description: data.description,
+      deletedAt: null,
+    })
+    .returning();
+
+  return result[0];
 };
 
-export const updateArticleCategoryById = (id: string, data: ArticleCategoryDto) => {
-  return prisma.articleCategory.update({
-    where: { id },
-    data,
-  });
+export const updateArticleCategoryById = async (id: string, data: ArticleCategoryDto) => {
+  const result = await db
+    .update(articleCategories)
+    .set({
+      name: data.name,
+      description: data.description,
+      updatedAt: new Date(),
+    })
+    .where(eq(articleCategories.id, id))
+    .returning();
+
+  return result[0];
 };
 
-export const softDeleteArticleCategoryById = (id: string) => {
-  return prisma.articleCategory.update({
-    where: { id },
-    data: { deletedAt: new Date() },
-  });
+export const softDeleteArticleCategoryById = async (id: string) => {
+  const result = await db.update(articleCategories).set({ deletedAt: new Date(), updatedAt: new Date() }).where(eq(articleCategories.id, id)).returning();
+
+  return result[0];
 };
 
-// Fungsi untuk memulihkan dari sampah
-export const restoreArticleCategoryById = (id: string) => {
-  return prisma.articleCategory.update({
-    where: { id },
-    data: { deletedAt: null },
-  });
+export const restoreArticleCategoryById = async (id: string) => {
+  const result = await db.update(articleCategories).set({ deletedAt: null, updatedAt: new Date() }).where(eq(articleCategories.id, id)).returning();
+
+  return result[0];
 };
 
-// Fungsi untuk menghapus permanen
-export const permanentDeleteArticleCategoryById = (id: string) => {
-  return prisma.articleCategory.delete({
-    where: { id },
-  });
+export const permanentDeleteArticleCategoryById = async (id: string) => {
+  const result = await db.delete(articleCategories).where(eq(articleCategories.id, id)).returning();
+
+  return result[0];
 };

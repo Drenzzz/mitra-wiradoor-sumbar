@@ -11,7 +11,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { userCreateSchema, UserCreateFormInput } from "@/lib/validations/user.schema";
-import { Role } from "@prisma/client";
 
 interface CreateUserDialogProps {
   onSuccess: () => void;
@@ -25,7 +24,7 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
       name: "",
       email: "",
       password: "",
-      role: Role.STAF,
+      role: "STAF",
     },
   });
 
@@ -34,7 +33,7 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
   const onSubmit = async (values: UserCreateFormInput) => {
     const payload: UserCreateFormInput = {
       ...values,
-      role: values.role ?? Role.STAF,
+      role: values.role ?? "STAF",
     };
 
     toast.promise(
@@ -129,8 +128,8 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value={Role.STAF}>STAF</SelectItem>
-                      <SelectItem value={Role.ADMIN}>ADMIN</SelectItem>
+                      <SelectItem value="STAF">STAF</SelectItem>
+                      <SelectItem value="ADMIN">ADMIN</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

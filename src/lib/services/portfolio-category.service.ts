@@ -1,5 +1,6 @@
-import prisma from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { db } from "@/db";
+import { portfolioCategories } from "@/db/schema";
+import { eq, ilike, isNull, isNotNull, desc, asc, and, count, SQL } from "drizzle-orm";
 
 export type PortfolioCategoryDto = {
   name: string;
@@ -16,77 +17,108 @@ export type GetPortfolioCategoriesOptions = {
 
 export const getPortfolioCategories = async (options: GetPortfolioCategoriesOptions = {}) => {
   const { status = "active", search, sort, page = 1, limit = 10 } = options;
-  const skip = (page - 1) * limit;
+  const offset = (page - 1) * limit;
 
-  const whereClause: Prisma.PortfolioCategoryWhereInput = {};
-  whereClause.deletedAt = status === "trashed" ? { not: null } : null;
+  const conditions: SQL[] = [];
 
-  if (search) {
-    whereClause.name = { contains: search, mode: "insensitive" };
+  if (status === "trashed") {
+    conditions.push(isNotNull(portfolioCategories.deletedAt));
+  } else {
+    conditions.push(isNull(portfolioCategories.deletedAt));
   }
 
-  const [sortField, sortOrder] = sort?.split("-") || ["name", "asc"];
-  const orderByClause = { [sortField]: sortOrder };
+  if (search) {
+    conditions.push(ilike(portfolioCategories.name, `%${search}%`));
+  }
 
-  const [categories, totalCount] = await prisma.$transaction([
-    prisma.portfolioCategory.findMany({
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  let orderByClause: SQL | undefined;
+  if (sort) {
+    const [field, order] = sort.split("-");
+    if (field === "name") {
+      orderByClause = order === "asc" ? asc(portfolioCategories.name) : desc(portfolioCategories.name);
+    } else if (field === "createdAt") {
+      orderByClause = order === "asc" ? asc(portfolioCategories.createdAt) : desc(portfolioCategories.createdAt);
+    }
+  }
+  if (!orderByClause) {
+    orderByClause = asc(portfolioCategories.name);
+  }
+
+  const [data, countResult] = await Promise.all([
+    db.query.portfolioCategories.findMany({
       where: whereClause,
       orderBy: orderByClause,
-      skip,
-      take: limit,
+      offset,
+      limit,
     }),
-    prisma.portfolioCategory.count({ where: whereClause }),
+    db.select({ count: count() }).from(portfolioCategories).where(whereClause),
   ]);
 
-  return { data: categories, totalCount };
+  return { data, totalCount: countResult[0].count };
 };
 
 export const createPortfolioCategory = async (data: PortfolioCategoryDto) => {
-  const existing = await prisma.portfolioCategory.findUnique({
-    where: { name: data.name },
+  const existing = await db.query.portfolioCategories.findFirst({
+    where: eq(portfolioCategories.name, data.name),
   });
 
   if (existing) {
     if (existing.deletedAt) {
-      return prisma.portfolioCategory.update({
-        where: { id: existing.id },
-        data: {
+      const result = await db
+        .update(portfolioCategories)
+        .set({
           ...data,
           deletedAt: null,
-        },
-      });
+          updatedAt: new Date(),
+        })
+        .where(eq(portfolioCategories.id, existing.id))
+        .returning();
+      return result[0];
     }
     throw new Error("CATEGORY_EXISTS");
   }
 
-  return prisma.portfolioCategory.create({
-    data: { ...data, deletedAt: null },
-  });
+  const result = await db
+    .insert(portfolioCategories)
+    .values({
+      name: data.name,
+      description: data.description,
+      deletedAt: null,
+    })
+    .returning();
+
+  return result[0];
 };
 
-export const updatePortfolioCategoryById = (id: string, data: Partial<PortfolioCategoryDto>) => {
-  return prisma.portfolioCategory.update({
-    where: { id },
-    data,
-  });
+export const updatePortfolioCategoryById = async (id: string, data: Partial<PortfolioCategoryDto>) => {
+  const result = await db
+    .update(portfolioCategories)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(portfolioCategories.id, id))
+    .returning();
+
+  return result[0];
 };
 
-export const softDeletePortfolioCategoryById = (id: string) => {
-  return prisma.portfolioCategory.update({
-    where: { id },
-    data: { deletedAt: new Date() },
-  });
+export const softDeletePortfolioCategoryById = async (id: string) => {
+  const result = await db.update(portfolioCategories).set({ deletedAt: new Date(), updatedAt: new Date() }).where(eq(portfolioCategories.id, id)).returning();
+
+  return result[0];
 };
 
-export const restorePortfolioCategoryById = (id: string) => {
-  return prisma.portfolioCategory.update({
-    where: { id },
-    data: { deletedAt: null },
-  });
+export const restorePortfolioCategoryById = async (id: string) => {
+  const result = await db.update(portfolioCategories).set({ deletedAt: null, updatedAt: new Date() }).where(eq(portfolioCategories.id, id)).returning();
+
+  return result[0];
 };
 
-export const permanentDeletePortfolioCategoryById = (id: string) => {
-  return prisma.portfolioCategory.delete({
-    where: { id },
-  });
+export const permanentDeletePortfolioCategoryById = async (id: string) => {
+  const result = await db.delete(portfolioCategories).where(eq(portfolioCategories.id, id)).returning();
+
+  return result[0];
 };

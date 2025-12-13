@@ -1,11 +1,18 @@
 import NextAuth, { AuthOptions } from "next-auth";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
-import prisma from "@/lib/prisma";
+import { db } from "@/db";
+import { users, accounts, sessions, verificationTokens, type Role } from "@/db/schema";
+import { eq } from "drizzle-orm";
 import * as bcrypt from "bcrypt";
 
 export const authOptions: AuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: DrizzleAdapter(db, {
+    usersTable: users,
+    accountsTable: accounts,
+    sessionsTable: sessions,
+    verificationTokensTable: verificationTokens,
+  }) as AuthOptions["adapter"],
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -17,8 +24,8 @@ export const authOptions: AuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email and password are required");
         }
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+        const user = await db.query.users.findFirst({
+          where: eq(users.email, credentials.email),
         });
         if (!user || !user.password) {
           throw new Error("Invalid credentials");
@@ -48,8 +55,8 @@ export const authOptions: AuthOptions = {
       }
 
       if (trigger === "update") {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.id },
+        const dbUser = await db.query.users.findFirst({
+          where: eq(users.id, token.id as string),
         });
         if (dbUser) {
           token.name = dbUser.name;
@@ -61,9 +68,9 @@ export const authOptions: AuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
-        session.user.name = token.name;
+        session.user.id = token.id as string;
+        session.user.role = token.role as Role;
+        session.user.name = token.name as string;
       }
       return session;
     },

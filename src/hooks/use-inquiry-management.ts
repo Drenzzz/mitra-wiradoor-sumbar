@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { InquiryStatus } from "@prisma/client";
+import type { InquiryStatus } from "@/db/schema";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useDebounce } from "@/hooks/use-debounce";
 

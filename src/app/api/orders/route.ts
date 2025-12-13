@@ -1,12 +1,15 @@
 import { NextResponse, NextRequest } from "next/server";
-import prisma from "@/lib/prisma";
+import { db } from "@/db";
+import { orders, orderItems } from "@/db/schema";
+import type { OrderStatus } from "@/db/schema";
 import { ZodError } from "zod";
 import { customerInfoSchema } from "@/lib/validations/order.schema";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getOrders } from "@/lib/services/order.service";
-import { OrderStatus } from "@prisma/client";
 import { globalLimiter } from "@/lib/rate-limit";
+
+const VALID_ORDER_STATUSES: OrderStatus[] = ["PENDING", "PROCESSED", "SHIPPED", "COMPLETED", "CANCELLED"];
 
 function generateInvoiceNumber(): string {
   const timestamp = new Date().getTime().toString().slice(-8);
@@ -34,32 +37,29 @@ export async function POST(request: NextRequest) {
 
     const validatedCustomerData = customerInfoSchema.parse(customerData);
 
-    const newOrder = await prisma.$transaction(async (tx) => {
-      const order = await tx.order.create({
-        data: {
-          invoiceNumber: generateInvoiceNumber(),
-          customerName: validatedCustomerData.customerName,
-          customerEmail: validatedCustomerData.customerEmail,
-          customerPhone: validatedCustomerData.customerPhone,
-          customerAddress: validatedCustomerData.customerAddress,
-          status: "PENDING",
-        },
+    const orderResult = await db
+      .insert(orders)
+      .values({
+        invoiceNumber: generateInvoiceNumber(),
+        customerName: validatedCustomerData.customerName,
+        customerEmail: validatedCustomerData.customerEmail,
+        customerPhone: validatedCustomerData.customerPhone,
+        customerAddress: validatedCustomerData.customerAddress,
+        status: "PENDING",
+      })
+      .returning();
+
+    const newOrder = orderResult[0];
+
+    for (const item of items) {
+      await db.insert(orderItems).values({
+        orderId: newOrder.id,
+        productId: item.id,
+        productName: item.name,
+        isReadyStock: true,
+        quantity: item.quantity,
       });
-
-      for (const item of items) {
-        await tx.orderItem.create({
-          data: {
-            orderId: order.id,
-            productId: item.id,
-            productName: item.name,
-            isReadyStock: true,
-            quantity: item.quantity,
-          },
-        });
-      }
-
-      return order;
-    });
+    }
 
     return NextResponse.json(newOrder, { status: 201 });
   } catch (error) {
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
     const statusParam = searchParams.get("status");
 
     const options = {
-      status: statusParam && Object.values(OrderStatus).includes(statusParam as OrderStatus) ? (statusParam as OrderStatus) : undefined,
+      status: statusParam && VALID_ORDER_STATUSES.includes(statusParam as OrderStatus) ? (statusParam as OrderStatus) : undefined,
       search: searchParams.get("search") || undefined,
       sort: searchParams.get("sort") || undefined,
       page: parseInt(searchParams.get("page") || "1", 10),

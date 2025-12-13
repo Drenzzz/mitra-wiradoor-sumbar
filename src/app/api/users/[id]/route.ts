@@ -4,9 +4,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { ZodError } from "zod";
 import * as userService from "@/lib/services/user.service";
 import { userUpdateSchema } from "@/lib/validations/user.schema";
-import { Prisma } from "@prisma/client";
 
-// Helper untuk check Admin
 async function isAdminSession() {
   const session = await getServerSession(authOptions);
   if (session?.user?.role !== "ADMIN") {
@@ -51,7 +49,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (error instanceof ZodError) {
       return NextResponse.json({ error: "Data tidak valid.", details: error.issues }, { status: 400 });
     }
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+    if (error instanceof Error && error.message.includes("unique constraint")) {
       return NextResponse.json({ error: "Email ini sudah terdaftar." }, { status: 409 });
     }
     console.error("Error updating user:", error);
@@ -72,12 +70,12 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   }
 
   try {
-    await userService.deleteUser(id);
-    return NextResponse.json({ message: "Pengguna berhasil dihapus." }, { status: 200 });
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+    const deleted = await userService.deleteUser(id);
+    if (!deleted) {
       return NextResponse.json({ error: "Pengguna tidak ditemukan." }, { status: 404 });
     }
+    return NextResponse.json({ message: "Pengguna berhasil dihapus." }, { status: 200 });
+  } catch (error) {
     console.error("Error deleting user:", error);
     return NextResponse.json({ error: "Terjadi kesalahan pada server." }, { status: 500 });
   }

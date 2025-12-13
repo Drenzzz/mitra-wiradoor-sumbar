@@ -1,7 +1,7 @@
 "use client";
 
 import { Order } from "@/types";
-import { OrderStatus } from "@prisma/client";
+import type { OrderStatus } from "@/db/schema";
 import { motion } from "framer-motion";
 import { MoreHorizontal, Eye, CheckCircle, XCircle, Truck, PackageCheck, Banknote } from "lucide-react";
 import { Badge } from "@/components/ui/badge";

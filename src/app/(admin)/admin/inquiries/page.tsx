@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useInquiryManagement } from "@/hooks/use-inquiry-management";
-import { InquiryStatus } from "@prisma/client";
+import type { InquiryStatus } from "@/db/schema";
 import { toast } from "sonner";
 import type { Inquiry } from "@/types";
 import { InquiryTable } from "@/components/admin/inquiries/inquiry-table";
@@ -68,9 +68,9 @@ export default function InquiryManagementPage() {
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="mt-4">
         <TabsList>
-          <TabsTrigger value={InquiryStatus.NEW}>Baru</TabsTrigger>
-          <TabsTrigger value={InquiryStatus.READ}>Dibaca</TabsTrigger>
-          <TabsTrigger value={InquiryStatus.REPLIED}>Dibalas</TabsTrigger>
+          <TabsTrigger value="NEW">Baru</TabsTrigger>
+          <TabsTrigger value="READ">Dibaca</TabsTrigger>
+          <TabsTrigger value="REPLIED">Dibalas</TabsTrigger>
           <TabsTrigger value="ALL">Semua</TabsTrigger>
         </TabsList>
 

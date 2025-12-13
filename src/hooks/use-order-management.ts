@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { OrderStatus } from "@prisma/client";
+import type { OrderStatus } from "@/db/schema";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useDebounce } from "@/hooks/use-debounce";
 import { DateRange } from "react-day-picker";
@@ -9,7 +9,7 @@ import { DateRange } from "react-day-picker";
 export function useOrderManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("createdAt-desc");
-  const [activeTab, setActiveTab] = useState<OrderStatus>(OrderStatus.PENDING);
+  const [activeTab, setActiveTab] = useState<OrderStatus>("PENDING");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
@@ -51,7 +51,7 @@ export function useOrderManagement() {
     placeholderData: keepPreviousData,
     staleTime: 0,
     refetchOnWindowFocus: true,
-    refetchInterval: 30000, 
+    refetchInterval: 30000,
   });
 
   const handleBulkAction = async (action: "updateStatus" | "delete", status?: OrderStatus) => {
@@ -76,7 +76,7 @@ export function useOrderManagement() {
       setSelectedRowKeys([]);
       refetch();
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw error;
     }
   };

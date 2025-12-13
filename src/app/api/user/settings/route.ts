@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import prisma from "@/lib/prisma";
+import { db } from "@/db";
+import { users } from "@/db/schema";
 import * as bcrypt from "bcrypt";
 import crypto from "crypto";
 import { sendPasswordChangeEmail } from "@/lib/mail";
+import { eq } from "drizzle-orm";
 
 export async function PATCH(request: Request) {
   try {
@@ -21,7 +23,7 @@ export async function PATCH(request: Request) {
       if (typeof name !== "string" || name.length < 3) {
         return NextResponse.json({ error: "Nama minimal 3 karakter." }, { status: 400 });
       }
-      await prisma.user.update({ where: { id: userId }, data: { name } });
+      await db.update(users).set({ name }).where(eq(users.id, userId));
       return NextResponse.json({ message: "Nama berhasil diperbarui" });
     } else if ("currentPassword" in body) {
       const { currentPassword } = body;
@@ -29,7 +31,7 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ error: "Password saat ini wajib diisi." }, { status: 400 });
       }
 
-      const user = await prisma.user.findUnique({ where: { id: userId } });
+      const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
       if (!user || !user.password) {
         return NextResponse.json({ error: "Pengguna tidak ditemukan." }, { status: 404 });
       }
@@ -43,10 +45,7 @@ export async function PATCH(request: Request) {
       const passwordChangeToken = crypto.createHash("sha256").update(changeToken).digest("hex");
       const passwordChangeExpires = new Date(Date.now() + 3600000);
 
-      await prisma.user.update({
-        where: { id: userId },
-        data: { passwordChangeToken, passwordChangeExpires },
-      });
+      await db.update(users).set({ passwordChangeToken, passwordChangeExpires }).where(eq(users.id, userId));
 
       await sendPasswordChangeEmail(session.user.email, changeToken);
 

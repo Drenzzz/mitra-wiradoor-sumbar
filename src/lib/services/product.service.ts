@@ -1,5 +1,6 @@
-import prisma from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { db } from "@/db";
+import { products, categories } from "@/db/schema";
+import { eq, ilike, isNull, isNotNull, or, desc, asc, and, count, SQL } from "drizzle-orm";
 
 export type ProductDto = {
   name: string;
@@ -21,88 +22,118 @@ export type GetProductsOptions = {
 
 export const getProducts = async (options: GetProductsOptions = {}) => {
   const { status = "active", search, sort, page = 1, limit = 10, categoryId } = options;
-  const skip = (page - 1) * limit;
+  const offset = (page - 1) * limit;
 
-  const whereClause: Prisma.ProductWhereInput = {};
-  whereClause.deletedAt = status === "trashed" ? { not: null } : null;
+  const conditions: SQL[] = [];
+
+  if (status === "trashed") {
+    conditions.push(isNotNull(products.deletedAt));
+  } else {
+    conditions.push(isNull(products.deletedAt));
+  }
 
   if (search) {
-    whereClause.OR = [{ name: { contains: search, mode: "insensitive" } }, { description: { contains: search, mode: "insensitive" } }, { specifications: { contains: search, mode: "insensitive" } }];
+    conditions.push(or(ilike(products.name, `%${search}%`), ilike(products.description, `%${search}%`), ilike(products.specifications, `%${search}%`))!);
   }
 
   if (categoryId) {
-    whereClause.categoryId = categoryId;
+    conditions.push(eq(products.categoryId, categoryId));
   }
 
-  let orderByClause: any = { createdAt: "desc" };
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
+  let orderByClause: SQL | undefined;
   if (sort) {
     const [field, order] = sort.split("-");
-    if (["name", "createdAt", "price"].includes(field)) {
-      orderByClause = { [field]: order === "asc" ? "asc" : "desc" };
+    if (field === "name") {
+      orderByClause = order === "asc" ? asc(products.name) : desc(products.name);
+    } else if (field === "createdAt") {
+      orderByClause = order === "asc" ? asc(products.createdAt) : desc(products.createdAt);
     }
   }
+  if (!orderByClause) {
+    orderByClause = desc(products.createdAt);
+  }
 
-  const [products, totalCount] = await prisma.$transaction([
-    prisma.product.findMany({
+  const [data, countResult] = await Promise.all([
+    db.query.products.findMany({
       where: whereClause,
-      include: { category: { select: { name: true } } },
+      with: {
+        category: {
+          columns: { name: true },
+        },
+      },
       orderBy: orderByClause,
-      skip,
-      take: limit,
+      offset,
+      limit,
     }),
-    prisma.product.count({ where: whereClause }),
+    db.select({ count: count() }).from(products).where(whereClause),
   ]);
 
-  return { data: products, totalCount };
+  return { data, totalCount: countResult[0].count };
 };
 
-export const getProductById = (id: string) => {
-  const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(id);
+export const getProductById = async (id: string) => {
+  const isValidUUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id);
 
-  if (!isValidObjectId) {
+  if (!isValidUUID) {
     return null;
   }
 
-  return prisma.product.findUnique({
-    where: { id },
-    include: {
+  return db.query.products.findFirst({
+    where: eq(products.id, id),
+    with: {
       category: {
-        select: { id: true, name: true },
+        columns: { id: true, name: true },
       },
     },
   });
 };
 
-export const createProduct = (data: ProductDto) => {
-  return prisma.product.create({
-    data: { ...data, deletedAt: null },
-  });
+export const createProduct = async (data: ProductDto) => {
+  const result = await db
+    .insert(products)
+    .values({
+      name: data.name,
+      description: data.description,
+      specifications: data.specifications,
+      imageUrl: data.imageUrl,
+      images: data.images || [],
+      categoryId: data.categoryId,
+      deletedAt: null,
+    })
+    .returning();
+
+  return result[0];
 };
 
-export const updateProductById = (id: string, data: Partial<ProductDto>) => {
-  return prisma.product.update({
-    where: { id },
-    data,
-  });
+export const updateProductById = async (id: string, data: Partial<ProductDto>) => {
+  const result = await db
+    .update(products)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(products.id, id))
+    .returning();
+
+  return result[0];
 };
 
-export const softDeleteProductById = (id: string) => {
-  return prisma.product.update({
-    where: { id },
-    data: { deletedAt: new Date() },
-  });
+export const softDeleteProductById = async (id: string) => {
+  const result = await db.update(products).set({ deletedAt: new Date(), updatedAt: new Date() }).where(eq(products.id, id)).returning();
+
+  return result[0];
 };
 
-export const restoreProductById = (id: string) => {
-  return prisma.product.update({
-    where: { id },
-    data: { deletedAt: null },
-  });
+export const restoreProductById = async (id: string) => {
+  const result = await db.update(products).set({ deletedAt: null, updatedAt: new Date() }).where(eq(products.id, id)).returning();
+
+  return result[0];
 };
 
-export const permanentDeleteProductById = (id: string) => {
-  return prisma.product.delete({
-    where: { id },
-  });
+export const permanentDeleteProductById = async (id: string) => {
+  const result = await db.delete(products).where(eq(products.id, id)).returning();
+
+  return result[0];
 };

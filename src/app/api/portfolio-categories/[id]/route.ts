@@ -4,7 +4,6 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as service from "@/lib/services/portfolio-category.service";
 import { ZodError } from "zod";
 import { portfolioCategorySchema } from "@/lib/validations/portfolio.schema";
-import { Prisma } from "@prisma/client";
 
 async function isAdminSession() {
   const session = await getServerSession(authOptions);
@@ -36,7 +35,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (error instanceof ZodError) {
       return NextResponse.json({ error: "Data tidak valid.", details: error.issues }, { status: 400 });
     }
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+    if (error instanceof Error && error.message.includes("unique constraint")) {
       return NextResponse.json({ error: "Nama kategori ini sudah ada." }, { status: 409 });
     }
     return NextResponse.json({ error: "Gagal memperbarui kategori portofolio" }, { status: 500 });

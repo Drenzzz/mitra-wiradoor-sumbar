@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { db } from "@/db";
+import { users } from "@/db/schema";
 import crypto from "crypto";
 import * as bcrypt from "bcrypt";
+import { eq, gt, and } from "drizzle-orm";
 
 export async function POST(request: Request) {
   try {
@@ -13,11 +15,8 @@ export async function POST(request: Request) {
 
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-    const user = await prisma.user.findFirst({
-      where: {
-        passwordChangeToken: hashedToken,
-        passwordChangeExpires: { gt: new Date() },
-      },
+    const user = await db.query.users.findFirst({
+      where: and(eq(users.passwordChangeToken, hashedToken), gt(users.passwordChangeExpires, new Date())),
     });
 
     if (!user) {
@@ -26,14 +25,14 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
+    await db
+      .update(users)
+      .set({
         password: hashedPassword,
         passwordChangeToken: null,
         passwordChangeExpires: null,
-      },
-    });
+      })
+      .where(eq(users.id, user.id));
 
     return NextResponse.json({ message: "Password berhasil diubah." });
   } catch (error) {
