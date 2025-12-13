@@ -56,7 +56,7 @@ export function CreateProductButton({ onSuccess }: { onSuccess: () => void }) {
           Tambah Produk
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>Tambah Produk Baru</DialogTitle>
         </DialogHeader>

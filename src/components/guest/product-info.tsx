@@ -82,7 +82,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
         <AccordionItem value="description">
           <AccordionTrigger className="text-base font-semibold">Deskripsi Produk</AccordionTrigger>
           <AccordionContent>
-            <div className="prose prose-sm max-w-none text-muted-foreground leading-relaxed whitespace-pre-line">{product.description}</div>
+            <div className="prose prose-sm max-w-none text-muted-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: product.description }} />
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="specifications">

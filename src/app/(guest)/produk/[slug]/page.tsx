@@ -82,7 +82,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
       <BreadcrumbJsonLd items={breadcrumbItems} />
       <div className="min-h-screen bg-background pb-20">
         {/* Breadcrumb Section */}
-        <div className="bg-muted/30 border-b">
+        <div className="bg-muted/30 border-b pt-20">
           <div className="container mx-auto px-4 py-4">
             <nav className="text-sm text-muted-foreground flex items-center space-x-2 overflow-hidden">
               <Link href="/" className="hover:text-primary transition-colors flex items-center gap-1 shrink-0">

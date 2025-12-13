@@ -65,7 +65,7 @@ export function EditProductDialog({ product, isOpen, onClose, onSuccess }: EditP
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>Edit Produk</DialogTitle>
           <DialogDescription>Ubah detail produk di bawah ini.</DialogDescription>
