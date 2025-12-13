@@ -1,4 +1,4 @@
-import { InquiryForm } from "@/components/guest/inquiry-form";
+import { InquiryForm } from "@/components/guest/contact/inquiry-form";
 import { Metadata } from "next";
 import { MapPin, Phone, Mail, Clock, Instagram, Facebook, ArrowUpRight } from "lucide-react";
 import { DotPattern } from "@/components/ui/dot-pattern";

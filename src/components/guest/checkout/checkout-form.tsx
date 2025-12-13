@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
-import { CheckoutOrderSummary } from "@/components/guest/checkout-order-summary";
+import { CheckoutOrderSummary } from "@/components/guest/checkout/checkout-order-summary";
 
 const checkoutSchema = z.object({
   customerName: z.string().min(3, "Nama lengkap minimal 3 karakter"),

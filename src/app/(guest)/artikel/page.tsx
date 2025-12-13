@@ -7,7 +7,7 @@ import { Search, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ArticleCard } from "@/components/guest/article-card";
+import { ArticleCard } from "@/components/guest/article/article-card";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
 

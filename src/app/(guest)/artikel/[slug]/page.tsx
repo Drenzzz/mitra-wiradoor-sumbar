@@ -5,10 +5,10 @@ import { notFound } from "next/navigation";
 import { Calendar, User, ArrowLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArticleCard } from "@/components/guest/article-card";
+import { ArticleCard } from "@/components/guest/article/article-card";
 import { formatDate } from "@/lib/utils";
 import { getArticleBySlug, getArticles } from "@/lib/services/article.service";
-import { ShareButtons } from "@/components/guest/share-buttons";
+import { ShareButtons } from "@/components/guest/layout/share-buttons";
 import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 
 interface ArticleData {

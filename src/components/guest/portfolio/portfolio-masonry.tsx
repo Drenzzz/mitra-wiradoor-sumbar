@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PortfolioCard } from "@/components/guest/portfolio-card";
+import { PortfolioCard } from "@/components/guest/portfolio/portfolio-card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { PortfolioItem } from "@/db/schema";

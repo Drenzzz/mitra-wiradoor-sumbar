@@ -4,9 +4,9 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { MainNav } from "@/components/guest/main-nav";
-import { SiteFooter } from "@/components/guest/site-footer";
-import { ForceLightTheme } from "@/components/guest/force-light-theme";
+import { MainNav } from "@/components/guest/layout/main-nav";
+import { SiteFooter } from "@/components/guest/layout/site-footer";
+import { ForceLightTheme } from "@/components/guest/layout/force-light-theme";
 
 interface ErrorProps {
   error: Error & { digest?: string };

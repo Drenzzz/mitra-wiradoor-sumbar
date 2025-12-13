@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getProductById } from "@/lib/services/product.service";
-import { OrderPageClient } from "@/components/guest/order-page-client";
+import { OrderPageClient } from "@/components/guest/checkout/order-page-client";
 import { Product } from "@/types";
 
 async function getProduct(productId: string): Promise<Product | null> {

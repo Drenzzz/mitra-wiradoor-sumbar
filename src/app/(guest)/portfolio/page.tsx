@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import Image from "next/image";
 import { getPortfolioItems } from "@/lib/services/portfolio.service";
 import { getPortfolioCategories } from "@/lib/services/portfolio-category.service";
-import { PortfolioMasonry } from "@/components/guest/portfolio-masonry";
+import { PortfolioMasonry } from "@/components/guest/portfolio/portfolio-masonry";
 
 export const metadata: Metadata = {
   title: "Portfolio Proyek - Wiradoor Sumbar",

@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/hooks/use-debounce";
-import { CatalogFilterBar } from "@/components/guest/catalog-filter-bar";
-import { CatalogActiveFilters } from "@/components/guest/catalog-active-filters";
-import { CatalogProductGrid } from "@/components/guest/catalog-product-grid";
+import { CatalogFilterBar } from "@/components/guest/catalog/catalog-filter-bar";
+import { CatalogActiveFilters } from "@/components/guest/catalog/catalog-active-filters";
+import { CatalogProductGrid } from "@/components/guest/catalog/catalog-product-grid";
 import type { Product, Category } from "@/types";
 
 interface ProductCatalogProps {

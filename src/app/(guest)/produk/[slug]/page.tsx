@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ProductCard } from "@/components/guest/product-card";
+import { ProductCard } from "@/components/guest/product/product-card";
 import { ChevronRight, Home } from "lucide-react";
 import type { Product } from "@/types";
-import { ProductGallery } from "@/components/guest/product-gallery";
-import { ProductInfo } from "@/components/guest/product-info";
+import { ProductGallery } from "@/components/guest/product/product-gallery";
+import { ProductInfo } from "@/components/guest/product/product-info";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 
 interface ProductData {

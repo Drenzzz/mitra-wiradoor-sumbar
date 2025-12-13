@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { FeaturedProductCard } from "@/components/guest/featured-product-card";
+import { FeaturedProductCard } from "@/components/guest/product/featured-product-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import { MagneticButton } from "@/components/ui/magnetic-button";

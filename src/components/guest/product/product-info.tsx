@@ -8,7 +8,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Separator } from "@/components/ui/separator";
 import { MessageCircle, ShoppingCart, Share2, ShieldCheck, Truck, Phone } from "lucide-react";
 import { toast } from "sonner";
-import { AddToCartButton } from "@/components/guest/add-to-cart-button";
+import { AddToCartButton } from "@/components/guest/product/add-to-cart-button";
 
 interface ProductInfoProps {
   product: Product & { isReadyStock?: boolean };

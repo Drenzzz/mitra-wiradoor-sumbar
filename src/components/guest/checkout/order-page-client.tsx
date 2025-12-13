@@ -1,7 +1,7 @@
 "use client";
 
 import { Product } from "@/types";
-import { CheckoutForm } from "@/components/guest/checkout-form";
+import { CheckoutForm } from "@/components/guest/checkout/checkout-form";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Image from "next/image";
 
