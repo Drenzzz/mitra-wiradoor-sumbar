@@ -1,22 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Trash2, ArrowRight, ShieldCheck, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 
 import { useCart, CartItem } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Separator } from "@/components/ui/separator";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { CheckoutOrderSummary } from "@/components/guest/checkout-order-summary";
 
 const checkoutSchema = z.object({
   customerName: z.string().min(3, "Nama lengkap minimal 3 karakter"),
@@ -38,6 +36,7 @@ export function CheckoutForm({ items }: CheckoutFormProps) {
   const [loading, setLoading] = useState(false);
 
   const checkoutItems = items || cart.items;
+  const isFromCart = !items;
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
@@ -79,7 +78,7 @@ export function CheckoutForm({ items }: CheckoutFormProps) {
         throw new Error(result.message || "Gagal memproses permintaan");
       }
 
-      if (!items) {
+      if (isFromCart) {
         cart.clearCart();
       }
 
@@ -113,7 +112,6 @@ export function CheckoutForm({ items }: CheckoutFormProps) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-      {/* KOLOM KIRI: FORMULIR */}
       <div className="lg:col-span-7 space-y-8">
         <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-100 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
@@ -203,59 +201,8 @@ export function CheckoutForm({ items }: CheckoutFormProps) {
         </div>
       </div>
 
-      {/* KOLOM KANAN: ORDER SUMMARY (STICKY) */}
       <div className="lg:col-span-5">
-        <div className="sticky top-32 space-y-6">
-          <Card className="border-0 shadow-xl bg-slate-900 text-white overflow-hidden">
-            <CardHeader className="bg-slate-800/50 pb-4">
-              <CardTitle className="flex items-center justify-between text-lg">
-                <span>Ringkasan Inquiry</span>
-                <span className="text-sm font-normal text-slate-400">{checkoutItems.length} Item</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 max-h-[400px] overflow-y-auto custom-scrollbar">
-              <div className="space-y-6">
-                {checkoutItems.map((item) => (
-                  <div key={item.id} className="flex gap-4 group">
-                    <div className="relative h-16 w-16 rounded-lg overflow-hidden bg-slate-800 shrink-0 border border-slate-700">
-                      <Image src={item.imageUrl || "/placeholder-image.jpg"} alt={item.name} fill className="object-cover" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-slate-200 truncate">{item.name}</h4>
-                      <p className="text-sm text-slate-400 mt-1">Qty: {item.quantity} unit</p>
-                    </div>
-                    {!items && (
-                      <Button variant="ghost" size="icon" onClick={() => cart.removeItem(item.id)} className="text-slate-500 hover:text-red-400 hover:bg-slate-800 -mr-2">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-
-            <Separator className="bg-slate-700" />
-
-            <CardFooter className="p-6 bg-slate-800/30 flex flex-col gap-4">
-              <div className="text-xs text-slate-500 bg-slate-800/50 p-3 rounded-lg flex gap-2">
-                <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-                <span>Harga dan ongkir akan diinformasikan oleh tim kami melalui WhatsApp setelah pesanan dibuat.</span>
-              </div>
-
-              <Button type="submit" form="checkout-form" disabled={loading} className="w-full bg-orange-600 hover:bg-orange-700 text-white h-12 text-base font-semibold shadow-lg shadow-orange-900/20">
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Memproses...
-                  </>
-                ) : (
-                  <>
-                    Kirim Permintaan <ArrowRight className="ml-2 h-4 w-4" />
-                  </>
-                )}
-              </Button>
-            </CardFooter>
-          </Card>
-        </div>
+        <CheckoutOrderSummary items={checkoutItems} isFromCart={isFromCart} loading={loading} onRemoveItem={isFromCart ? cart.removeItem : undefined} />
       </div>
     </div>
   );
