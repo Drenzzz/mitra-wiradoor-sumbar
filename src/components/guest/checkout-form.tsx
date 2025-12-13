@@ -50,7 +50,6 @@ export function CheckoutForm({ items }: CheckoutFormProps) {
     },
   });
 
-
   async function onSubmit(data: CheckoutFormValues) {
     if (checkoutItems.length === 0) {
       toast.error("Daftar inquiry Anda kosong");
@@ -83,8 +82,12 @@ export function CheckoutForm({ items }: CheckoutFormProps) {
       if (!items) {
         cart.clearCart();
       }
+
       toast.success("Permintaan berhasil dikirim!");
-      router.push(`/order/success/${result.data.id}`);
+
+      setTimeout(() => {
+        router.push(`/order/success/${result.data.id}`);
+      }, 100);
     } catch (error) {
       console.error(error);
       toast.error("Terjadi kesalahan. Silakan coba lagi.");
