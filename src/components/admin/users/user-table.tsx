@@ -1,7 +1,6 @@
 "use client";
 
 import { ClientUser } from "@/types";
-import { Role } from "@prisma/client";
 import { motion } from "framer-motion";
 import { MoreHorizontal, Pencil, Trash2, CheckCircle, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";

@@ -3,9 +3,11 @@ import { ZodError } from "zod";
 import { inquirySchema } from "@/lib/validations/inquiry.schema";
 import * as inquiryService from "@/lib/services/inquiry.service";
 import { globalLimiter } from "@/lib/rate-limit";
-import { InquiryStatus } from "@prisma/client";
+import type { InquiryStatus } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
+
+const VALID_INQUIRY_STATUSES: InquiryStatus[] = ["NEW", "READ", "REPLIED"];
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,7 +21,7 @@ export async function GET(request: NextRequest) {
 
     let status: InquiryStatus | undefined = undefined;
     if (statusParam && statusParam !== "ALL") {
-      if (Object.values(InquiryStatus).includes(statusParam as InquiryStatus)) {
+      if (VALID_INQUIRY_STATUSES.includes(statusParam as InquiryStatus)) {
         status = statusParam as InquiryStatus;
       }
     }

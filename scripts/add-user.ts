@@ -1,7 +1,21 @@
-import { PrismaClient, Role } from "@prisma/client";
+import "dotenv/config";
+import postgres from "postgres";
+import { drizzle } from "drizzle-orm/postgres-js";
 import * as bcrypt from "bcrypt";
+import * as schema from "../src/db/schema";
 
-const prisma = new PrismaClient();
+const VALID_ROLES = ["ADMIN", "STAF"] as const;
+type Role = (typeof VALID_ROLES)[number];
+
+const connectionString = process.env.DATABASE_URL || process.env.DIRECT_URL;
+
+if (!connectionString) {
+  console.error("Error: DATABASE_URL atau DIRECT_URL harus di-set di environment.");
+  process.exit(1);
+}
+
+const client = postgres(connectionString);
+const db = drizzle(client, { schema });
 
 async function main() {
   const args = process.argv.slice(2);
@@ -17,7 +31,7 @@ async function main() {
     process.exit(1);
   }
 
-  if (!(role in Role)) {
+  if (!VALID_ROLES.includes(role)) {
     console.error(`Error: Role tidak valid. Gunakan 'ADMIN' atau 'STAF'.`);
     process.exit(1);
   }
@@ -27,30 +41,35 @@ async function main() {
   console.log(`Menambahkan pengguna baru dengan email: ${email}`);
 
   try {
-    const newUser = await prisma.user.create({
-      data: {
+    const result = await db
+      .insert(schema.users)
+      .values({
         email,
         name,
         password: hashedPassword,
         role,
-      },
-    });
+      })
+      .returning({
+        id: schema.users.id,
+        email: schema.users.email,
+        role: schema.users.role,
+      });
+
+    const newUser = result[0];
     console.log("Pengguna baru berhasil ditambahkan:", { id: newUser.id, email: newUser.email, role: newUser.role });
-  } catch (e: any) {
-    if (e.code === "P2002") {
+  } catch (e: unknown) {
+    if (e instanceof Error && e.message.includes("unique constraint")) {
       console.error(`\nError: Email "${email}" sudah terdaftar di database.`);
     } else {
       console.error("\nTerjadi kesalahan:", e);
     }
     process.exit(1);
+  } finally {
+    await client.end();
   }
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

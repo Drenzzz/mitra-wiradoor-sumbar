@@ -4,7 +4,6 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { ZodError } from "zod";
 import * as userService from "@/lib/services/user.service";
 import { userCreateSchema } from "@/lib/validations/user.schema";
-import { Prisma } from "@prisma/client";
 
 async function isAdminSession() {
   const session = await getServerSession(authOptions);
@@ -52,7 +51,7 @@ export async function POST(request: Request) {
     if (error instanceof ZodError) {
       return NextResponse.json({ error: "Data tidak valid.", details: error.issues }, { status: 400 });
     }
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+    if (error instanceof Error && error.message.includes("unique constraint")) {
       return NextResponse.json({ error: "Email ini sudah terdaftar." }, { status: 409 });
     }
     console.error("Error creating user:", error);

@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { db } from "@/db";
+import { users } from "@/db/schema";
 import { sendPasswordResetEmail } from "@/lib/mail";
 import crypto from "crypto";
+import { eq } from "drizzle-orm";
 
 export async function POST(request: Request) {
   try {
     const { email } = await request.json();
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await db.query.users.findFirst({ where: eq(users.email, email) });
 
     if (!user) {
       return NextResponse.json({ message: "Jika email terdaftar, link reset akan dikirim." });
@@ -17,10 +19,7 @@ export async function POST(request: Request) {
 
     const passwordResetExpires = new Date(Date.now() + 3600000);
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { passwordResetToken, passwordResetExpires },
-    });
+    await db.update(users).set({ passwordResetToken, passwordResetExpires }).where(eq(users.id, user.id));
 
     await sendPasswordResetEmail(user.email!, resetToken);
 

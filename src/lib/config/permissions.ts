@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+import type { Role } from "@/db/schema";
 
 export type Permission =
   | "dashboard:view"

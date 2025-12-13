@@ -1,55 +1,55 @@
 import { unstable_cache } from "next/cache";
-import prisma from "@/lib/prisma";
+import { db } from "@/db";
+import { products, categories, articles, inquiries, orders } from "@/db/schema";
+import { count, eq, isNull, sum, gte } from "drizzle-orm";
 
 export const getDashboardStats = unstable_cache(
   async () => {
-    const [productsCount, categoriesCount, articlesCount, inquiriesCount] = await prisma.$transaction([
-      prisma.product.count({ where: { deletedAt: null } }),
-      prisma.category.count({ where: { deletedAt: null } }),
-      prisma.article.count({ where: { status: "PUBLISHED", deletedAt: null } }),
-      prisma.inquiry.count({ where: { status: "NEW" } }),
+    const [productsResult, categoriesResult, articlesResult, inquiriesResult] = await Promise.all([
+      db.select({ count: count() }).from(products).where(isNull(products.deletedAt)),
+      db.select({ count: count() }).from(categories).where(isNull(categories.deletedAt)),
+      db.select({ count: count() }).from(articles).where(eq(articles.status, "PUBLISHED")),
+      db.select({ count: count() }).from(inquiries).where(eq(inquiries.status, "NEW")),
     ]);
 
-    const revenueAgg = await prisma.order.aggregate({
-      _sum: {
-        dealPrice: true,
-      },
-      where: {
-        status: "COMPLETED",
-      },
-    });
-    const totalRevenue = revenueAgg._sum.dealPrice || 0;
+    const productsCount = productsResult[0].count;
+    const categoriesCount = categoriesResult[0].count;
+    const articlesCount = articlesResult[0].count;
+    const inquiriesCount = inquiriesResult[0].count;
 
-    const ordersByStatus = await prisma.order.groupBy({
-      by: ["status"],
-      _count: {
-        id: true,
-      },
+    const revenueResult = await db
+      .select({ total: sum(orders.dealPrice) })
+      .from(orders)
+      .where(eq(orders.status, "COMPLETED"));
+
+    const totalRevenue = Number(revenueResult[0]?.total) || 0;
+
+    const ordersByStatus = await db.query.orders.findMany({
+      columns: { status: true },
     });
 
-    const orderStatusDistribution = ordersByStatus.map((item) => ({
-      status: item.status,
-      count: item._count.id,
+    const statusCounts = new Map<string, number>();
+    ordersByStatus.forEach((order) => {
+      const current = statusCounts.get(order.status) || 0;
+      statusCounts.set(order.status, current + 1);
+    });
+
+    const orderStatusDistribution = Array.from(statusCounts.entries()).map(([status, count]) => ({
+      status,
+      count,
     }));
 
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
     sixMonthsAgo.setDate(1);
 
-    const recentOrders = await prisma.order.findMany({
-      where: {
-        status: "COMPLETED",
-        createdAt: {
-          gte: sixMonthsAgo,
-        },
-      },
-      select: {
+    const recentOrders = await db.query.orders.findMany({
+      where: eq(orders.status, "COMPLETED"),
+      columns: {
         dealPrice: true,
         createdAt: true,
       },
-      orderBy: {
-        createdAt: "asc",
-      },
+      orderBy: (orders, { asc }) => [asc(orders.createdAt)],
     });
 
     const monthlyRevenueMap = new Map<string, number>();
@@ -60,13 +60,15 @@ export const getDashboardStats = unstable_cache(
       monthlyRevenueMap.set(key, 0);
     }
 
-    recentOrders.forEach((order) => {
-      const key = new Date(order.createdAt).toLocaleDateString("id-ID", { month: "short", year: "numeric" });
-      if (monthlyRevenueMap.has(key)) {
-        const current = monthlyRevenueMap.get(key) || 0;
-        monthlyRevenueMap.set(key, current + (order.dealPrice || 0));
-      }
-    });
+    recentOrders
+      .filter((order) => order.createdAt >= sixMonthsAgo)
+      .forEach((order) => {
+        const key = new Date(order.createdAt).toLocaleDateString("id-ID", { month: "short", year: "numeric" });
+        if (monthlyRevenueMap.has(key)) {
+          const current = monthlyRevenueMap.get(key) || 0;
+          monthlyRevenueMap.set(key, current + (order.dealPrice || 0));
+        }
+      });
 
     const salesTrend = Array.from(monthlyRevenueMap.entries()).map(([name, total]) => ({
       name,

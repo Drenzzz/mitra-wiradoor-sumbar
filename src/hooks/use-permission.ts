@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { hasPermission, Permission } from "@/lib/config/permissions";
-import { Role } from "@prisma/client";
+import type { Role } from "@/db/schema";
 
 export function usePermission() {
   const { data: session } = useSession();

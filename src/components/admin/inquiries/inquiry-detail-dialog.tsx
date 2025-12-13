@@ -4,7 +4,7 @@ import { Inquiry } from "@/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { InquiryStatus } from "@prisma/client";
+import type { InquiryStatus } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { MessageCircle, Mail, Phone, ExternalLink } from "lucide-react";
 

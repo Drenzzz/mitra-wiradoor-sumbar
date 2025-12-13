@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import prisma from "@/lib/prisma";
+import { db } from "@/db";
+import { orders } from "@/db/schema";
+import type { OrderStatus } from "@/db/schema";
 import { hasPermission } from "@/lib/config/permissions";
-import { OrderStatus } from "@prisma/client";
+import { inArray } from "drizzle-orm";
+
+const VALID_ORDER_STATUSES: OrderStatus[] = ["PENDING", "PROCESSED", "SHIPPED", "COMPLETED", "CANCELLED"];
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -11,7 +15,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  // Check generic permission, specific logic can be refined
   if (!hasPermission(session.user.role, "order:process")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -25,20 +28,17 @@ export async function POST(request: Request) {
     }
 
     if (action === "updateStatus") {
-      if (!status || !Object.values(OrderStatus).includes(status)) {
+      if (!status || !VALID_ORDER_STATUSES.includes(status)) {
         return NextResponse.json({ error: "Invalid status" }, { status: 400 });
       }
 
-      await prisma.order.updateMany({
-        where: {
-          id: {
-            in: orderIds,
-          },
-        },
-        data: {
+      await db
+        .update(orders)
+        .set({
           status: status as OrderStatus,
-        },
-      });
+          updatedAt: new Date(),
+        })
+        .where(inArray(orders.id, orderIds));
 
       return NextResponse.json({ message: "Orders updated successfully" });
     }
@@ -48,13 +48,8 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Forbidden: Only Admin can delete orders." }, { status: 403 });
       }
 
-      await prisma.order.deleteMany({
-        where: {
-          id: {
-            in: orderIds,
-          },
-        },
-      });
+      await db.delete(orders).where(inArray(orders.id, orderIds));
+
       return NextResponse.json({ message: "Orders deleted successfully" });
     }
 

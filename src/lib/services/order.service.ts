@@ -1,18 +1,20 @@
-import prisma from "@/lib/prisma";
-import { Prisma, OrderStatus } from "@prisma/client";
+import { db } from "@/db";
+import { orders, orderItems } from "@/db/schema";
+import type { OrderStatus } from "@/db/schema";
+import { eq, ilike, or, desc, asc, and, count, gte, lte, SQL } from "drizzle-orm";
 
-export const getOrderById = (id: string) => {
-  const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(id);
+export const getOrderById = async (id: string) => {
+  const isValidUUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id);
 
-  if (!isValidObjectId) {
+  if (!isValidUUID) {
     return null;
   }
 
-  return prisma.order.findUnique({
-    where: { id },
-    include: {
+  return db.query.orders.findFirst({
+    where: eq(orders.id, id),
+    with: {
       items: {
-        select: {
+        columns: {
           productName: true,
           isReadyStock: true,
           quantity: true,
@@ -34,63 +36,75 @@ export type GetOrdersOptions = {
 
 export const getOrders = async (options: GetOrdersOptions = {}) => {
   const { status, search, sort, page = 1, limit = 10, startDate, endDate } = options;
-  const skip = (page - 1) * limit;
+  const offset = (page - 1) * limit;
 
-  const whereClause: Prisma.OrderWhereInput = {};
+  const conditions: SQL[] = [];
 
   if (status) {
-    whereClause.status = status;
+    conditions.push(eq(orders.status, status));
   }
 
   if (startDate && endDate) {
-    whereClause.createdAt = {
-      gte: startDate,
-      lte: endDate,
-    };
+    conditions.push(gte(orders.createdAt, startDate));
+    conditions.push(lte(orders.createdAt, endDate));
   } else if (startDate) {
-    whereClause.createdAt = {
-      gte: startDate,
-    };
+    conditions.push(gte(orders.createdAt, startDate));
   } else if (endDate) {
-    whereClause.createdAt = {
-      lte: endDate,
-    };
+    conditions.push(lte(orders.createdAt, endDate));
   }
 
   if (search) {
-    whereClause.OR = [{ customerName: { contains: search, mode: "insensitive" } }, { customerEmail: { contains: search, mode: "insensitive" } }, { invoiceNumber: { contains: search, mode: "insensitive" } }];
+    conditions.push(or(ilike(orders.customerName, `%${search}%`), ilike(orders.customerEmail, `%${search}%`), ilike(orders.invoiceNumber, `%${search}%`))!);
   }
 
-  const [sortField, sortOrder] = sort?.split("-") || ["createdAt", "desc"];
-  const orderByClause = { [sortField]: sortOrder };
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-  const [orders, totalCount] = await prisma.$transaction([
-    prisma.order.findMany({
+  let orderByClause: SQL | undefined;
+  if (sort) {
+    const [field, order] = sort.split("-");
+    if (field === "createdAt") {
+      orderByClause = order === "asc" ? asc(orders.createdAt) : desc(orders.createdAt);
+    } else if (field === "customerName") {
+      orderByClause = order === "asc" ? asc(orders.customerName) : desc(orders.customerName);
+    }
+  }
+  if (!orderByClause) {
+    orderByClause = desc(orders.createdAt);
+  }
+
+  const [data, countResult] = await Promise.all([
+    db.query.orders.findMany({
       where: whereClause,
-      include: {
+      with: {
         items: {
-          take: 1,
-          select: { productName: true },
+          columns: { productName: true },
+          limit: 1,
         },
       },
       orderBy: orderByClause,
-      skip,
-      take: limit,
+      offset,
+      limit,
     }),
-    prisma.order.count({ where: whereClause }),
+    db.select({ count: count() }).from(orders).where(whereClause),
   ]);
 
-  return { data: orders, totalCount };
+  return { data, totalCount: countResult[0].count };
 };
 
-export const updateOrder = (id: string, data: Prisma.OrderUpdateInput) => {
-  const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(id);
-  if (!isValidObjectId) {
+export const updateOrder = async (id: string, data: Partial<typeof orders.$inferInsert>) => {
+  const isValidUUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id);
+  if (!isValidUUID) {
     throw new Error("Format Order ID tidak valid.");
   }
 
-  return prisma.order.update({
-    where: { id: id },
-    data: data,
-  });
+  const result = await db
+    .update(orders)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(orders.id, id))
+    .returning();
+
+  return result[0];
 };

@@ -11,7 +11,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { userUpdateSchema, UserUpdateFormValues } from "@/lib/validations/user.schema";
-import { Role } from "@prisma/client";
 
 interface EditUserDialogProps {
   user: ClientUser | null;
@@ -62,7 +61,7 @@ export function EditUserDialog({ user, isOpen, onClose, onSuccess }: EditUserDia
         loading: "Memperbarui pengguna...",
         success: () => {
           onSuccess();
-          onClose(); 
+          onClose();
           return "Pengguna berhasil diperbarui!";
         },
         error: (err: Error) => err.message,
@@ -131,8 +130,8 @@ export function EditUserDialog({ user, isOpen, onClose, onSuccess }: EditUserDia
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value={Role.STAF}>STAF</SelectItem>
-                      <SelectItem value={Role.ADMIN}>ADMIN</SelectItem>
+                      <SelectItem value="STAF">STAF</SelectItem>
+                      <SelectItem value="ADMIN">ADMIN</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

@@ -1,5 +1,7 @@
-import prisma from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { db } from "@/db";
+import { articles, articleCategories, users } from "@/db/schema";
+import { eq, ilike, isNull, isNotNull, or, desc, asc, and, count, SQL } from "drizzle-orm";
+import type { ArticleStatus } from "@/db/schema";
 
 export type ArticleDto = {
   title: string;
@@ -7,7 +9,7 @@ export type ArticleDto = {
   content: string;
   excerpt?: string;
   featuredImageUrl: string;
-  status: "PUBLISHED" | "DRAFT";
+  status: ArticleStatus;
   authorId: string;
   categoryId: string;
 };
@@ -24,91 +26,128 @@ export type GetArticlesOptions = {
 
 export const getArticles = async (options: GetArticlesOptions = {}) => {
   const { status = "active", search, sort, page = 1, limit = 10, categoryId, statusFilter } = options;
-  const skip = (page - 1) * limit;
+  const offset = (page - 1) * limit;
 
-  const whereClause: Prisma.ArticleWhereInput = {};
-  whereClause.deletedAt = status === "trashed" ? { not: null } : null;
+  const conditions: SQL[] = [];
+
+  if (status === "trashed") {
+    conditions.push(isNotNull(articles.deletedAt));
+  } else {
+    conditions.push(isNull(articles.deletedAt));
+  }
 
   if (search) {
-    whereClause.OR = [{ title: { contains: search, mode: "insensitive" } }, { content: { contains: search, mode: "insensitive" } }];
+    conditions.push(or(ilike(articles.title, `%${search}%`), ilike(articles.content, `%${search}%`))!);
   }
+
   if (categoryId) {
-    whereClause.categoryId = categoryId;
+    conditions.push(eq(articles.categoryId, categoryId));
   }
+
   if (statusFilter && status === "active") {
-    whereClause.status = statusFilter as "DRAFT" | "PUBLISHED";
+    conditions.push(eq(articles.status, statusFilter as ArticleStatus));
   }
 
-  const [sortField, sortOrder] = sort?.split("-") || ["createdAt", "desc"];
-  const orderByClause = { [sortField]: sortOrder };
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-  const [articles, totalCount] = await prisma.$transaction([
-    prisma.article.findMany({
+  let orderByClause: SQL | undefined;
+  if (sort) {
+    const [field, order] = sort.split("-");
+    if (field === "title") {
+      orderByClause = order === "asc" ? asc(articles.title) : desc(articles.title);
+    } else if (field === "createdAt") {
+      orderByClause = order === "asc" ? asc(articles.createdAt) : desc(articles.createdAt);
+    }
+  }
+  if (!orderByClause) {
+    orderByClause = desc(articles.createdAt);
+  }
+
+  const [data, countResult] = await Promise.all([
+    db.query.articles.findMany({
       where: whereClause,
-      include: {
-        author: { select: { name: true } },
-        category: { select: { name: true } },
+      with: {
+        author: { columns: { name: true } },
+        category: { columns: { name: true } },
       },
       orderBy: orderByClause,
-      skip,
-      take: limit,
+      offset,
+      limit,
     }),
-    prisma.article.count({ where: whereClause }),
+    db.select({ count: count() }).from(articles).where(whereClause),
   ]);
 
-  return { data: articles, totalCount };
+  return { data, totalCount: countResult[0].count };
 };
 
-export const createArticle = (data: ArticleDto) => {
+export const createArticle = async (data: ArticleDto) => {
   const slug = data.slug || data.title.toLowerCase().replace(/\s+/g, "-").slice(0, 50);
-  return prisma.article.create({
-    data: { ...data, slug, deletedAt: null },
-  });
+
+  const result = await db
+    .insert(articles)
+    .values({
+      title: data.title,
+      slug,
+      content: data.content,
+      excerpt: data.excerpt,
+      featuredImageUrl: data.featuredImageUrl,
+      status: data.status,
+      authorId: data.authorId,
+      categoryId: data.categoryId,
+      deletedAt: null,
+    })
+    .returning();
+
+  return result[0];
 };
 
-export const getArticleById = (id: string) => {
-  return prisma.article.findUnique({
-    where: { id },
-    include: {
-      author: { select: { name: true } },
-      category: { select: { name: true } },
+export const getArticleById = async (id: string) => {
+  return db.query.articles.findFirst({
+    where: eq(articles.id, id),
+    with: {
+      author: { columns: { name: true } },
+      category: { columns: { name: true } },
     },
   });
 };
 
-export const getArticleBySlug = (slug: string) => {
-  return prisma.article.findUnique({
-    where: { slug },
-    include: {
-      author: { select: { name: true } },
-      category: { select: { name: true } },
+export const getArticleBySlug = async (slug: string) => {
+  return db.query.articles.findFirst({
+    where: eq(articles.slug, slug),
+    with: {
+      author: { columns: { name: true } },
+      category: { columns: { name: true } },
     },
   });
 };
 
-export const updateArticleById = (id: string, data: Partial<ArticleDto>) => {
-  return prisma.article.update({
-    where: { id },
-    data,
-  });
+export const updateArticleById = async (id: string, data: Partial<ArticleDto>) => {
+  const result = await db
+    .update(articles)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(articles.id, id))
+    .returning();
+
+  return result[0];
 };
 
-export const softDeleteArticleById = (id: string) => {
-  return prisma.article.update({
-    where: { id },
-    data: { deletedAt: new Date() },
-  });
+export const softDeleteArticleById = async (id: string) => {
+  const result = await db.update(articles).set({ deletedAt: new Date(), updatedAt: new Date() }).where(eq(articles.id, id)).returning();
+
+  return result[0];
 };
 
-export const restoreArticleById = (id: string) => {
-  return prisma.article.update({
-    where: { id },
-    data: { deletedAt: null },
-  });
+export const restoreArticleById = async (id: string) => {
+  const result = await db.update(articles).set({ deletedAt: null, updatedAt: new Date() }).where(eq(articles.id, id)).returning();
+
+  return result[0];
 };
 
-export const permanentDeleteArticleById = (id: string) => {
-  return prisma.article.delete({
-    where: { id },
-  });
+export const permanentDeleteArticleById = async (id: string) => {
+  const result = await db.delete(articles).where(eq(articles.id, id)).returning();
+
+  return result[0];
 };

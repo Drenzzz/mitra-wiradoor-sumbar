@@ -3,7 +3,7 @@
 import { OrderDetail } from "@/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { OrderStatus } from "@prisma/client";
+import type { OrderStatus } from "@/db/schema";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 

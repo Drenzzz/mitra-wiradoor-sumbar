@@ -1,6 +1,8 @@
-import prisma from "@/lib/prisma";
+import { db } from "@/db";
+import { inquiries } from "@/db/schema";
+import type { InquiryStatus } from "@/db/schema";
 import type { InquiryFormValues } from "@/lib/validations/inquiry.schema";
-import { Prisma, InquiryStatus } from "@prisma/client";
+import { eq, ilike, or, desc, asc, and, count, SQL } from "drizzle-orm";
 
 export type GetInquiriesOptions = {
   status?: InquiryStatus;
@@ -10,45 +12,65 @@ export type GetInquiriesOptions = {
   limit?: number;
 };
 
-export const createInquiry = (data: InquiryFormValues) => {
-  return prisma.inquiry.create({
-    data: {
-      ...data,
-    },
-  });
+export const createInquiry = async (data: InquiryFormValues) => {
+  const result = await db
+    .insert(inquiries)
+    .values({
+      senderName: data.senderName,
+      senderEmail: data.senderEmail,
+      senderPhone: data.senderPhone,
+      subject: data.subject,
+      message: data.message,
+    })
+    .returning();
+
+  return result[0];
 };
 
 export const getInquiries = async (options: GetInquiriesOptions = {}) => {
   const { status, search, sort, page = 1, limit = 10 } = options;
-  const skip = (page - 1) * limit;
+  const offset = (page - 1) * limit;
 
-  const whereClause: Prisma.InquiryWhereInput = {};
+  const conditions: SQL[] = [];
+
   if (status) {
-    whereClause.status = status;
+    conditions.push(eq(inquiries.status, status));
   }
+
   if (search) {
-    whereClause.OR = [{ senderName: { contains: search, mode: "insensitive" } }, { senderEmail: { contains: search, mode: "insensitive" } }, { subject: { contains: search, mode: "insensitive" } }];
+    conditions.push(or(ilike(inquiries.senderName, `%${search}%`), ilike(inquiries.senderEmail, `%${search}%`), ilike(inquiries.subject, `%${search}%`))!);
   }
 
-  const [sortField, sortOrder] = sort?.split("-") || ["createdAt", "desc"];
-  const orderByClause = { [sortField]: sortOrder };
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-  const [inquiries, totalCount] = await prisma.$transaction([
-    prisma.inquiry.findMany({
+  let orderByClause: SQL | undefined;
+  if (sort) {
+    const [field, order] = sort.split("-");
+    if (field === "createdAt") {
+      orderByClause = order === "asc" ? asc(inquiries.createdAt) : desc(inquiries.createdAt);
+    } else if (field === "senderName") {
+      orderByClause = order === "asc" ? asc(inquiries.senderName) : desc(inquiries.senderName);
+    }
+  }
+  if (!orderByClause) {
+    orderByClause = desc(inquiries.createdAt);
+  }
+
+  const [data, countResult] = await Promise.all([
+    db.query.inquiries.findMany({
       where: whereClause,
       orderBy: orderByClause,
-      skip,
-      take: limit,
+      offset,
+      limit,
     }),
-    prisma.inquiry.count({ where: whereClause }),
+    db.select({ count: count() }).from(inquiries).where(whereClause),
   ]);
 
-  return { data: inquiries, totalCount };
+  return { data, totalCount: countResult[0].count };
 };
 
-export const updateInquiryStatus = (id: string, status: InquiryStatus) => {
-  return prisma.inquiry.update({
-    where: { id: id },
-    data: { status: status },
-  });
+export const updateInquiryStatus = async (id: string, status: InquiryStatus) => {
+  const result = await db.update(inquiries).set({ status }).where(eq(inquiries.id, id)).returning();
+
+  return result[0];
 };

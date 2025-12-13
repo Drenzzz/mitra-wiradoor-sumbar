@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { OrderStatus } from "@prisma/client";
+import type { OrderStatus } from "@/db/schema";
 import { toast } from "sonner";
 
 import { useOrderManagement } from "@/hooks/use-order-management";
@@ -221,27 +221,27 @@ export default function OrderManagementPage() {
 
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as OrderStatus)} className="mt-6">
         <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto">
-          <TabsTrigger value={OrderStatus.PENDING}>Baru</TabsTrigger>
-          <TabsTrigger value={OrderStatus.PROCESSED}>Diproses</TabsTrigger>
-          <TabsTrigger value={OrderStatus.SHIPPED}>Dikirim</TabsTrigger>
-          <TabsTrigger value={OrderStatus.COMPLETED}>Selesai</TabsTrigger>
-          <TabsTrigger value={OrderStatus.CANCELLED}>Batal</TabsTrigger>
+          <TabsTrigger value="PENDING">Baru</TabsTrigger>
+          <TabsTrigger value="PROCESSED">Diproses</TabsTrigger>
+          <TabsTrigger value="SHIPPED">Dikirim</TabsTrigger>
+          <TabsTrigger value="COMPLETED">Selesai</TabsTrigger>
+          <TabsTrigger value="CANCELLED">Batal</TabsTrigger>
         </TabsList>
 
-        <TabsContent value={OrderStatus.PENDING} className="mt-4">
-          {renderOrderListCard(OrderStatus.PENDING)}
+        <TabsContent value="PENDING" className="mt-4">
+          {renderOrderListCard("PENDING")}
         </TabsContent>
-        <TabsContent value={OrderStatus.PROCESSED} className="mt-4">
-          {renderOrderListCard(OrderStatus.PROCESSED)}
+        <TabsContent value="PROCESSED" className="mt-4">
+          {renderOrderListCard("PROCESSED")}
         </TabsContent>
-        <TabsContent value={OrderStatus.SHIPPED} className="mt-4">
-          {renderOrderListCard(OrderStatus.SHIPPED)}
+        <TabsContent value="SHIPPED" className="mt-4">
+          {renderOrderListCard("SHIPPED")}
         </TabsContent>
-        <TabsContent value={OrderStatus.COMPLETED} className="mt-4">
-          {renderOrderListCard(OrderStatus.COMPLETED)}
+        <TabsContent value="COMPLETED" className="mt-4">
+          {renderOrderListCard("COMPLETED")}
         </TabsContent>
-        <TabsContent value={OrderStatus.CANCELLED} className="mt-4">
-          {renderOrderListCard(OrderStatus.CANCELLED)}
+        <TabsContent value="CANCELLED" className="mt-4">
+          {renderOrderListCard("CANCELLED")}
         </TabsContent>
       </Tabs>
 

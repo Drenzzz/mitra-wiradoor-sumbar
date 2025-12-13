@@ -1,8 +1,9 @@
-// app/api/auth/reset-password/route.ts
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { db } from "@/db";
+import { users } from "@/db/schema";
 import crypto from "crypto";
 import * as bcrypt from "bcrypt";
+import { eq, gt, and } from "drizzle-orm";
 
 export async function POST(request: Request) {
   try {
@@ -10,11 +11,8 @@ export async function POST(request: Request) {
 
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-    const user = await prisma.user.findFirst({
-      where: {
-        passwordResetToken: hashedToken,
-        passwordResetExpires: { gt: new Date() },
-      },
+    const user = await db.query.users.findFirst({
+      where: and(eq(users.passwordResetToken, hashedToken), gt(users.passwordResetExpires, new Date())),
     });
 
     if (!user) {
@@ -23,14 +21,14 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
+    await db
+      .update(users)
+      .set({
         password: hashedPassword,
         passwordResetToken: null,
         passwordResetExpires: null,
-      },
-    });
+      })
+      .where(eq(users.id, user.id));
 
     return NextResponse.json({ message: "Password berhasil direset." });
   } catch (error) {

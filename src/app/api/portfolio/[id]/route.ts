@@ -3,8 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as service from "@/lib/services/portfolio.service";
 import { ZodError } from "zod";
-import { portfolioSchema, portfolioApiSchema } from "@/lib/validations/portfolio.schema";
-import { Prisma } from "@prisma/client";
+import { portfolioApiSchema } from "@/lib/validations/portfolio.schema";
 
 async function isAdminSession() {
   const session = await getServerSession(authOptions);
@@ -58,12 +57,12 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
   try {
     const { id } = await params;
-    await service.deletePortfolioItem(id);
-    return NextResponse.json({ message: "Item portofolio berhasil dihapus." }, { status: 200 });
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+    const deleted = await service.deletePortfolioItem(id);
+    if (!deleted) {
       return NextResponse.json({ error: "Item portofolio tidak ditemukan." }, { status: 404 });
     }
+    return NextResponse.json({ message: "Item portofolio berhasil dihapus." }, { status: 200 });
+  } catch (error) {
     console.error("Error deleting portfolio item:", error);
     return NextResponse.json({ error: "Gagal menghapus item portofolio." }, { status: 500 });
   }
