@@ -45,6 +45,7 @@ export async function POST(request: NextRequest) {
         customerEmail: validatedCustomerData.customerEmail,
         customerPhone: validatedCustomerData.customerPhone,
         customerAddress: validatedCustomerData.customerAddress,
+        notes: validatedCustomerData.notes || null,
         status: "PENDING",
       })
       .returning();
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    return NextResponse.json(newOrder, { status: 201 });
+    return NextResponse.json({ data: newOrder }, { status: 201 });
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json({ error: "Data formulir tidak valid.", details: error.issues }, { status: 400 });

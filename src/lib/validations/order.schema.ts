@@ -25,6 +25,7 @@ export const customerInfoSchema = z.object({
   customerAddress: z.string().min(10, {
     message: "Alamat pengiriman wajib diisi (minimal 10 karakter).",
   }),
+  notes: z.string().optional(),
 });
 
 export type CustomerInfoFormValues = z.infer<typeof customerInfoSchema>;
