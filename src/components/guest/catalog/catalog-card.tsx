@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
@@ -14,7 +15,7 @@ interface CatalogCardProps {
   index: number;
 }
 
-export function CatalogCard({ id, name, category, description, imageUrl, index }: CatalogCardProps) {
+export const CatalogCard = memo(function CatalogCard({ id, name, category, description, imageUrl, index }: CatalogCardProps) {
   return (
     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4, delay: index * 0.05 }} className="group relative block">
       <Link href={`/produk/${id}`} className="block">
@@ -37,4 +38,4 @@ export function CatalogCard({ id, name, category, description, imageUrl, index }
       </Link>
     </motion.div>
   );
-}
+});

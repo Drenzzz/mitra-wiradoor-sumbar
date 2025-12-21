@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { memo } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -12,7 +13,7 @@ interface ProductCardProps {
   slug: string;
 }
 
-export function ProductCard({ imageUrl, category, name, description, slug }: ProductCardProps) {
+export const ProductCard = memo(function ProductCard({ imageUrl, category, name, description, slug }: ProductCardProps) {
   return (
     <Card className="overflow-hidden flex flex-col">
       <CardHeader className="p-0">
@@ -39,4 +40,4 @@ export function ProductCard({ imageUrl, category, name, description, slug }: Pro
       </CardFooter>
     </Card>
   );
-}
+});

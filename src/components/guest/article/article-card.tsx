@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { memo } from "react";
 import { Calendar, User, ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn, formatDate } from "@/lib/utils";
@@ -10,7 +11,7 @@ interface ArticleCardProps {
   aspectRatio?: "video" | "square" | "portrait";
 }
 
-export function ArticleCard({ article, className, aspectRatio = "video" }: ArticleCardProps) {
+export const ArticleCard = memo(function ArticleCard({ article, className, aspectRatio = "video" }: ArticleCardProps) {
   return (
     <Link href={`/artikel/${article.slug}`} className={cn("group flex flex-col gap-4 block select-none", className)}>
       <div className={cn("relative overflow-hidden rounded-xl bg-slate-100 w-full", aspectRatio === "video" && "aspect-video", aspectRatio === "square" && "aspect-square", aspectRatio === "portrait" && "aspect-[3/4]")}>
@@ -39,4 +40,4 @@ export function ArticleCard({ article, className, aspectRatio = "video" }: Artic
       </div>
     </Link>
   );
-}
+});

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, MapPin } from "lucide-react";
 
@@ -14,7 +15,7 @@ interface PortfolioCardProps {
   index: number;
 }
 
-export function PortfolioCard({ id, title, category, location, imageUrl, index }: PortfolioCardProps) {
+export const PortfolioCard = memo(function PortfolioCard({ id, title, category, location, imageUrl, index }: PortfolioCardProps) {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: index * 0.1 }} className="group relative mb-6 break-inside-avoid">
       <Link href={`/portfolio/${id}`} className="block w-full">
@@ -52,4 +53,4 @@ export function PortfolioCard({ id, title, category, location, imageUrl, index }
       </Link>
     </motion.div>
   );
-}
+});
