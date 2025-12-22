@@ -25,7 +25,13 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
+const STATUS_COLORS: Record<string, string> = {
+  PENDING: "#f59e0b", // amber/orange - menunggu
+  PROCESSED: "#3b82f6", // blue - diproses
+  SHIPPED: "#8b5cf6", // purple - dikirim
+  COMPLETED: "#22c55e", // green - selesai
+  CANCELLED: "#ef4444", // red - batal
+};
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING: "Menunggu",
@@ -143,9 +149,9 @@ export function DashboardView({ data, userName }: DashboardViewProps) {
               {data.charts.orderStatus.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={data.charts.orderStatus} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="count">
-                      {data.charts.orderStatus.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Pie data={data.charts.orderStatus} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="count" nameKey="status">
+                      {data.charts.orderStatus.map((entry) => (
+                        <Cell key={`cell-${entry.status}`} fill={STATUS_COLORS[entry.status] || "#888888"} />
                       ))}
                     </Pie>
                     <Tooltip formatter={(value: any, name: any) => [value, STATUS_LABELS[name] || name]} contentStyle={{ backgroundColor: "var(--background)", borderColor: "var(--border)" }} itemStyle={{ color: "var(--foreground)" }} />
