@@ -1,26 +1,16 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { FeaturedProductCard } from "@/components/guest/product/featured-product-card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-export function FeaturedProductsSection() {
-  const { data, isLoading } = useQuery({
-    queryKey: ["featured-products"],
-    queryFn: async () => {
-      const res = await fetch("/api/products?limit=3&sort=createdAt-desc");
-      if (!res.ok) throw new Error("Gagal memuat produk");
-      return res.json();
-    },
-    staleTime: 5 * 60 * 1000,
-  });
+interface FeaturedProductsSectionProps {
+  products: any[];
+}
 
-  const products = data?.data || [];
-
+export function FeaturedProductsSection({ products = [] }: FeaturedProductsSectionProps) {
   return (
     <section className="relative overflow-hidden bg-background py-32">
       <div className="container relative z-10 mx-auto px-4">
@@ -44,23 +34,13 @@ export function FeaturedProductsSection() {
           </motion.div>
         </div>
 
-        {isLoading ? (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-[450px] w-full rounded-2xl bg-muted/20">
-                <Skeleton className="h-full w-full rounded-2xl" />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            {products.map((product: any, index: number) => (
-              <motion.div key={product.id} initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.2 }}>
-                <FeaturedProductCard id={product.id} name={product.name} category={product.category?.name || "Premium Door"} price={product.price || 0} imageUrl={product.imageUrl} index={index} />
-              </motion.div>
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          {products.map((product: any, index: number) => (
+            <motion.div key={product.id} initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.2 }}>
+              <FeaturedProductCard id={product.id} name={product.name} category={product.category?.name || "Premium Door"} price={product.price || 0} imageUrl={product.imageUrl} index={index} />
+            </motion.div>
+          ))}
+        </div>
 
         <div className="mt-12 flex justify-center md:hidden">
           <Link href="/produk">
