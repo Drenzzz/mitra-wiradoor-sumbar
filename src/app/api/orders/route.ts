@@ -52,15 +52,15 @@ export async function POST(request: NextRequest) {
 
     const newOrder = orderResult[0];
 
-    for (const item of items) {
-      await db.insert(orderItems).values({
-        orderId: newOrder.id,
-        productId: item.id,
-        productName: item.name,
-        isReadyStock: true,
-        quantity: item.quantity,
-      });
-    }
+    const orderItemsValues = items.map((item: any) => ({
+      orderId: newOrder.id,
+      productId: item.id,
+      productName: item.name,
+      isReadyStock: true,
+      quantity: item.quantity,
+    }));
+
+    await db.insert(orderItems).values(orderItemsValues);
 
     return NextResponse.json({ data: newOrder }, { status: 201 });
   } catch (error) {
