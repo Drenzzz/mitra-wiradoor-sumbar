@@ -6,8 +6,10 @@ import { MagneticButton } from "@/components/ui/magnetic-button";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+import { Product } from "@/types";
+
 interface FeaturedProductsSectionProps {
-  products: any[];
+  products: Product[];
 }
 
 export function FeaturedProductsSection({ products = [] }: FeaturedProductsSectionProps) {

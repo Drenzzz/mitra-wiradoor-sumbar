@@ -5,8 +5,10 @@ import { Calendar, User, ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn, formatDate } from "@/lib/utils";
 
+import { Article } from "@/types";
+
 interface ArticleCardProps {
-  article: any;
+  article: Article;
   className?: string;
   aspectRatio?: "video" | "square" | "portrait";
 }
