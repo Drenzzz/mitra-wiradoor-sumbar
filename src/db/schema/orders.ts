@@ -3,19 +3,27 @@ import { relations } from "drizzle-orm";
 import { orderStatusEnum } from "./enums";
 import { products } from "./products";
 
-export const orders = pgTable("orders", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  invoiceNumber: text("invoice_number").unique().notNull(),
-  customerName: text("customer_name").notNull(),
-  customerEmail: text("customer_email").notNull(),
-  customerPhone: text("customer_phone").notNull(),
-  customerAddress: text("customer_address"),
-  notes: text("notes"),
-  status: orderStatusEnum("status").default("PENDING").notNull(),
-  dealPrice: real("deal_price"),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
-});
+export const orders = pgTable(
+  "orders",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    invoiceNumber: text("invoice_number").unique().notNull(),
+    customerName: text("customer_name").notNull(),
+    customerEmail: text("customer_email").notNull(),
+    customerPhone: text("customer_phone").notNull(),
+    customerAddress: text("customer_address"),
+    notes: text("notes"),
+    status: orderStatusEnum("status").default("PENDING").notNull(),
+    dealPrice: real("deal_price"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("orders_status_idx").on(table.status),
+    index("orders_customer_name_idx").on(table.customerName),
+    index("orders_created_at_idx").on(table.createdAt),
+  ]
+);
 
 export const orderItems = pgTable(
   "order_items",
