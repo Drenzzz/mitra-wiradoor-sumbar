@@ -10,22 +10,13 @@ import { formatDate } from "@/lib/utils";
 import { getArticleBySlug, getArticles } from "@/lib/services/article.service";
 import { ShareButtons } from "@/components/guest/layout/share-buttons";
 import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
+import { Article } from "@/types";
 
-interface ArticleData {
-  id: string;
-  title: string;
-  slug: string;
-  content: string;
-  excerpt: string | null;
-  featuredImageUrl: string;
-  createdAt: Date;
-  author: { name: string | null } | null;
-  category: { name: string } | null;
-}
+
 
 async function getArticleData(slug: string): Promise<{
-  article: ArticleData | null;
-  relatedArticles: ArticleData[];
+  article: Article | null;
+  relatedArticles: Article[];
 }> {
   try {
     const article = await getArticleBySlug(slug);
@@ -40,10 +31,10 @@ async function getArticleData(slug: string): Promise<{
       limit: 4,
     });
 
-    const relatedArticles = allArticles.filter((a) => a.id !== article.id).slice(0, 3) as ArticleData[];
+    const relatedArticles = allArticles.filter((a) => a.id !== article.id).slice(0, 3) as Article[];
 
     return {
-      article: article as ArticleData,
+      article: article as Article,
       relatedArticles,
     };
   } catch (error) {

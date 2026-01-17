@@ -1,5 +1,7 @@
 
 
+"use client";
+
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { Product } from "@/types";
