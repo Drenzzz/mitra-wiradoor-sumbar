@@ -1,6 +1,4 @@
-"use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { inquirySchema, type InquiryFormValues } from "@/lib/validations/inquiry.schema";
@@ -10,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
 import { Loader2, Send } from "lucide-react";
+import { getCsrfToken } from "@/lib/csrf";
 
 export function InquiryForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,7 +29,10 @@ export function InquiryForm() {
     try {
       const response = await fetch("/api/inquiries", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": getCsrfToken() || "",
+        },
         body: JSON.stringify(data),
       });
 

@@ -25,15 +25,44 @@ const adminAuthMiddleware = withAuth(
 );
 
 export async function middleware(req: NextRequest) {
-  // 1. Security: Body Size Limit untuk API (2MB)
+  const response = NextResponse.next();
+
+  // 0. Global: Ensure CSRF Cookie Exists
+  let csrfToken = req.cookies.get("csrf_token")?.value;
+  let isNewToken = false;
+
+  if (!csrfToken) {
+    csrfToken = crypto.randomUUID();
+    isNewToken = true;
+    // Set cookie on the default response
+    response.cookies.set("csrf_token", csrfToken, { path: "/", httpOnly: false, sameSite: "lax" });
+  }
+
+  // 1. Security: API Protections
   if (req.nextUrl.pathname.startsWith("/api/")) {
+    // A. Body Size Limit (2MB)
     const contentLengthStr = req.headers.get("content-length");
     if (contentLengthStr) {
       const contentLength = parseInt(contentLengthStr, 10);
-      if (contentLength > 2 * 1024 * 1024) { // 2MB
+      if (contentLength > 2 * 1024 * 1024) {
         return NextResponse.json(
           { error: "Payload too large. Maximum size is 2MB." },
           { status: 413 }
+        );
+      }
+    }
+
+    // B. CSRF Validation for Mutations
+    const method = req.method;
+    const isMutation = ["POST", "PUT", "DELETE", "PATCH"].includes(method);
+    const isAuthRoute = req.nextUrl.pathname.startsWith("/api/auth");
+
+    if (isMutation && !isAuthRoute) {
+      const headerToken = req.headers.get("x-csrf-token");
+      if (!headerToken || headerToken !== csrfToken) {
+        return NextResponse.json(
+          { error: "Invalid CSRF Token" },
+          { status: 403 }
         );
       }
     }
@@ -41,10 +70,17 @@ export async function middleware(req: NextRequest) {
 
   // 2. Auth: Proteksi route Admin
   if (req.nextUrl.pathname.startsWith("/admin")) {
-    return (adminAuthMiddleware as any)(req);
+    const authRes = await (adminAuthMiddleware as any)(req);
+    
+    // If we generated a new CSRF token, ensure it's set on the auth response too
+    if (isNewToken) {
+      authRes.cookies.set("csrf_token", csrfToken, { path: "/", httpOnly: false, sameSite: "lax" });
+    }
+    
+    return authRes;
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {

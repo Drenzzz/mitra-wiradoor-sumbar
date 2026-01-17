@@ -7,6 +7,7 @@ import * as z from "zod";
 import { toast } from "sonner";
 import { Plus, Trash2, Loader2, Settings2 } from "lucide-react";
 import { Category } from "@/types";
+import { getCsrfToken } from "@/lib/csrf";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -62,7 +63,10 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
     try {
       const response = await fetch("/api/categories", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": getCsrfToken() || "",
+        },
         body: JSON.stringify(values),
       });
 
@@ -85,6 +89,9 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
     try {
       const response = await fetch(`/api/categories/${id}`, {
         method: "DELETE",
+        headers: {
+          "X-CSRF-Token": getCsrfToken() || "",
+        },
       });
 
       if (!response.ok) throw new Error("Gagal menghapus kategori");

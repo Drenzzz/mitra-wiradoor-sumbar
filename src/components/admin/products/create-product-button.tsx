@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { PlusCircle } from "lucide-react";
+import { getCsrfToken } from "@/lib/csrf";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
@@ -28,7 +29,14 @@ export function CreateProductButton({ onSuccess }: { onSuccess: () => void }) {
 
   const onSubmit = async (values: ProductFormValues) => {
     toast.promise(
-      fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(values) }).then(async (res) => {
+      fetch("/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": getCsrfToken() || "",
+        },
+        body: JSON.stringify(values),
+      }).then(async (res) => {
         if (!res.ok) {
           const errorData = await res.json();
           throw new Error(errorData.error || "Gagal menambahkan produk");

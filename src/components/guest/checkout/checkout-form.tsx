@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
 import { CheckoutOrderSummary } from "@/components/guest/checkout/checkout-order-summary";
+import { getCsrfToken } from "@/lib/csrf";
 
 const checkoutSchema = z.object({
   customerName: z.string().min(3, "Nama lengkap minimal 3 karakter"),
@@ -68,7 +69,10 @@ export function CheckoutForm({ items }: CheckoutFormProps) {
 
       const response = await fetch("/api/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": getCsrfToken() || "",
+        },
         body: JSON.stringify(orderData),
       });
 

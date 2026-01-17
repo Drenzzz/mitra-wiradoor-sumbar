@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Product, Category } from "@/types";
 import { useProductManagement } from "@/hooks/use-product-management";
 import { toast } from "sonner";
+import { getCsrfToken } from "@/lib/csrf";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CreateProductButton } from "@/components/admin/products/create-product-button";
 import { ProductDetailDialog } from "@/components/admin/products/product-detail-dialog";
@@ -102,9 +103,9 @@ export default function ProductManagementPage() {
       onConfirm: () => {
         setIsActionLoading(true);
         const endpoints = {
-          delete: (id: string) => fetch(`/api/products/${id}`, { method: "DELETE" }),
-          restore: (id: string) => fetch(`/api/products/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "restore" }) }),
-          forceDelete: (id: string) => fetch(`/api/products/${id}?force=true`, { method: "DELETE" }),
+          delete: (id: string) => fetch(`/api/products/${id}`, { method: "DELETE", headers: { "X-CSRF-Token": getCsrfToken() || "" } }),
+          restore: (id: string) => fetch(`/api/products/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json", "X-CSRF-Token": getCsrfToken() || "" }, body: JSON.stringify({ action: "restore" }) }),
+          forceDelete: (id: string) => fetch(`/api/products/${id}?force=true`, { method: "DELETE", headers: { "X-CSRF-Token": getCsrfToken() || "" } }),
         };
 
         toast.promise(Promise.all(selectedRowKeys.map((id) => endpoints[action](id))), {
@@ -155,9 +156,9 @@ export default function ProductManagementPage() {
       onConfirm: () => {
         setIsActionLoading(true);
         const endpoints = {
-          delete: (id: string) => fetch(`/api/products/${id}`, { method: "DELETE" }),
-          restore: (id: string) => fetch(`/api/products/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "restore" }) }),
-          forceDelete: (id: string) => fetch(`/api/products/${id}?force=true`, { method: "DELETE" }),
+          delete: (id: string) => fetch(`/api/products/${id}`, { method: "DELETE", headers: { "X-CSRF-Token": getCsrfToken() || "" } }),
+          restore: (id: string) => fetch(`/api/products/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json", "X-CSRF-Token": getCsrfToken() || "" }, body: JSON.stringify({ action: "restore" }) }),
+          forceDelete: (id: string) => fetch(`/api/products/${id}?force=true`, { method: "DELETE", headers: { "X-CSRF-Token": getCsrfToken() || "" } }),
         };
 
         toast.promise(endpoints[action](item.id), {
