@@ -3,27 +3,35 @@ import { db } from "@/db";
 import { products, categories, articles, inquiries, orders } from "@/db/schema";
 import { count, eq, isNull, sum, gte } from "drizzle-orm";
 
-export const getDashboardStats = unstable_cache(
+
+export const getDashboardCounts = async () => {
+  const [productsResult, categoriesResult, articlesResult, inquiriesResult] = await Promise.all([
+    db.select({ count: count() }).from(products).where(isNull(products.deletedAt)),
+    db.select({ count: count() }).from(categories).where(isNull(categories.deletedAt)),
+    db.select({ count: count() }).from(articles).where(eq(articles.status, "PUBLISHED")),
+    db.select({ count: count() }).from(inquiries).where(eq(inquiries.status, "NEW")),
+  ]);
+
+  return {
+    products: productsResult[0].count,
+    categories: categoriesResult[0].count,
+    articles: articlesResult[0].count,
+    inquiries: inquiriesResult[0].count,
+  };
+};
+
+export const getRevenue = async () => {
+  const revenueResult = await db
+    .select({ total: sum(orders.dealPrice) })
+    .from(orders)
+    .where(eq(orders.status, "COMPLETED"));
+  return {
+    total: Number(revenueResult[0]?.total) || 0,
+  };
+};
+
+export const getOrderStatusDistribution = unstable_cache(
   async () => {
-    const [productsResult, categoriesResult, articlesResult, inquiriesResult] = await Promise.all([
-      db.select({ count: count() }).from(products).where(isNull(products.deletedAt)),
-      db.select({ count: count() }).from(categories).where(isNull(categories.deletedAt)),
-      db.select({ count: count() }).from(articles).where(eq(articles.status, "PUBLISHED")),
-      db.select({ count: count() }).from(inquiries).where(eq(inquiries.status, "NEW")),
-    ]);
-
-    const productsCount = productsResult[0].count;
-    const categoriesCount = categoriesResult[0].count;
-    const articlesCount = articlesResult[0].count;
-    const inquiriesCount = inquiriesResult[0].count;
-
-    const revenueResult = await db
-      .select({ total: sum(orders.dealPrice) })
-      .from(orders)
-      .where(eq(orders.status, "COMPLETED"));
-
-    const totalRevenue = Number(revenueResult[0]?.total) || 0;
-
     const ordersByStatus = await db.query.orders.findMany({
       columns: { status: true },
     });
@@ -34,11 +42,17 @@ export const getDashboardStats = unstable_cache(
       statusCounts.set(order.status, current + 1);
     });
 
-    const orderStatusDistribution = Array.from(statusCounts.entries()).map(([status, count]) => ({
+    return Array.from(statusCounts.entries()).map(([status, count]) => ({
       status,
       count,
     }));
+  },
+  ["dashboard-order-status"],
+  { revalidate: 60, tags: ["dashboard-stats"] }
+);
 
+export const getSalesTrend = unstable_cache(
+  async () => {
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
     sixMonthsAgo.setDate(1);
@@ -70,27 +84,12 @@ export const getDashboardStats = unstable_cache(
         }
       });
 
-    const salesTrend = Array.from(monthlyRevenueMap.entries()).map(([name, total]) => ({
+    return Array.from(monthlyRevenueMap.entries()).map(([name, total]) => ({
       name,
       total,
     }));
-
-    return {
-      counts: {
-        products: productsCount,
-        categories: categoriesCount,
-        articles: articlesCount,
-        inquiries: inquiriesCount,
-      },
-      revenue: {
-        total: totalRevenue,
-      },
-      charts: {
-        orderStatus: orderStatusDistribution,
-        salesTrend: salesTrend,
-      },
-    };
   },
-  ["dashboard-stats"],
+  ["dashboard-sales-trend"],
   { revalidate: 60, tags: ["dashboard-stats"] }
 );
+
