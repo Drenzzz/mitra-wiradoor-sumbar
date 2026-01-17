@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { ArticleCategory } from "@/types";
 import { MoreHorizontal, Trash2, Undo, Pencil } from "lucide-react";
 import { toast } from "sonner";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-const itemVariants: any = { hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } };
+const itemVariants: Variants = { hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } };
 
 interface ArticleCategoryTableProps {
   variant: "active" | "trashed";

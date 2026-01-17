@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { Product } from "@/types";
 import { MoreHorizontal, Pencil, Trash2, Eye, Undo } from "lucide-react";
 
@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { usePermission } from "@/hooks/use-permission";
 
-const itemVariants: any = {
+const itemVariants: Variants = {
   hidden: { y: 20, opacity: 0 },
   visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 100 } },
 };
