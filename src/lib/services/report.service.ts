@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { orders, orderItems } from "@/db/schema";
 import type { OrderStatus } from "@/db/schema";
-import { eq, gte, lte, and } from "drizzle-orm";
+import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 
 export type ReportData = {
   summary: {
@@ -43,81 +43,138 @@ export type OrderTypeStat = {
 
 const ORDER_STATUSES: OrderStatus[] = ["PENDING", "PROCESSED", "SHIPPED", "COMPLETED", "CANCELLED"];
 
+function toNumber(value: unknown): number {
+  if (typeof value === "number") {
+    return value;
+  }
+  if (typeof value === "string") {
+    return Number(value);
+  }
+  return 0;
+}
+
 export async function getReportData(startDate: Date, endDate: Date): Promise<ReportData> {
-  const ordersData = await db.query.orders.findMany({
-    where: and(gte(orders.createdAt, startDate), lte(orders.createdAt, endDate)),
-    with: {
-      items: true,
-    },
-    orderBy: (orders, { desc }) => [desc(orders.createdAt)],
-  });
+  const dateRangeFilter = and(gte(orders.createdAt, startDate), lte(orders.createdAt, endDate));
 
-  const completedOrders = ordersData.filter((o) => o.status === "COMPLETED");
+  const [
+    summaryRows,
+    salesTrendRows,
+    orderTypeRows,
+    topProductRows,
+    orderStatusRows,
+    recentOrdersRows,
+  ] = await Promise.all([
+    db
+      .select({
+        totalOrders: sql<number>`cast(count(*) as int)`,
+        cancelledOrders: sql<number>`cast(sum(case when ${orders.status} = 'CANCELLED' then 1 else 0 end) as int)`,
+        completedOrders: sql<number>`cast(sum(case when ${orders.status} = 'COMPLETED' then 1 else 0 end) as int)`,
+        totalRevenue: sql<number>`coalesce(sum(case when ${orders.status} = 'COMPLETED' then ${orders.dealPrice} else 0 end), 0)`,
+      })
+      .from(orders)
+      .where(dateRangeFilter),
+    db
+      .select({
+        day: sql<Date>`date_trunc('day', ${orders.createdAt})`,
+        revenue: sql<number>`coalesce(sum(${orders.dealPrice}), 0)`,
+        orderCount: sql<number>`cast(count(*) as int)`,
+      })
+      .from(orders)
+      .where(and(dateRangeFilter, eq(orders.status, "COMPLETED")))
+      .groupBy(sql`date_trunc('day', ${orders.createdAt})`)
+      .orderBy(sql`date_trunc('day', ${orders.createdAt}) asc`),
+    db
+      .select({
+        isReadyStock: orderItems.isReadyStock,
+        quantity: sql<number>`cast(sum(${orderItems.quantity}) as int)`,
+      })
+      .from(orderItems)
+      .innerJoin(orders, eq(orderItems.orderId, orders.id))
+      .where(and(dateRangeFilter, eq(orders.status, "COMPLETED")))
+      .groupBy(orderItems.isReadyStock),
+    db
+      .select({
+        name: orderItems.productName,
+        quantity: sql<number>`cast(sum(${orderItems.quantity}) as int)`,
+      })
+      .from(orderItems)
+      .innerJoin(orders, eq(orderItems.orderId, orders.id))
+      .where(and(dateRangeFilter, eq(orders.status, "COMPLETED")))
+      .groupBy(orderItems.productName)
+      .orderBy(sql`sum(${orderItems.quantity}) desc`)
+      .limit(5),
+    db
+      .select({
+        status: orders.status,
+        count: sql<number>`cast(count(*) as int)`,
+      })
+      .from(orders)
+      .where(dateRangeFilter)
+      .groupBy(orders.status),
+    db.query.orders.findMany({
+      where: dateRangeFilter,
+      columns: {
+        id: true,
+        invoiceNumber: true,
+        customerName: true,
+        createdAt: true,
+        dealPrice: true,
+        status: true,
+      },
+      orderBy: [desc(orders.createdAt)],
+      limit: 10,
+    }),
+  ]);
 
-  const totalRevenue = completedOrders.reduce((acc, curr) => acc + (curr.dealPrice || 0), 0);
-  const totalOrders = ordersData.length;
-  const cancelledOrders = ordersData.filter((o) => o.status === "CANCELLED").length;
-  const averageOrderValue = completedOrders.length > 0 ? totalRevenue / completedOrders.length : 0;
+  const summary = summaryRows[0] || {
+    totalOrders: 0,
+    cancelledOrders: 0,
+    completedOrders: 0,
+    totalRevenue: 0,
+  };
 
-  const salesTrendMap = new Map<string, { revenue: number; count: number }>();
+  const totalRevenue = toNumber(summary.totalRevenue);
+  const totalOrders = toNumber(summary.totalOrders);
+  const cancelledOrders = toNumber(summary.cancelledOrders);
+  const completedOrders = toNumber(summary.completedOrders);
+  const averageOrderValue = completedOrders > 0 ? totalRevenue / completedOrders : 0;
 
-  completedOrders.forEach((order) => {
-    const dateKey = order.createdAt.toLocaleDateString("id-ID", {
+  const salesTrend: SalesTrend[] = salesTrendRows.map((row) => ({
+    date: new Date(row.day).toLocaleDateString("id-ID", {
       day: "numeric",
       month: "short",
-    });
+    }),
+    revenue: toNumber(row.revenue),
+    orderCount: toNumber(row.orderCount),
+  }));
 
-    const current = salesTrendMap.get(dateKey) || { revenue: 0, count: 0 };
-    salesTrendMap.set(dateKey, {
-      revenue: current.revenue + (order.dealPrice || 0),
-      count: current.count + 1,
-    });
-  });
-
-  const salesTrend: SalesTrend[] = Array.from(salesTrendMap.entries())
-    .map(([date, data]) => ({
-      date,
-      revenue: data.revenue,
-      orderCount: data.count,
-    }))
-    .reverse();
-
-  let readyStockCount = 0;
-  let customOrderCount = 0;
-  const productCountMap = new Map<string, number>();
-
-  completedOrders.forEach((order) => {
-    order.items.forEach((item) => {
-      if (item.isReadyStock) {
-        readyStockCount += item.quantity;
-      } else {
-        customOrderCount += item.quantity;
-      }
-
-      const currentQty = productCountMap.get(item.productName) || 0;
-      productCountMap.set(item.productName, currentQty + item.quantity);
-    });
-  });
+  const orderTypeMap = new Map<boolean, number>();
+  for (const row of orderTypeRows) {
+    orderTypeMap.set(row.isReadyStock, toNumber(row.quantity));
+  }
 
   const orderTypeStats: OrderTypeStat[] = [
-    { isReadyStock: true, count: readyStockCount, label: "Ready Stock" },
-    { isReadyStock: false, count: customOrderCount, label: "Custom Order" },
+    { isReadyStock: true, count: orderTypeMap.get(true) || 0, label: "Ready Stock" },
+    { isReadyStock: false, count: orderTypeMap.get(false) || 0, label: "Custom Order" },
   ];
 
-  const topProducts: TopProduct[] = Array.from(productCountMap.entries())
-    .map(([name, quantity]) => ({ name, quantity }))
-    .sort((a, b) => b.quantity - a.quantity)
-    .slice(0, 5);
+  const topProducts: TopProduct[] = topProductRows.map((row) => ({
+    name: row.name,
+    quantity: toNumber(row.quantity),
+  }));
 
-  const orderStatusStats = ORDER_STATUSES.map((status) => {
-    return {
-      status,
-      count: ordersData.filter((o) => o.status === status).length,
-      label: status,
-    };
-  });
+  const orderStatusMap = new Map<OrderStatus, number>();
+  for (const row of orderStatusRows) {
+    orderStatusMap.set(row.status, toNumber(row.count));
+  }
 
-  const recentTransactions = ordersData.slice(0, 10).map((order) => ({
+  const orderStatusStats = ORDER_STATUSES.map((status) => ({
+    status,
+    count: orderStatusMap.get(status) || 0,
+    label: status,
+  }));
+
+  const recentTransactions = recentOrdersRows.map((order) => ({
     id: order.id,
     invoiceNumber: order.invoiceNumber,
     customerName: order.customerName,
