@@ -24,14 +24,14 @@ export function SalesChart({ data }: SalesChartProps) {
               <YAxis yAxisId="left" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `Rp${value / 1000}k`} />
               <YAxis yAxisId="right" orientation="right" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value} order`} />
               <Tooltip
-                formatter={(value: number, name: string) => {
-                  if (name === "Pendapatan")
+                formatter={(value, name) => {
+                  if (name === "Pendapatan" && typeof value === "number")
                     return new Intl.NumberFormat("id-ID", {
                       style: "currency",
                       currency: "IDR",
                       maximumFractionDigits: 0,
                     }).format(value);
-                  return value;
+                  return value ?? 0;
                 }}
                 contentStyle={{
                   backgroundColor: "hsl(var(--background))",

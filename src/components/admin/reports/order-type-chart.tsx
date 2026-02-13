@@ -30,7 +30,7 @@ export function OrderTypeChart({ data }: OrderTypeChartProps) {
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: number) => [value + " item", "Terjual"]}
+                  formatter={(value) => [`${value ?? 0} item`, "Terjual"]}
                   contentStyle={{
                     backgroundColor: "hsl(var(--background))",
                     borderColor: "hsl(var(--border))",
