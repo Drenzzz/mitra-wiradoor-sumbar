@@ -1,13 +1,18 @@
 import { NextResponse, NextRequest } from "next/server";
 import * as articleService from "@/lib/services/article.service";
-import { requirePermission } from "@/lib/authz";
+import { getSession, requirePermission } from "@/lib/authz";
+import { hasPermission } from "@/lib/config/permissions";
+
+const UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const idOrSlug = (await context.params).id;
+    const session = await getSession();
+    const canViewInternal = !!session?.user && hasPermission(session.user.role, "article:view");
     let article;
 
-    if (/^[0-9a-fA-F]{24}$/.test(idOrSlug)) {
+    if (canViewInternal && UUID_REGEX.test(idOrSlug)) {
       article = await articleService.getArticleById(idOrSlug);
     }
 
@@ -15,7 +20,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
       article = await articleService.getArticleBySlug(idOrSlug);
     }
 
-    if (!article) {
+    if (!article || (!canViewInternal && (article.status !== "PUBLISHED" || !!article.deletedAt))) {
       return NextResponse.json({ error: "Artikel tidak ditemukan" }, { status: 404 });
     }
     return NextResponse.json(article);
