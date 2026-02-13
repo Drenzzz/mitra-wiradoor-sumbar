@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -51,7 +52,7 @@ export function PortfolioForm({ defaultValues, onSubmit, isSubmitting, submitLab
 
     setIsCreatingCategory(true);
     try {
-      const res = await fetch("/api/portfolio-categories", {
+      const res = await apiFetch("/api/portfolio-categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newCategoryName }),

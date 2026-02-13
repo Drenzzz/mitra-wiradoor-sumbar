@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { useState, useEffect } from "react";
 import { PageWrapper } from "@/components/admin/page-wrapper";
 import { ArticleDetailDialog } from "@/components/admin/articles/article-detail-dialog";
@@ -97,9 +98,9 @@ export default function ArticleManagementPage() {
       onConfirm: () => {
         setIsActionLoading(true);
         const endpoints = {
-          delete: (id: string) => fetch(`/api/articles/${id}`, { method: "DELETE" }),
-          restore: (id: string) => fetch(`/api/articles/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "restore" }) }),
-          forceDelete: (id: string) => fetch(`/api/articles/${id}?force=true`, { method: "DELETE" }),
+          delete: (id: string) => apiFetch(`/api/articles/${id}`, { method: "DELETE" }),
+          restore: (id: string) => apiFetch(`/api/articles/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "restore" }) }),
+          forceDelete: (id: string) => apiFetch(`/api/articles/${id}?force=true`, { method: "DELETE" }),
         };
 
         toast.promise(Promise.all(selectedRowKeys.map((id) => endpoints[action](id))), {
@@ -150,9 +151,9 @@ export default function ArticleManagementPage() {
       onConfirm: () => {
         setIsActionLoading(true);
         const endpoints = {
-          delete: (id: string) => fetch(`/api/articles/${id}`, { method: "DELETE" }),
-          restore: (id: string) => fetch(`/api/articles/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "restore" }) }),
-          forceDelete: (id: string) => fetch(`/api/articles/${id}?force=true`, { method: "DELETE" }),
+          delete: (id: string) => apiFetch(`/api/articles/${id}`, { method: "DELETE" }),
+          restore: (id: string) => apiFetch(`/api/articles/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "restore" }) }),
+          forceDelete: (id: string) => apiFetch(`/api/articles/${id}?force=true`, { method: "DELETE" }),
         };
 
         toast.promise(endpoints[action](item.id), {

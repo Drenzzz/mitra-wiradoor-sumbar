@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,7 +8,6 @@ import * as z from "zod";
 import { toast } from "sonner";
 import { Plus, Trash2, Loader2, Settings2 } from "lucide-react";
 import { Category } from "@/types";
-import { getCsrfToken } from "@/lib/csrf";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -42,7 +42,7 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
   const fetchCategories = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/categories?status=active");
+      const response = await apiFetch("/api/categories?status=active");
       const data = await response.json();
       setCategories(data.data || []);
     } catch (error) {
@@ -61,11 +61,10 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/categories", {
+      const response = await apiFetch("/api/categories", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-CSRF-Token": getCsrfToken() || "",
         },
         body: JSON.stringify(values),
       });
@@ -87,10 +86,9 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
     if (!confirm("Apakah Anda yakin ingin menghapus kategori ini?")) return;
 
     try {
-      const response = await fetch(`/api/categories/${id}`, {
+      const response = await apiFetch(`/api/categories/${id}`, {
         method: "DELETE",
         headers: {
-          "X-CSRF-Token": getCsrfToken() || "",
         },
       });
 

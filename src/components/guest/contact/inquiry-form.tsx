@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
 
 import { useForm } from "react-hook-form";
@@ -11,7 +12,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
 import { Loader2, Send } from "lucide-react";
-import { getCsrfToken } from "@/lib/csrf";
 
 export function InquiryForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,11 +30,10 @@ export function InquiryForm() {
   async function onSubmit(data: InquiryFormValues) {
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/inquiries", {
+      const response = await apiFetch("/api/inquiries", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-CSRF-Token": getCsrfToken() || "",
         },
         body: JSON.stringify(data),
       });

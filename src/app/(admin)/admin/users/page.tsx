@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -47,7 +48,7 @@ export default function UserManagementPage() {
     if (!selectedUser) return;
 
     setIsActionLoading(true);
-    toast.promise(fetch(`/api/users/${selectedUser.id}`, { method: "DELETE" }), {
+    toast.promise(apiFetch(`/api/users/${selectedUser.id}`, { method: "DELETE" }), {
       loading: `Menghapus ${selectedUser.name}...`,
       success: () => {
         fetchUsers();

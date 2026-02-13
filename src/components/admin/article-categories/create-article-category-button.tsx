@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,7 +28,7 @@ export function CreateArticleCategoryButton({ onSuccess }: { onSuccess: () => vo
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     toast.promise(
-      fetch("/api/article-categories", {
+      apiFetch("/api/article-categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),

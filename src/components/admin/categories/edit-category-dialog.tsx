@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -49,7 +50,7 @@ export function EditCategoryDialog({ isOpen, onClose, onSuccess, category }: Edi
     if (!category) return;
 
     toast.promise(
-      fetch(`/api/categories/${category.id}`, {
+      apiFetch(`/api/categories/${category.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),

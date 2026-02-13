@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,7 +38,7 @@ export function ArticleCategoryManager({ onSuccess }: ArticleCategoryManagerProp
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch("/api/article-categories?status=active");
+      const response = await apiFetch("/api/article-categories?status=active");
       const data = await response.json();
       setCategories(data.data);
     } catch (error) {
@@ -47,7 +48,7 @@ export function ArticleCategoryManager({ onSuccess }: ArticleCategoryManagerProp
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const response = await fetch("/api/article-categories", {
+      const response = await apiFetch("/api/article-categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
@@ -68,7 +69,7 @@ export function ArticleCategoryManager({ onSuccess }: ArticleCategoryManagerProp
     if (!confirm("Hapus kategori ini?")) return;
 
     try {
-      const response = await fetch(`/api/article-categories/${id}`, {
+      const response = await apiFetch(`/api/article-categories/${id}`, {
         method: "DELETE",
       });
 

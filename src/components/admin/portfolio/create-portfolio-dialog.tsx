@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PortfolioForm } from "./portfolio-form";
 import { PortfolioFormValues } from "@/lib/validations/portfolio.schema";
@@ -18,7 +19,7 @@ export function CreatePortfolioDialog({ isOpen, onClose, onSuccess }: CreatePort
   const onSubmit = async (data: PortfolioFormValues) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/portfolio", {
+      const response = await apiFetch("/api/portfolio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

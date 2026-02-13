@@ -1,12 +1,12 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { PlusCircle } from "lucide-react";
-import { getCsrfToken } from "@/lib/csrf";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
@@ -29,11 +29,10 @@ export function CreateProductButton({ onSuccess }: { onSuccess: () => void }) {
 
   const onSubmit = async (values: ProductFormValues) => {
     toast.promise(
-      fetch("/api/products", {
+      apiFetch("/api/products", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-CSRF-Token": getCsrfToken() || "",
         },
         body: JSON.stringify(values),
       }).then(async (res) => {

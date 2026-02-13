@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
 import type { OrderStatus } from "@/db/schema";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
@@ -36,7 +37,7 @@ export function useOrderManagement() {
       params.append("endDate", dateRange.to.toISOString());
     }
 
-    const response = await fetch(`/api/orders?${params.toString()}`);
+    const response = await apiFetch(`/api/orders?${params.toString()}`);
 
     if (!response.ok) {
       const errData = await response.json();
@@ -58,7 +59,7 @@ export function useOrderManagement() {
     if (selectedRowKeys.length === 0) return;
 
     try {
-      const response = await fetch("/api/orders/bulk", {
+      const response = await apiFetch("/api/orders/bulk", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

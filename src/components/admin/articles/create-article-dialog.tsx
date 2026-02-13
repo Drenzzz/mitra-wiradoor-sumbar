@@ -1,5 +1,6 @@
 'use client';
 
+import { apiFetch } from "@/lib/api-client";
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,7 +19,7 @@ export function CreateArticleDialog({ onSuccess }: { onSuccess: () => void; }) {
 
   const onSubmit = async (values: ArticleFormValues) => {
     toast.promise(
-      fetch('/api/articles', {
+      apiFetch('/api/articles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),

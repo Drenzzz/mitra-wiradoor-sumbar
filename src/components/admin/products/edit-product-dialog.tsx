@@ -1,11 +1,11 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { useEffect } from "react";
 import { Product } from "@/types";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { getCsrfToken } from "@/lib/csrf";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -41,11 +41,10 @@ export function EditProductDialog({ product, isOpen, onClose, onSuccess }: EditP
     if (!product) return;
 
     toast.promise(
-      fetch(`/api/products/${product.id}`, {
+      apiFetch(`/api/products/${product.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "X-CSRF-Token": getCsrfToken() || "",
         },
         body: JSON.stringify(values),
       }).then(async (res) => {

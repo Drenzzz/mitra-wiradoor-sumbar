@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -24,7 +25,7 @@ export function PasswordForm() {
 
   const onSubmit = async (data: PasswordFormValues) => {
     toast.promise(
-      fetch("/api/user/settings", {
+      apiFetch("/api/user/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

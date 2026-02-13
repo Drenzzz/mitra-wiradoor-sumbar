@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { motion, Variants } from "framer-motion";
 import { ArticleCategory } from "@/types";
 import { MoreHorizontal, Trash2, Undo, Pencil } from "lucide-react";
@@ -35,11 +36,11 @@ export function ArticleCategoryTable({ variant, categories, isLoading, error, on
   };
 
   const handleSoftDelete = (categoryId: string) => {
-    handleAction(fetch(`/api/article-categories/${categoryId}`, { method: "DELETE" }), { loading: "Memindahkan...", success: "Kategori dipindahkan ke sampah.", error: "Gagal memindahkan." });
+    handleAction(apiFetch(`/api/article-categories/${categoryId}`, { method: "DELETE" }), { loading: "Memindahkan...", success: "Kategori dipindahkan ke sampah.", error: "Gagal memindahkan." });
   };
 
   const handleRestore = (categoryId: string) => {
-    handleAction(fetch(`/api/article-categories/${categoryId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "restore" }) }), {
+    handleAction(apiFetch(`/api/article-categories/${categoryId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "restore" }) }), {
       loading: "Memulihkan...",
       success: "Kategori dipulihkan.",
       error: "Gagal memulihkan.",
@@ -48,7 +49,7 @@ export function ArticleCategoryTable({ variant, categories, isLoading, error, on
 
   const handlePermanentDelete = (categoryId: string) => {
     if (!window.confirm("Anda yakin? Aksi ini tidak dapat dibatalkan.")) return;
-    handleAction(fetch(`/api/article-categories/${categoryId}?force=true`, { method: "DELETE" }), { loading: "Menghapus permanen...", success: "Kategori dihapus permanen.", error: "Gagal menghapus." });
+    handleAction(apiFetch(`/api/article-categories/${categoryId}?force=true`, { method: "DELETE" }), { loading: "Menghapus permanen...", success: "Kategori dihapus permanen.", error: "Gagal menghapus." });
   };
 
   if (isLoading) return <div className="text-center p-8">Memuat...</div>;

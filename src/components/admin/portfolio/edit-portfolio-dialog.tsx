@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PortfolioForm } from "./portfolio-form";
 import { PortfolioFormValues } from "@/lib/validations/portfolio.schema";
@@ -22,7 +23,7 @@ export function EditPortfolioDialog({ isOpen, onClose, onSuccess, portfolio }: E
   const onSubmit = async (data: PortfolioFormValues) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch(`/api/portfolio/${portfolio.id}`, {
+      const response = await apiFetch(`/api/portfolio/${portfolio.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

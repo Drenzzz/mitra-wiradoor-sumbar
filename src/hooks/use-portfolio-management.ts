@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -28,7 +29,7 @@ export function usePortfolioManagement() {
       params.append("categoryId", filterByCategory);
     }
 
-    const response = await fetch(`/api/portfolio?${params.toString()}`);
+    const response = await apiFetch(`/api/portfolio?${params.toString()}`);
     if (!response.ok) {
       const errData = await response.json();
       throw new Error(errData.error || "Gagal memuat data portofolio");
@@ -37,7 +38,7 @@ export function usePortfolioManagement() {
   };
 
   const fetchCategoriesData = async () => {
-    const response = await fetch("/api/portfolio-categories?status=active&limit=100");
+    const response = await apiFetch("/api/portfolio-categories?status=active&limit=100");
     if (response.ok) {
       const res = await response.json();
       return res.data as PortfolioCategory[];
@@ -58,7 +59,7 @@ export function usePortfolioManagement() {
   });
 
   const deletePortfolio = async (id: string) => {
-    const response = await fetch(`/api/portfolio/${id}`, {
+    const response = await apiFetch(`/api/portfolio/${id}`, {
       method: "DELETE",
     });
     if (!response.ok) {

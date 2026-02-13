@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
 import { PageWrapper } from "@/components/admin/page-wrapper";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -29,7 +30,7 @@ export default function InquiryManagementPage() {
   };
 
   const handleStatusChange = async (id: string, status: InquiryStatus, silent = false) => {
-    const promise = fetch(`/api/inquiries/${id}`, {
+    const promise = apiFetch(`/api/inquiries/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),

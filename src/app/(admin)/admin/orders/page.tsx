@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { useState, useCallback } from "react";
 import { PageWrapper } from "@/components/admin/page-wrapper";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -48,7 +49,7 @@ export default function OrderManagementPage() {
     setSelectedOrder(null);
 
     try {
-      const response = await fetch(`/api/orders/${order.id}`);
+      const response = await apiFetch(`/api/orders/${order.id}`);
       if (!response.ok) {
         throw new Error("Gagal memuat detail pesanan.");
       }
@@ -72,7 +73,7 @@ export default function OrderManagementPage() {
 
     setIsProcessLoading(true);
     try {
-      const response = await fetch(`/api/orders/${selectedOrderToProcess.id}`, {
+      const response = await apiFetch(`/api/orders/${selectedOrderToProcess.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -100,7 +101,7 @@ export default function OrderManagementPage() {
   const handleStatusChange = useCallback(
     async (id: string, status: OrderStatus) => {
       toast.promise(
-        fetch(`/api/orders/${id}`, {
+        apiFetch(`/api/orders/${id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status }),

@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -23,7 +24,7 @@ export function ImageUploader({ onUploadSuccess, initialImageUrl }: ImageUploade
     formData.append("file", file);
 
     toast.promise(
-      fetch("/api/upload", {
+      apiFetch("/api/upload", {
         method: "POST",
         body: formData,
       }).then(async (response) => {

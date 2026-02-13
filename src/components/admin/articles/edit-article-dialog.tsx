@@ -1,5 +1,6 @@
 'use client';
 
+import { apiFetch } from "@/lib/api-client";
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -37,7 +38,7 @@ export function EditArticleDialog({ article, isOpen, onClose, onSuccess }: EditA
     if (!article) return;
 
     toast.promise(
-      fetch(`/api/articles/${article.id}`, {
+      apiFetch(`/api/articles/${article.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
