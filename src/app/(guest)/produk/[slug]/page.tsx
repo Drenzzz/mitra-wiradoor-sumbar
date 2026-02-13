@@ -7,46 +7,68 @@ import type { Product } from "@/types";
 import { ProductGallery } from "@/components/guest/product/product-gallery";
 import { ProductInfo } from "@/components/guest/product/product-info";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
+import { getProductById, getProducts } from "@/lib/services/product.service";
 
 interface ProductData {
-  product: (Product & { isReadyStock?: boolean; stock?: number | null }) | null;
+  product: Product | null;
   relatedProducts: Product[];
 }
 
+type ProductSource = {
+  id: string;
+  name: string;
+  description: string | null;
+  specifications: string | null;
+  imageUrl: string;
+  images: string[] | null;
+  deletedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  categoryId: string;
+  category: {
+    name: string;
+  };
+  isReadyStock: boolean | null;
+};
+
+function toProductView(product: ProductSource): Product {
+  return {
+    id: product.id,
+    name: product.name,
+    description: product.description ?? "",
+    specifications: product.specifications ?? "",
+    imageUrl: product.imageUrl,
+    images: product.images ?? [],
+    deletedAt: product.deletedAt,
+    createdAt: product.createdAt,
+    updatedAt: product.updatedAt,
+    categoryId: product.categoryId,
+    category: {
+      name: product.category.name,
+    },
+    isReadyStock: Boolean(product.isReadyStock),
+    price: 0,
+  };
+}
+
 async function getProductData(slug: string): Promise<ProductData> {
-  let product: (Product & { isReadyStock?: boolean; stock?: number | null }) | null = null;
+  let product: Product | null = null;
   let relatedProducts: Product[] = [];
 
   try {
-    const productRes = await fetch(`${process.env.NEXTAUTH_URL}/api/products/${slug}`, {
-      cache: "no-store",
-    });
-
-    if (productRes.status === 404) {
+    const productData = await getProductById(slug);
+    if (!productData) {
       return { product: null, relatedProducts: [] };
     }
-    if (!productRes.ok) {
-      throw new Error("Gagal memuat data produk utama.");
-    }
-    product = await productRes.json();
+    product = toProductView(productData as ProductSource);
 
     if (product?.categoryId) {
-      const relatedQuery = new URLSearchParams({
+      const relatedData = await getProducts({
         status: "active",
-        limit: "4",
+        limit: 4,
         categoryId: product.categoryId,
       });
-
-      const relatedRes = await fetch(`${process.env.NEXTAUTH_URL}/api/products?${relatedQuery.toString()}`, {
-        cache: "no-store",
-      });
-
-      if (relatedRes.ok) {
-        const relatedData = await relatedRes.json();
-        relatedProducts = (relatedData.data as Product[]).filter((p) => p.id !== product?.id);
-      } else {
-        console.warn("Gagal memuat produk terkait.");
-      }
+      relatedProducts = relatedData.data.map((item) => toProductView(item as ProductSource)).filter((p) => p.id !== product?.id);
     }
 
     return { product, relatedProducts };
@@ -81,7 +103,6 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
       <ProductJsonLd product={product} />
       <BreadcrumbJsonLd items={breadcrumbItems} />
       <div className="min-h-screen bg-background pb-20">
-        {/* Breadcrumb Section */}
         <div className="bg-muted/30 border-b pt-20">
           <div className="container mx-auto px-4 py-4">
             <nav className="text-sm text-muted-foreground flex items-center space-x-2 overflow-hidden">
@@ -101,20 +122,17 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
         <div className="container mx-auto px-4 py-8 lg:py-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
-            {/* Left Column: Gallery */}
             <div className="lg:col-span-7 xl:col-span-7">
               <div className="sticky top-24">
                 <ProductGallery images={images} title={product.name} />
               </div>
             </div>
 
-            {/* Right Column: Info */}
             <div className="lg:col-span-5 xl:col-span-5">
               <ProductInfo product={product} />
             </div>
           </div>
 
-          {/* Related Products Section */}
           <div className="mt-24 pt-12 border-t">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Produk Terkait</h2>
