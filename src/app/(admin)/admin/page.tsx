@@ -50,7 +50,7 @@ export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/auth/login");
+    redirect("/login");
   }
 
   return (
@@ -76,4 +76,3 @@ export default async function DashboardPage() {
     </div>
   );
 }
-
