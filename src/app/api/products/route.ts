@@ -1,12 +1,10 @@
 import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as productService from "@/lib/services/product.service";
+import { requirePermission, getSession } from "@/lib/authz";
 
-// POST
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const auth = await requirePermission("product:create");
+  if (!auth.ok) return auth.response;
 
   try {
     const body = await request.json();
@@ -21,10 +19,9 @@ export async function POST(request: Request) {
   }
 }
 
-// GET
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getSession();
     const { searchParams } = new URL(request.url);
     const statusParam = searchParams.get("status");
     let status: "active" | "trashed" | undefined = "active";

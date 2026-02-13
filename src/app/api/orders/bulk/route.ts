@@ -1,23 +1,15 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { db } from "@/db";
 import { orders } from "@/db/schema";
 import type { OrderStatus } from "@/db/schema";
-import { hasPermission } from "@/lib/config/permissions";
 import { inArray } from "drizzle-orm";
+import { requirePermission } from "@/lib/authz";
 
 const VALID_ORDER_STATUSES: OrderStatus[] = ["PENDING", "PROCESSED", "SHIPPED", "COMPLETED", "CANCELLED"];
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
-
-  if (!hasPermission(session.user.role, "order:process")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const auth = await requirePermission("order:process");
+  if (!auth.ok) return auth.response;
 
   try {
     const body = await request.json();
@@ -44,9 +36,8 @@ export async function POST(request: Request) {
     }
 
     if (action === "delete") {
-      if (!hasPermission(session.user.role, "order:delete")) {
-        return NextResponse.json({ error: "Forbidden: Only Admin can delete orders." }, { status: 403 });
-      }
+      const deleteGuard = await requirePermission("order:delete", "Forbidden: Only Admin can delete orders.");
+      if (!deleteGuard.ok) return deleteGuard.response;
 
       await db.delete(orders).where(inArray(orders.id, orderIds));
 

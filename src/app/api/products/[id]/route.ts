@@ -1,8 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as productService from "@/lib/services/product.service";
-import { hasPermission } from "@/lib/config/permissions";
+import { requirePermission } from "@/lib/authz";
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -18,12 +16,8 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
 }
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-
-  if (!hasPermission(session.user.role, "product:edit")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const auth = await requirePermission("product:edit");
+  if (!auth.ok) return auth.response;
 
   try {
     const { id } = await context.params;
@@ -42,12 +36,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 }
 
 export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-
-  if (!hasPermission(session.user.role, "product:delete")) {
-    return NextResponse.json({ error: "Forbidden: Anda tidak memiliki izin menghapus produk." }, { status: 403 });
-  }
+  const auth = await requirePermission("product:delete", "Forbidden: Anda tidak memiliki izin menghapus produk.");
+  if (!auth.ok) return auth.response;
 
   try {
     const { id } = await context.params;

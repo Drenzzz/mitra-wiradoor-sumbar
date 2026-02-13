@@ -1,16 +1,13 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as inquiryService from "@/lib/services/inquiry.service";
 import type { InquiryStatus } from "@/db/schema";
+import { requirePermission } from "@/lib/authz";
 
 const VALID_INQUIRY_STATUSES: InquiryStatus[] = ["NEW", "READ", "REPLIED"];
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
+  const auth = await requirePermission("inquiry:reply");
+  if (!auth.ok) return auth.response;
 
   try {
     const { id } = await context.params;

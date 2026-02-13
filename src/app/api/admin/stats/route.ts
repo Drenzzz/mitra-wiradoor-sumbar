@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { db } from "@/db";
 import { products, categories, articles, inquiries, orders } from "@/db/schema";
 import { count, eq, isNull, sum, gte } from "drizzle-orm";
+import { requirePermission } from "@/lib/authz";
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
+  const auth = await requirePermission("dashboard:view");
+  if (!auth.ok) return auth.response;
 
   try {
     const [productsResult, categoriesResult, articlesResult, inquiriesResult] = await Promise.all([

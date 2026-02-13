@@ -1,8 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as articleService from "@/lib/services/article.service";
 import { hasPermission } from "@/lib/config/permissions";
+import { requirePermission } from "@/lib/authz";
 
 export async function GET(request: NextRequest) {
   try {
@@ -24,12 +23,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-
-  if (!hasPermission(session.user.role, "article:create")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const auth = await requirePermission("article:create");
+  if (!auth.ok) return auth.response;
+  const session = auth.session;
 
   try {
     const body = await request.json();

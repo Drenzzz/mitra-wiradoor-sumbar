@@ -1,17 +1,13 @@
 import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as orderService from "@/lib/services/order.service";
-import { hasPermission } from "@/lib/config/permissions";
 import { db } from "@/db";
 import { orders } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { requirePermission } from "@/lib/authz";
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
+  const auth = await requirePermission("order:view");
+  if (!auth.ok) return auth.response;
 
   try {
     const { id } = await context.params;
@@ -27,12 +23,8 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
 }
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-
-  if (!hasPermission(session.user.role, "order:process")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const auth = await requirePermission("order:process");
+  if (!auth.ok) return auth.response;
 
   try {
     const { id } = await context.params;
@@ -50,12 +42,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 }
 
 export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-
-  if (!hasPermission(session.user.role, "order:delete")) {
-    return NextResponse.json({ error: "Forbidden: Hanya Admin yang bisa menghapus pesanan." }, { status: 403 });
-  }
+  const auth = await requirePermission("order:delete", "Forbidden: Hanya Admin yang bisa menghapus pesanan.");
+  if (!auth.ok) return auth.response;
 
   try {
     const { id } = await context.params;

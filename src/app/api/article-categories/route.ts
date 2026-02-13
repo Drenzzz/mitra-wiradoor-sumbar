@@ -1,12 +1,10 @@
 import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as articleCategoryService from "@/lib/services/article-category.service";
+import { requirePermission } from "@/lib/authz";
 
-// GET
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const auth = await requirePermission("article:view");
+  if (!auth.ok) return auth.response;
 
   try {
     const { searchParams } = new URL(request.url);
@@ -24,10 +22,9 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const auth = await requirePermission("article:create");
+  if (!auth.ok) return auth.response;
 
   try {
     const body = await request.json();

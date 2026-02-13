@@ -4,12 +4,16 @@ import { inquirySchema } from "@/lib/validations/inquiry.schema";
 import * as inquiryService from "@/lib/services/inquiry.service";
 import { globalLimiter } from "@/lib/rate-limit";
 import type { InquiryStatus } from "@/db/schema";
+import { requirePermission } from "@/lib/authz";
 
 export const dynamic = "force-dynamic";
 
 const VALID_INQUIRY_STATUSES: InquiryStatus[] = ["NEW", "READ", "REPLIED"];
 
 export async function GET(request: NextRequest) {
+  const auth = await requirePermission("inquiry:view");
+  if (!auth.ok) return auth.response;
+
   try {
     const searchParams = request.nextUrl.searchParams;
 

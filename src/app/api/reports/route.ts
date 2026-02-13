@@ -1,18 +1,10 @@
 import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getReportData } from "@/lib/services/report.service";
-import { hasPermission } from "@/lib/config/permissions";
+import { requirePermission } from "@/lib/authz";
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
-
-  if (!hasPermission(session.user.role, "dashboard:view")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const auth = await requirePermission("report:view");
+  if (!auth.ok) return auth.response;
 
   try {
     const { searchParams } = new URL(request.url);

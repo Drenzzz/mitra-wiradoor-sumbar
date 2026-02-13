@@ -1,17 +1,19 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import * as bcrypt from "bcrypt";
 import crypto from "crypto";
 import { sendPasswordChangeEmail } from "@/lib/mail";
 import { eq } from "drizzle-orm";
+import { requireSession } from "@/lib/authz";
 
 export async function PATCH(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    const auth = await requireSession("Tidak terautentikasi");
+    if (!auth.ok) return auth.response;
+    const session = auth.session;
+    const userEmail = session.user.email;
+    if (!userEmail) {
       return NextResponse.json({ error: "Tidak terautentikasi" }, { status: 401 });
     }
 
@@ -47,7 +49,7 @@ export async function PATCH(request: Request) {
 
       await db.update(users).set({ passwordChangeToken, passwordChangeExpires }).where(eq(users.id, userId));
 
-      await sendPasswordChangeEmail(session.user.email, changeToken);
+      await sendPasswordChangeEmail(userEmail, changeToken);
 
       return NextResponse.json({ message: "Link verifikasi telah dikirim ke email Anda." });
     }

@@ -4,10 +4,9 @@ import { orders, orderItems } from "@/db/schema";
 import type { OrderStatus } from "@/db/schema";
 import { ZodError } from "zod";
 import { customerInfoSchema } from "@/lib/validations/order.schema";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getOrders } from "@/lib/services/order.service";
 import { globalLimiter } from "@/lib/rate-limit";
+import { requirePermission } from "@/lib/authz";
 
 const VALID_ORDER_STATUSES: OrderStatus[] = ["PENDING", "PROCESSED", "SHIPPED", "COMPLETED", "CANCELLED"];
 
@@ -73,10 +72,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
+  const auth = await requirePermission("order:view");
+  if (!auth.ok) return auth.response;
 
   try {
     const { searchParams } = new URL(request.url);

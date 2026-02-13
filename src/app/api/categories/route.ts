@@ -1,11 +1,10 @@
 import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as categoryService from "@/lib/services/category.service";
+import { requirePermission } from "@/lib/authz";
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const auth = await requirePermission("category:create");
+  if (!auth.ok) return auth.response;
 
   try {
     const body = await request.json();
@@ -20,8 +19,8 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const auth = await requirePermission("category:view");
+  if (!auth.ok) return auth.response;
 
   try {
     const { searchParams } = new URL(request.url);

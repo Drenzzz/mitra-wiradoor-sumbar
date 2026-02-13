@@ -1,7 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as articleService from "@/lib/services/article.service";
+import { requirePermission } from "@/lib/authz";
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -26,8 +25,8 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
 }
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const auth = await requirePermission("article:edit");
+  if (!auth.ok) return auth.response;
 
   try {
     const { id } = await context.params;
@@ -44,8 +43,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 }
 
 export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const auth = await requirePermission("article:delete");
+  if (!auth.ok) return auth.response;
 
   try {
     const { searchParams } = new URL(request.url);

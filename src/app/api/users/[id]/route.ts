@@ -1,23 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { ZodError } from "zod";
 import * as userService from "@/lib/services/user.service";
 import { userUpdateSchema } from "@/lib/validations/user.schema";
-
-async function isAdminSession() {
-  const session = await getServerSession(authOptions);
-  if (session?.user?.role !== "ADMIN") {
-    return null;
-  }
-  return session;
-}
+import { requireRole } from "@/lib/authz";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await isAdminSession();
-  if (!session) {
-    return NextResponse.json({ error: "Hanya Admin yang diizinkan." }, { status: 403 });
-  }
+  const auth = await requireRole(["ADMIN"], "Hanya Admin yang diizinkan.");
+  if (!auth.ok) return auth.response;
 
   try {
     const { id } = await params;
@@ -33,10 +22,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await isAdminSession();
-  if (!session) {
-    return NextResponse.json({ error: "Hanya Admin yang diizinkan." }, { status: 403 });
-  }
+  const auth = await requireRole(["ADMIN"], "Hanya Admin yang diizinkan.");
+  if (!auth.ok) return auth.response;
 
   try {
     const { id } = await params;
@@ -58,10 +45,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await isAdminSession();
-  if (!session) {
-    return NextResponse.json({ error: "Hanya Admin yang diizinkan." }, { status: 403 });
-  }
+  const auth = await requireRole(["ADMIN"], "Hanya Admin yang diizinkan.");
+  if (!auth.ok) return auth.response;
+  const session = auth.session;
 
   const { id } = await params;
 

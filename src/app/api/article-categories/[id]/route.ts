@@ -1,12 +1,10 @@
 import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import * as articleCategoryService from "@/lib/services/article-category.service";
+import { requirePermission } from "@/lib/authz";
 
-// PATCH
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const auth = await requirePermission("article:edit");
+  if (!auth.ok) return auth.response;
 
   try {
     const { id } = await context.params;
@@ -24,10 +22,9 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   }
 }
 
-// DELETE
 export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const auth = await requirePermission("article:delete");
+  if (!auth.ok) return auth.response;
 
   try {
     const { id } = await context.params;
