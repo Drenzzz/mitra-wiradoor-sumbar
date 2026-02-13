@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { products, categories } from "@/db/schema";
 import { eq, ilike, isNull, isNotNull, or, desc, asc, and, count, SQL } from "drizzle-orm";
+import { sanitizeRichTextHtml } from "@/lib/html-sanitizer";
 
 export type ProductDto = {
   name: string;
@@ -91,11 +92,13 @@ export const getProductById = async (id: string) => {
 };
 
 export const createProduct = async (data: ProductDto) => {
+  const sanitizedDescription = sanitizeRichTextHtml(data.description);
+
   const result = await db
     .insert(products)
     .values({
       name: data.name,
-      description: data.description,
+      description: sanitizedDescription,
       specifications: data.specifications,
       imageUrl: data.imageUrl,
       images: data.images || [],
@@ -108,10 +111,15 @@ export const createProduct = async (data: ProductDto) => {
 };
 
 export const updateProductById = async (id: string, data: Partial<ProductDto>) => {
+  const sanitizedData: Partial<ProductDto> = { ...data };
+  if (typeof sanitizedData.description === "string") {
+    sanitizedData.description = sanitizeRichTextHtml(sanitizedData.description);
+  }
+
   const result = await db
     .update(products)
     .set({
-      ...data,
+      ...sanitizedData,
       updatedAt: new Date(),
     })
     .where(eq(products.id, id))

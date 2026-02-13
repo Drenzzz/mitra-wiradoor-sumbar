@@ -11,6 +11,7 @@ import { getArticleBySlug, getArticles } from "@/lib/services/article.service";
 import { ShareButtons } from "@/components/guest/layout/share-buttons";
 import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { Article } from "@/types";
+import { sanitizeRichTextHtml } from "@/lib/html-sanitizer";
 
 
 
@@ -56,6 +57,7 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
   }
 
   const articleUrl = `${process.env.NEXTAUTH_URL || "https://wiradoorsumbar.com"}/artikel/${article.slug}`;
+  const safeArticleContent = sanitizeRichTextHtml(article.content);
 
   const breadcrumbItems = [
     { name: "Beranda", url: "/" },
@@ -100,7 +102,7 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
           </div>
 
           <article className="prose prose-lg prose-slate max-w-none prose-headings:font-serif prose-headings:font-bold prose-a:text-orange-600 hover:prose-a:text-orange-700 prose-img:rounded-xl">
-            <div dangerouslySetInnerHTML={{ __html: article.content }} />
+            <div dangerouslySetInnerHTML={{ __html: safeArticleContent }} />
           </article>
 
           <div className="mt-16 pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6">

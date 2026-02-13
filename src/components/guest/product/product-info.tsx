@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { MessageCircle, ShoppingCart, Share2, ShieldCheck, Truck, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { AddToCartButton } from "@/components/guest/product/add-to-cart-button";
+import { sanitizeRichTextHtml } from "@/lib/html-sanitizer";
 
 interface ProductInfoProps {
   product: Product & { isReadyStock?: boolean };
@@ -18,6 +19,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const whatsAppNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "6281234567890";
   const whatsappMessage = `Halo, saya tertarik dengan produk: ${product.name}`;
   const whatsappLink = `https://wa.me/${whatsAppNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+  const safeDescription = sanitizeRichTextHtml(product.description);
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -82,7 +84,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
         <AccordionItem value="description">
           <AccordionTrigger className="text-base font-semibold">Deskripsi Produk</AccordionTrigger>
           <AccordionContent>
-            <div className="prose prose-sm max-w-none text-muted-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: product.description }} />
+            <div className="prose prose-sm max-w-none text-muted-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: safeDescription }} />
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="specifications">

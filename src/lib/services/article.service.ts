@@ -2,6 +2,7 @@ import { db } from "@/db";
 import { articles, articleCategories, users } from "@/db/schema";
 import { eq, ilike, isNull, isNotNull, or, desc, asc, and, count, SQL } from "drizzle-orm";
 import type { ArticleStatus } from "@/db/schema";
+import { sanitizeRichTextHtml, stripHtmlToText } from "@/lib/html-sanitizer";
 
 export type ArticleDto = {
   title: string;
@@ -82,14 +83,16 @@ export const getArticles = async (options: GetArticlesOptions = {}) => {
 
 export const createArticle = async (data: ArticleDto) => {
   const slug = data.slug || data.title.toLowerCase().replace(/\s+/g, "-").slice(0, 50);
+  const sanitizedContent = sanitizeRichTextHtml(data.content);
+  const sanitizedExcerpt = data.excerpt ? stripHtmlToText(data.excerpt) : stripHtmlToText(sanitizedContent).slice(0, 200);
 
   const result = await db
     .insert(articles)
     .values({
       title: data.title,
       slug,
-      content: data.content,
-      excerpt: data.excerpt,
+      content: sanitizedContent,
+      excerpt: sanitizedExcerpt,
       featuredImageUrl: data.featuredImageUrl,
       status: data.status,
       authorId: data.authorId,
@@ -122,10 +125,21 @@ export const getArticleBySlug = async (slug: string) => {
 };
 
 export const updateArticleById = async (id: string, data: Partial<ArticleDto>) => {
+  const sanitizedData: Partial<ArticleDto> = { ...data };
+  if (typeof sanitizedData.content === "string") {
+    sanitizedData.content = sanitizeRichTextHtml(sanitizedData.content);
+  }
+  if (typeof sanitizedData.excerpt === "string") {
+    sanitizedData.excerpt = stripHtmlToText(sanitizedData.excerpt);
+  }
+  if (typeof sanitizedData.content === "string" && typeof sanitizedData.excerpt === "undefined") {
+    sanitizedData.excerpt = stripHtmlToText(sanitizedData.content).slice(0, 200);
+  }
+
   const result = await db
     .update(articles)
     .set({
-      ...data,
+      ...sanitizedData,
       updatedAt: new Date(),
     })
     .where(eq(articles.id, id))
