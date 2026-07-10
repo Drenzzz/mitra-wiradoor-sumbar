@@ -3,6 +3,8 @@ import { getProductById } from "@/lib/services/product.service";
 import { OrderPageClient } from "@/components/guest/checkout/order-page-client";
 import { Product } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 async function getProduct(productId: string): Promise<Product | null> {
   try {
     const product = await getProductById(productId);

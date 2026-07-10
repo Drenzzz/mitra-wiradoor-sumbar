@@ -1,6 +1,7 @@
 import { InquiryForm } from "@/components/guest/contact/inquiry-form";
 import { Metadata } from "next";
-import { MapPin, Phone, Mail, Clock, Instagram, Facebook, ArrowUpRight } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, ArrowUpRight } from "lucide-react";
+import { FaInstagram, FaFacebookF } from "react-icons/fa";
 import { DotPattern } from "@/components/ui/dot-pattern";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -74,10 +75,10 @@ export default function ContactPage() {
                 <p className="text-xs text-white/40 mb-4">Ikuti Kami</p>
                 <div className="flex gap-3">
                   <Button size="icon" variant="outline" className="rounded-full bg-transparent border-white/20 hover:bg-primary hover:border-primary hover:text-white transition-all">
-                    <Instagram className="h-4 w-4" />
+                    <FaInstagram className="h-4 w-4" />
                   </Button>
                   <Button size="icon" variant="outline" className="rounded-full bg-transparent border-white/20 hover:bg-primary hover:border-primary hover:text-white transition-all">
-                    <Facebook className="h-4 w-4" />
+                    <FaFacebookF className="h-4 w-4" />
                   </Button>
                 </div>
               </div>

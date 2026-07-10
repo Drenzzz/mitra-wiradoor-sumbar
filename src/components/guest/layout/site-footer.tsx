@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { MapPin, Phone, Clock, FileText, ArrowRight, Instagram, Facebook, ShieldCheck, Mail } from "lucide-react";
+import { MapPin, Phone, Clock, FileText, ArrowRight, ShieldCheck, Mail } from "lucide-react";
+import { FaInstagram, FaFacebookF } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
@@ -111,11 +112,11 @@ export function SiteFooter() {
           </p>
           <div className="flex items-center gap-6">
             <a href={socialIg} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
-              <Instagram className="h-5 w-5" />
+              <FaInstagram className="h-5 w-5" />
               <span className="sr-only">Instagram</span>
             </a>
             <a href={socialFb} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
-              <Facebook className="h-5 w-5" />
+              <FaFacebookF className="h-5 w-5" />
               <span className="sr-only">Facebook</span>
             </a>
           </div>

@@ -4,6 +4,8 @@ import { ProductCatalog } from "@/components/guest/catalog/product-catalog";
 import Image from "next/image";
 import { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Katalog Produk - Wiradoor Sumbar",
   description: "Jelajahi semua pilihan pintu berkualitas dari Wiradoor Sumatera Barat. Temukan solusi yang tepat untuk kebutuhan Anda.",

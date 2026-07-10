@@ -5,7 +5,7 @@ import { FeaturedProductsSection } from "@/components/sections/featured-products
 import { getProducts } from "@/lib/services/product.service";
 import { Product } from "@/types";
 
-export const revalidate = 300; // Revalidate every 5 minute
+export const dynamic = "force-dynamic";
 
 async function getFeaturedProducts() {
   try {

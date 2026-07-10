@@ -1,7 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Facebook, Twitter, Linkedin, Link as LinkIcon, Check } from "lucide-react";
+import { Link as LinkIcon, Check } from "lucide-react";
+import { FaFacebookF, FaTwitter, FaLinkedinIn } from "react-icons/fa";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -35,7 +36,7 @@ export function ShareButtons({ title }: ShareButtonsProps) {
           onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, "_blank")}
           title="Bagikan ke Facebook"
         >
-          <Facebook className="h-4 w-4" />
+           <FaFacebookF className="h-4 w-4" />
         </Button>
         <Button
           variant="outline"
@@ -44,7 +45,7 @@ export function ShareButtons({ title }: ShareButtonsProps) {
           onClick={() => window.open(`https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}`, "_blank")}
           title="Bagikan ke Twitter"
         >
-          <Twitter className="h-4 w-4" />
+           <FaTwitter className="h-4 w-4" />
         </Button>
         <Button
           variant="outline"
@@ -53,7 +54,7 @@ export function ShareButtons({ title }: ShareButtonsProps) {
           onClick={() => window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${shareTitle}`, "_blank")}
           title="Bagikan ke LinkedIn"
         >
-          <Linkedin className="h-4 w-4" />
+           <FaLinkedinIn className="h-4 w-4" />
         </Button>
         <Button variant="outline" size="icon" className="rounded-full h-9 w-9" onClick={handleCopyLink} title="Salin Tautan">
           {copied ? <Check className="h-4 w-4 text-green-600" /> : <LinkIcon className="h-4 w-4" />}

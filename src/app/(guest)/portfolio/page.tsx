@@ -4,6 +4,8 @@ import { getPortfolioItems } from "@/lib/services/portfolio.service";
 import { getPortfolioCategories } from "@/lib/services/portfolio-category.service";
 import { PortfolioMasonry } from "@/components/guest/portfolio/portfolio-masonry";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Portfolio Proyek - Wiradoor Sumbar",
   description: "Lihat hasil pemasangan pintu Wiradoor di berbagai proyek residensial dan komersial di Sumatera Barat.",

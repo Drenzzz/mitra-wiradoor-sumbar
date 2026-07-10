@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle, MessageCircle, ArrowRight, Phone, MapPin, FileText, Package } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 async function getOrderData(orderId: string) {
   try {
     const order = await getOrderById(orderId);

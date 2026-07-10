@@ -13,6 +13,8 @@ import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { Article } from "@/types";
 import { sanitizeRichTextHtml } from "@/lib/html-sanitizer";
 
+export const dynamic = "force-dynamic";
+
 
 
 async function getArticleData(slug: string): Promise<{

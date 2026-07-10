@@ -8,6 +8,8 @@ import { StatsOverview } from "@/components/admin/dashboard/stats-overview";
 import { SalesTrendChart } from "@/components/admin/dashboard/sales-trend-chart";
 import { OrderStatusChart } from "@/components/admin/dashboard/order-status-chart";
 
+export const dynamic = "force-dynamic";
+
 function StatsSkeleton() {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

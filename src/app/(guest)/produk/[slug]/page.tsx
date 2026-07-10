@@ -9,6 +9,8 @@ import { ProductInfo } from "@/components/guest/product/product-info";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { getProductById, getProducts } from "@/lib/services/product.service";
 
+export const dynamic = "force-dynamic";
+
 interface ProductData {
   product: Product | null;
   relatedProducts: Product[];
