@@ -18,16 +18,15 @@ export function ProductGallery({ images, title }: ProductGalleryProps) {
   return (
     <div className="flex flex-col gap-4 w-full">
       <Dialog>
-        <DialogTrigger asChild>
-          <div className="relative aspect-square w-full overflow-hidden rounded-2xl border bg-muted cursor-zoom-in group">
-            <AnimatePresence mode="wait">
-              <motion.div key={selectedImage} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="relative w-full h-full">
-                <Image src={selectedImage} alt={title} fill className="object-cover" priority sizes="(max-width: 768px) 100vw, 50vw" />
-              </motion.div>
-            </AnimatePresence>
-            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 text-white p-2 rounded-full backdrop-blur-sm">
-              <Maximize2 className="h-5 w-5" />
-            </div>
+        <DialogTrigger render={<div
+          className="relative aspect-square w-full overflow-hidden rounded-2xl border bg-muted cursor-zoom-in group" />}>
+          <AnimatePresence mode="wait">
+            <motion.div key={selectedImage} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="relative w-full h-full">
+              <Image src={selectedImage} alt={title} fill className="object-cover" priority sizes="(max-width: 768px) 100vw, 50vw" />
+            </motion.div>
+          </AnimatePresence>
+          <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 text-white p-2 rounded-full backdrop-blur-sm">
+            <Maximize2 className="h-5 w-5" />
           </div>
         </DialogTrigger>
         <DialogContent className="max-w-4xl w-full p-0 overflow-hidden bg-transparent border-none shadow-none">

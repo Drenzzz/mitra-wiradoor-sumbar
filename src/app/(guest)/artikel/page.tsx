@@ -98,9 +98,11 @@ export default function ArtikelPage() {
                         <h2 className="text-3xl md:text-4xl font-serif font-bold leading-tight group-hover:text-orange-400 transition-colors cursor-pointer">{featuredArticle.title}</h2>
                       </Link>
                       <p className="text-slate-300 text-lg leading-relaxed line-clamp-3">{featuredArticle.excerpt}</p>
-                      <Button variant="outline" className="w-fit text-black border-white hover:bg-white hover:text-black mt-4" asChild>
-                        <Link href={`/artikel/${featuredArticle.slug}`}>Baca Artikel Lengkap</Link>
-                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-fit text-black border-white hover:bg-white hover:text-black mt-4"
+                        render={<Link href={`/artikel/${featuredArticle.slug}`} />}
+                        nativeButton={false}>Baca Artikel Lengkap</Button>
                     </div>
                   </div>
                 </div>

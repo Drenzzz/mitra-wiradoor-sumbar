@@ -65,11 +65,9 @@ export function CreateCategoryButton({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Tambah Kategori
-        </Button>
+      <DialogTrigger render={<Button />}>
+        <PlusCircle className="mr-2 h-4 w-4" />
+        Tambah Kategori
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

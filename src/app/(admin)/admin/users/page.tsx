@@ -2,11 +2,9 @@
 
 import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { toast } from "sonner";
-import { useSession } from "next-auth/react";
+import { authClient } from "@/lib/auth-client";
 
 import { PageWrapper } from "@/components/admin/page-wrapper";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,7 +19,7 @@ import { ConfirmationDialog } from "@/components/admin/shared/confirmation-dialo
 import { ClientUser } from "@/types";
 
 export default function UserManagementPage() {
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
 
   const { users, totalCount, isLoading, searchTerm, setSearchTerm, currentPage, setCurrentPage, rowsPerPage, fetchUsers } = useUserManagement();
 

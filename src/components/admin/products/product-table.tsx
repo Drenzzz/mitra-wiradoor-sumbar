@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { motion, Variants } from "framer-motion";
 import { Product } from "@/types";
@@ -47,23 +46,16 @@ export function ProductTable({ variant, products, isLoading, error, onEditClick,
   if (isLoading) return <div className="text-center p-8 text-muted-foreground">Memuat data produk...</div>;
   if (error) return <div className="text-center p-8 text-destructive">Error: {error}</div>;
 
-  const headerCheckboxRef = useRef<HTMLButtonElement>(null);
   const numSelected = selectedRowKeys.length;
   const rowCount = products.length;
   const isIndeterminate = numSelected > 0 && numSelected < rowCount;
-
-  useEffect(() => {
-    if (headerCheckboxRef.current) {
-      headerCheckboxRef.current.dataset.state = isIndeterminate ? "indeterminate" : numSelected === rowCount && rowCount > 0 ? "checked" : "unchecked";
-    }
-  }, [isIndeterminate, numSelected, rowCount]);
 
   return (
     <Table>
       <TableHeader>
         <TableRow className="border-b-0">
           <TableHead className="w-12 pl-6">
-            <Checkbox ref={headerCheckboxRef} checked={numSelected === rowCount && rowCount > 0} onCheckedChange={(checked) => handleSelectAll(Boolean(checked))} />
+            <Checkbox checked={numSelected === rowCount && rowCount > 0} indeterminate={isIndeterminate} onCheckedChange={(checked) => handleSelectAll(Boolean(checked))} />
           </TableHead>
           <TableHead className="w-[80px]">Gambar</TableHead>
           <TableHead>Nama Produk</TableHead>
@@ -95,10 +87,8 @@ export function ProductTable({ variant, products, isLoading, error, onEditClick,
               {variant === "trashed" && <TableCell className="text-muted-foreground py-2">{product.deletedAt ? new Date(product.deletedAt).toLocaleDateString("id-ID") : "-"}</TableCell>}
               <TableCell className="text-right pr-6 py-2">
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button size="icon" variant="ghost">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
+                  <DropdownMenuTrigger render={<Button size="icon" variant="ghost" />}>
+                    <MoreHorizontal className="h-4 w-4" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Aksi</DropdownMenuLabel>

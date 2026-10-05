@@ -44,11 +44,13 @@ export default async function PortfolioDetailPage({ params }: Props) {
   return (
     <div className="bg-background min-h-screen">
       <div className="container mx-auto px-4 pt-24 pb-8">
-        <Button variant="ghost" asChild className="group mb-8 pl-0 hover:bg-transparent hover:text-primary">
-          <Link href="/portfolio" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-            Kembali ke Galeri
-          </Link>
+        <Button
+          variant="ghost"
+          className="group mb-8 pl-0 hover:bg-transparent hover:text-primary"
+          render={<Link href="/portfolio" className="flex items-center gap-2" />}
+          nativeButton={false}>
+          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+          Kembali ke Galeri
         </Button>
 
         <div className="grid lg:grid-cols-2 gap-12 items-start">
@@ -85,9 +87,11 @@ export default async function PortfolioDetailPage({ params }: Props) {
 
             <div className="pt-8 border-t border-border">
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="w-full sm:w-auto rounded-full font-medium" asChild>
-                  <Link href="/kontak">Hubungi Kami</Link>
-                </Button>
+                <Button
+                  size="lg"
+                  className="w-full sm:w-auto rounded-full font-medium"
+                  render={<Link href="/kontak" />}
+                  nativeButton={false}>Hubungi Kami</Button>
               </div>
             </div>
           </div>

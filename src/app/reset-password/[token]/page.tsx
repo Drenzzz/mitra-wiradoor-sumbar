@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { IconEye as Eye, IconEyeOff as EyeOff } from "@tabler/icons-react";
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 const formSchema = z
@@ -29,10 +30,18 @@ const formSchema = z
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const params = useParams();
-  const token = params.token as string;
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const t = params.get("token");
+    if (params.get("error") || !t) {
+      toast.error("Link reset tidak valid atau telah kedaluwarsa.");
+    }
+    setToken(t);
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,13 +55,12 @@ export default function ResetPasswordPage() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await fetch("/api/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, password: values.password }),
+      if (!token) throw new Error("Link reset tidak valid atau telah kedaluwarsa.");
+      const { error } = await authClient.resetPassword({
+        newPassword: values.password,
+        token,
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Gagal mereset password.");
+      if (error) throw new Error(error.message || "Gagal mereset password.");
 
       toast.success("Password berhasil direset! Anda akan diarahkan ke halaman login.");
       setTimeout(() => router.push("/login"), 2000);

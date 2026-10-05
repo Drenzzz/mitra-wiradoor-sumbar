@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { users, accounts } from "@/db/schema";
 import type { Role } from "@/db/schema";
 import { eq, ilike, or, asc, and, count, SQL } from "drizzle-orm";
 import * as bcrypt from "bcrypt";
@@ -52,22 +52,33 @@ export const getUserById = async (id: string) => {
 export const createUser = async (data: UserCreateFormValues) => {
   const hashedPassword = await bcrypt.hash(data.password, 12);
 
-  const result = await db
-    .insert(users)
-    .values({
-      name: data.name,
-      email: data.email,
+  return db.transaction(async (tx) => {
+    const result = await tx
+      .insert(users)
+      .values({
+        name: data.name,
+        email: data.email,
+        role: data.role as Role,
+      })
+      .returning({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+      });
+
+    const user = result[0];
+
+    // Better Auth stores credentials in the account table, not on the user.
+    await tx.insert(accounts).values({
+      accountId: user.id,
+      providerId: "credential",
+      userId: user.id,
       password: hashedPassword,
-      role: data.role as Role,
-    })
-    .returning({
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      role: users.role,
     });
 
-  return result[0];
+    return user;
+  });
 };
 
 export const updateUser = async (id: string, data: UserUpdateFormValues) => {
@@ -77,18 +88,34 @@ export const updateUser = async (id: string, data: UserUpdateFormValues) => {
     role: data.role as Role,
   };
 
-  if (data.password) {
-    updateData.password = await bcrypt.hash(data.password, 12);
-  }
+  return db.transaction(async (tx) => {
+    const result = await tx.update(users).set(updateData).where(eq(users.id, id)).returning({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      role: users.role,
+    });
 
-  const result = await db.update(users).set(updateData).where(eq(users.id, id)).returning({
-    id: users.id,
-    name: users.name,
-    email: users.email,
-    role: users.role,
+    if (data.password) {
+      const hashedPassword = await bcrypt.hash(data.password, 12);
+      const existing = await tx.query.accounts.findFirst({
+        where: and(eq(accounts.userId, id), eq(accounts.providerId, "credential")),
+      });
+
+      if (existing) {
+        await tx.update(accounts).set({ password: hashedPassword }).where(eq(accounts.id, existing.id));
+      } else {
+        await tx.insert(accounts).values({
+          accountId: id,
+          providerId: "credential",
+          userId: id,
+          password: hashedPassword,
+        });
+      }
+    }
+
+    return result[0];
   });
-
-  return result[0];
 };
 
 export const deleteUser = async (id: string) => {

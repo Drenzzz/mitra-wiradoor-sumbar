@@ -25,8 +25,8 @@ async function main() {
   const role = args[3] as Role;
 
   if (!email || !password || !name || !role) {
-    console.error('Penggunaan: pnpm db:adduser <email> "<nama lengkap>" <password> <ROLE>');
-    console.error('Contoh: pnpm db:adduser test@example.com "Test User" password123 STAF');
+    console.error('Penggunaan: bun run db:adduser <email> "<nama lengkap>" <password> <ROLE>');
+    console.error('Contoh: bun run db:adduser test@example.com "Test User" password123 STAF');
     console.error("PENTING: Gunakan tanda kutip untuk nama jika mengandung spasi.");
     process.exit(1);
   }
@@ -41,21 +41,25 @@ async function main() {
   console.log(`Menambahkan pengguna baru dengan email: ${email}`);
 
   try {
-    const result = await db
-      .insert(schema.users)
-      .values({
-        email,
-        name,
+    const newUser = await db.transaction(async (tx) => {
+      const inserted = await tx
+        .insert(schema.users)
+        .values({ email, name, role })
+        .returning({ id: schema.users.id, email: schema.users.email, role: schema.users.role });
+
+      const user = inserted[0];
+
+      // Better Auth stores credentials in the account table, not on the user.
+      await tx.insert(schema.accounts).values({
+        accountId: user.id,
+        providerId: "credential",
+        userId: user.id,
         password: hashedPassword,
-        role,
-      })
-      .returning({
-        id: schema.users.id,
-        email: schema.users.email,
-        role: schema.users.role,
       });
 
-    const newUser = result[0];
+      return user;
+    });
+
     console.log("Pengguna baru berhasil ditambahkan:", { id: newUser.id, email: newUser.email, role: newUser.role });
   } catch (e: unknown) {
     if (e instanceof Error && e.message.includes("unique constraint")) {

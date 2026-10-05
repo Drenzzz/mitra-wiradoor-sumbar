@@ -32,10 +32,12 @@ export const ProductCard = memo(function ProductCard({ imageUrl, category, name,
         <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{description}</p>
       </CardContent>
       <CardFooter className="p-4 pt-0">
-        <Button variant="outline" asChild className="w-full">
-          <Link href={`/produk/${slug}`}>
-            Lihat Detail <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
+        <Button
+          variant="outline"
+          className="w-full"
+          render={<Link href={`/produk/${slug}`} />}
+          nativeButton={false}>
+          Lihat Detail <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </CardFooter>
     </Card>

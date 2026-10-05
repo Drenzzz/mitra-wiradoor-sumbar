@@ -106,9 +106,10 @@ export function CheckoutForm({ items }: CheckoutFormProps) {
         </div>
         <h2 className="text-2xl font-serif font-bold text-slate-900 mb-2">Daftar Inquiry Kosong</h2>
         <p className="text-slate-500 max-w-md mx-auto mb-8">Anda belum memilih produk pintu untuk proyek Anda. Silakan jelajahi koleksi kami.</p>
-        <Button asChild className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-8">
-          <Link href="/produk">Jelajahi Koleksi</Link>
-        </Button>
+        <Button
+          className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-8"
+          render={<Link href="/produk" />}
+          nativeButton={false}>Jelajahi Koleksi</Button>
       </div>
     );
   }

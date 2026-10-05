@@ -58,19 +58,24 @@ export function ProductInfo({ product }: ProductInfoProps) {
         {product.isReadyStock ? (
           <AddToCartButton product={product} size="lg" className="flex-1 h-12 text-base" />
         ) : (
-          <Button size="lg" className="flex-1 h-12 text-base" asChild>
-            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="mr-2 h-5 w-5" />
-              Pesan Kustom
-            </a>
+          <Button
+            size="lg"
+            className="flex-1 h-12 text-base"
+            render={<a href={whatsappLink} target="_blank" rel="noopener noreferrer" />}
+            nativeButton={false}>
+            <MessageCircle className="mr-2 h-5 w-5" />
+            Pesan Kustom
           </Button>
         )}
 
-        <Button size="lg" variant="outline" className="flex-1 h-12 text-base" asChild>
-          <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-            <Phone className="mr-2 h-5 w-5" />
-            Tanya Detail
-          </a>
+        <Button
+          size="lg"
+          variant="outline"
+          className="flex-1 h-12 text-base"
+          render={<a href={whatsappLink} target="_blank" rel="noopener noreferrer" />}
+          nativeButton={false}>
+          <Phone className="mr-2 h-5 w-5" />
+          Tanya Detail
         </Button>
 
         <Button size="icon" variant="secondary" className="h-12 w-12 shrink-0" onClick={handleShare} title="Bagikan">
@@ -80,7 +85,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
 
       <Separator />
 
-      <Accordion type="single" collapsible defaultValue="description" className="w-full">
+      <Accordion defaultValue={["description"]} className="w-full">
         <AccordionItem value="description">
           <AccordionTrigger className="text-base font-semibold">Deskripsi Produk</AccordionTrigger>
           <AccordionContent>

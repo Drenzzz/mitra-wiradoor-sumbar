@@ -110,7 +110,7 @@ export function ProductListCard({
           </div>
           <div className="flex flex-col md:flex-row items-center gap-2 pt-4">
             <Input placeholder="Cari nama produk..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full md:flex-1" />
-            <Select value={filterByCategory} onValueChange={(value) => setFilterByCategory(value === "all" ? "" : value)}>
+            <Select items={{ all: "Semua Kategori", ...Object.fromEntries((categories ?? []).map((category) => [category.id, category.name])) }} value={filterByCategory} onValueChange={(value) => setFilterByCategory(value === "all" ? "" : value ?? "")}>
               <SelectTrigger className="w-full md:w-[200px]">
                 <SelectValue placeholder="Filter berdasarkan Kategori" />
               </SelectTrigger>
@@ -124,7 +124,7 @@ export function ProductListCard({
                   ))}
               </SelectContent>
             </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select items={{ "name-asc": "Nama (A-Z)", "name-desc": "Nama (Z-A)", "createdAt-desc": "Terbaru", "createdAt-asc": "Terlama" }} value={sortBy} onValueChange={(value) => setSortBy(value ?? "")}>
               <SelectTrigger className="w-full md:w-[180px]">
                 <SelectValue placeholder="Urutkan berdasarkan" />
               </SelectTrigger>

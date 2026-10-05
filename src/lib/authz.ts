@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import type { Session } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { headers } from "next/headers";
+import { auth, type Session } from "@/lib/auth";
 import type { Role } from "@/db/schema";
 import { hasPermission, type Permission } from "@/lib/config/permissions";
 
@@ -10,11 +9,8 @@ type AuthGuardResult =
   | { ok: false; response: NextResponse };
 
 export async function getSession(): Promise<Session | null> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return null;
-  }
-  return session;
+  const session = await auth.api.getSession({ headers: await headers() });
+  return session ?? null;
 }
 
 export async function requireSession(errorMessage = "Not authenticated"): Promise<AuthGuardResult> {
@@ -36,8 +32,7 @@ export async function requireRole(roles: Role[], errorMessage = "Forbidden"): Pr
   }
 
   const role = sessionGuard.session.user.role;
-  if (!role || !roles.includes(role)) {
-    return {
+  if (!role || !roles.includes(role)) {    return {
       ok: false,
       response: NextResponse.json({ error: errorMessage }, { status: 403 }),
     };
@@ -52,7 +47,7 @@ export async function requirePermission(permission: Permission, errorMessage = "
     return sessionGuard;
   }
 
-  if (!hasPermission(sessionGuard.session.user.role, permission)) {
+  if (!hasPermission(sessionGuard.session.user.role ?? undefined, permission)) {
     return {
       ok: false,
       response: NextResponse.json({ error: errorMessage }, { status: 403 }),

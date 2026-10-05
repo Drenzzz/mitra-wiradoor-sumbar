@@ -54,7 +54,7 @@ export function SidebarNavItem({ href, label, icon: Icon, isActive, isCollapsed,
   return (
     <motion.div variants={variants}>
       <Tooltip>
-        <TooltipTrigger asChild>{navLink}</TooltipTrigger>
+        <TooltipTrigger render={navLink} />
         <TooltipContent side="right" sideOffset={8}>
           {label}
         </TooltipContent>

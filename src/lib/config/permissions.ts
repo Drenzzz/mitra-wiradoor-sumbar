@@ -55,7 +55,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   ],
 };
 
-export function hasPermission(role: Role | undefined, permission: Permission): boolean {
+export function hasPermission(role: Role | null | undefined, permission: Permission): boolean {
   if (!role) return false;
 
   const permissions = ROLE_PERMISSIONS[role] || [];

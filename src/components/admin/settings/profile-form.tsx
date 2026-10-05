@@ -1,7 +1,6 @@
 "use client";
 
-import { apiFetch } from "@/lib/api-client";
-import { useSession } from "next-auth/react";
+import { authClient } from "@/lib/auth-client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -19,38 +18,24 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export function ProfileForm() {
-  const { data: session, status, update } = useSession();
+  const { data: session, isPending, refetch } = authClient.useSession();
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     values: {
       name: session?.user?.name ?? "",
     },
-    disabled: status === "loading",
+    disabled: isPending,
   });
 
   const onSubmit = async (data: ProfileFormValues) => {
-    toast.promise(
-      apiFetch("/api/user/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: data.name }),
-      }).then(async (res) => {
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || "Gagal memperbarui profil");
-        }
-        return res.json();
-      }),
-      {
-        loading: "Menyimpan perubahan...",
-        success: async () => {
-          await update();
-          return "Profil berhasil diperbarui!";
-        },
-        error: (err: Error) => err.message,
-      }
-    );
+    const { error } = await authClient.updateUser({ name: data.name });
+    if (error) {
+      toast.error(error.message || "Gagal memperbarui profil");
+      return;
+    }
+    await refetch();
+    toast.success("Profil berhasil diperbarui!");
   };
 
   return (

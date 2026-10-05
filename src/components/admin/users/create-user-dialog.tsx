@@ -64,11 +64,9 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Tambah Staf
-        </Button>
+      <DialogTrigger render={<Button />}>
+        <PlusCircle className="mr-2 h-4 w-4" />
+        Tambah Staf
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -122,7 +120,7 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Role</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select items={{ STAF: "STAF", ADMIN: "ADMIN" }} onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue />

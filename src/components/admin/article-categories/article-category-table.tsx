@@ -72,10 +72,8 @@ export function ArticleCategoryTable({ variant, categories, isLoading, error, on
               <TableCell>{category.description || "–"}</TableCell>
               <TableCell className="text-right">
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button size="icon" variant="ghost">
-                      <MoreHorizontal className="h-4 w-4 ml-2" />
-                    </Button>
+                  <DropdownMenuTrigger render={<Button size="icon" variant="ghost" />}>
+                    <MoreHorizontal className="h-4 w-4 ml-2" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Aksi</DropdownMenuLabel>

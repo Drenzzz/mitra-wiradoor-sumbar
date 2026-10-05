@@ -89,7 +89,7 @@ export function OrderListCard({
         <div className="flex flex-col md:flex-row items-center gap-2 pt-4">
           <Input placeholder="Cari nama, email, atau invoice..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full" />
           <DatePickerWithRange date={dateRange} setDate={setDateRange} />
-          <Select value={sortBy} onValueChange={setSortBy}>
+          <Select items={{ "createdAt-desc": "Terbaru", "createdAt-asc": "Terlama", "customerName-asc": "Nama (A-Z)" }} value={sortBy} onValueChange={(value) => setSortBy(value ?? "")}>
             <SelectTrigger className="w-full md:w-[200px]">
               <SelectValue placeholder="Urutkan berdasarkan" />
             </SelectTrigger>

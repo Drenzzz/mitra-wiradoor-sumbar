@@ -40,11 +40,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <div className="flex flex-col flex-1 w-full min-w-0 h-full">
         <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-4 border-b bg-background px-4 md:hidden">
           <Sheet>
-            <SheetTrigger asChild>
-              <Button size="icon" variant="outline" className="sm:hidden">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle Menu</span>
-              </Button>
+            <SheetTrigger render={<Button size="icon" variant="outline" className="sm:hidden" />}>
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Toggle Menu</span>
             </SheetTrigger>
             <SheetContent side="left" className="sm:max-w-xs p-0 w-[260px]">
               <Sidebar />

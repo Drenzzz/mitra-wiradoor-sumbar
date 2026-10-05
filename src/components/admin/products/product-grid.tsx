@@ -68,10 +68,11 @@ export function ProductGrid({ variant, products, isLoading, onEditClick, onViewC
               <Image src={product.imageUrl} alt={product.name} fill className="object-cover transition-transform group-hover:scale-105" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full shadow-sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
+                  <DropdownMenuTrigger render={<Button
+                    size="icon"
+                    variant="secondary"
+                    className="h-8 w-8 rounded-full shadow-sm" />}>
+                    <MoreHorizontal className="h-4 w-4" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Aksi</DropdownMenuLabel>
@@ -79,11 +80,9 @@ export function ProductGrid({ variant, products, isLoading, onEditClick, onViewC
                       <Eye className="mr-2 h-4 w-4" />
                       Lihat Detail
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href={`/produk/${product.id}`} target="_blank">
-                        <ExternalLink className="mr-2 h-4 w-4" />
-                        Preview Web
-                      </Link>
+                    <DropdownMenuItem render={<Link href={`/produk/${product.id}`} target="_blank" />}>
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Preview Web
                     </DropdownMenuItem>
                     {variant === "active" ? (
                       <>

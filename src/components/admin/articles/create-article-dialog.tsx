@@ -45,11 +45,9 @@ export function CreateArticleDialog({ onSuccess }: { onSuccess: () => void; }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Tulis Artikel
-        </Button>
+      <DialogTrigger render={<Button />}>
+        <PlusCircle className="mr-2 h-4 w-4" />
+        Tulis Artikel
       </DialogTrigger>
       {/* Buat dialog lebih lebar untuk form yang kompleks */}
       <DialogContent className="sm:max-w-4xl">

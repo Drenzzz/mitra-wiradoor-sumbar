@@ -35,11 +35,13 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
               <RefreshCw className="h-4 w-4" />
               Coba Lagi
             </Button>
-            <Button variant="outline" asChild className="gap-2">
-              <Link href="/">
-                <Home className="h-4 w-4" />
-                Kembali ke Beranda
-              </Link>
+            <Button
+              variant="outline"
+              className="gap-2"
+              render={<Link href="/" />}
+              nativeButton={false}>
+              <Home className="h-4 w-4" />
+              Kembali ke Beranda
             </Button>
           </div>
         </div>

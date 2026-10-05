@@ -178,7 +178,7 @@ export function ProductForm({ form, onSubmit, formId }: ProductFormProps) {
                         <FormLabel>Kategori</FormLabel>
                         <CategoryManager onCategoryChange={fetchCategories} />
                       </div>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select items={Object.fromEntries(categories.map((category) => [category.id, category.name]))} onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Pilih kategori" />

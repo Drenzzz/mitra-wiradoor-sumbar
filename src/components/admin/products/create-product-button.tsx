@@ -57,11 +57,9 @@ export function CreateProductButton({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Tambah Produk
-        </Button>
+      <DialogTrigger render={<Button />}>
+        <PlusCircle className="mr-2 h-4 w-4" />
+        Tambah Produk
       </DialogTrigger>
       <DialogContent className="sm:max-w-5xl">
         <DialogHeader>

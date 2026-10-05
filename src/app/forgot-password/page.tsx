@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { IconMailCheck as MailCheck } from "@tabler/icons-react";
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 export default function ForgotPasswordPage() {
@@ -21,13 +22,11 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await fetch("/api/auth/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+      const { error } = await authClient.requestPasswordReset({
+        email,
+        redirectTo: "/reset-password",
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Gagal mengirim email.");
+      if (error) throw new Error(error.message || "Gagal mengirim email.");
 
       setIsSubmitted(true);
     } catch (error: any) {
@@ -55,9 +54,11 @@ export default function ForgotPasswordPage() {
                 </CardDescription>
               </CardHeader>
               <CardFooter>
-                <Button variant="link" asChild className="text-zinc-400 w-full">
-                  <Link href="/login">Kembali ke Login</Link>
-                </Button>
+                <Button
+                  variant="link"
+                  className="text-zinc-400 w-full"
+                  render={<Link href="/login" />}
+                  nativeButton={false}>Kembali ke Login</Button>
               </CardFooter>
             </div>
           ) : (
@@ -77,9 +78,11 @@ export default function ForgotPasswordPage() {
                   <Button type="submit" className="w-full bg-white text-black hover:bg-zinc-200" disabled={isLoading}>
                     {isLoading ? "Mengirim..." : "Kirim Link Reset"}
                   </Button>
-                  <Button variant="link" asChild className="text-zinc-400">
-                    <Link href="/login">Kembali ke Login</Link>
-                  </Button>
+                  <Button
+                    variant="link"
+                    className="text-zinc-400"
+                    render={<Link href="/login" />}
+                    nativeButton={false}>Kembali ke Login</Button>
                 </CardFooter>
               </form>
             </div>

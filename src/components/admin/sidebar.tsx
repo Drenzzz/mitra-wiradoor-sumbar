@@ -83,7 +83,7 @@ export function Sidebar() {
 
       <div className="flex-1 overflow-y-auto py-4 scrollbar-none">
         <motion.nav className={cn("grid items-start gap-1", isCollapsed ? "px-2" : "px-3")} variants={containerVariants} initial="hidden" animate="show">
-          <TooltipProvider delayDuration={0}>
+          <TooltipProvider delay={0}>
             {navItems.map(({ href, icon, label, permission }) => {
               if (!can(permission as any)) return null;
               return <SidebarNavItem key={href} href={href} label={label} icon={icon} isActive={isActive(href)} isCollapsed={isCollapsed} hoveredPath={hoveredPath} setHoveredPath={setHoveredPath} variants={itemVariants} />;
@@ -93,7 +93,7 @@ export function Sidebar() {
           {can("user:manage") && (
             <>
               <Separator className="my-3 mx-2 w-auto bg-border/50" />
-              <TooltipProvider delayDuration={0}>
+              <TooltipProvider delay={0}>
                 {adminNavItems.map(({ href, icon, label }) => (
                   <SidebarNavItem key={href} href={href} label={label} icon={icon} isActive={isActive(href)} isCollapsed={isCollapsed} hoveredPath={hoveredPath} setHoveredPath={setHoveredPath} variants={itemVariants} />
                 ))}

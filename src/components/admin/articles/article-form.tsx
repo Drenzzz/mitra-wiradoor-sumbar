@@ -175,7 +175,7 @@ export function ArticleForm({ form, onSubmit, formId }: ArticleFormProps) {
                         <FormLabel>Kategori</FormLabel>
                         <ArticleCategoryManager onSuccess={fetchCategories} />
                       </div>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select items={Object.fromEntries(categories.map((cat) => [cat.id, cat.name]))} onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Pilih kategori" />
@@ -201,7 +201,7 @@ export function ArticleForm({ form, onSubmit, formId }: ArticleFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Status</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select items={{ DRAFT: "Draft", PUBLISHED: "Published" }} onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Pilih status publikasi" />

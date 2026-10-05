@@ -23,15 +23,15 @@ export default function NotFound() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
-            <Button asChild className="gap-2">
-              <Link href="/">
-                <Home className="h-4 w-4" />
-                Kembali ke Beranda
-              </Link>
+            <Button className="gap-2" render={<Link href="/" />} nativeButton={false}>
+              <Home className="h-4 w-4" />
+              Kembali ke Beranda
             </Button>
-            <Button variant="outline" asChild className="gap-2">
-              <Link href="/produk">Lihat Katalog Produk</Link>
-            </Button>
+            <Button
+              variant="outline"
+              className="gap-2"
+              render={<Link href="/produk" />}
+              nativeButton={false}>Lihat Katalog Produk</Button>
           </div>
         </div>
       </main>

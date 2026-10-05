@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { motion, Variants } from "framer-motion";
 import { Category } from "@/types";
 import { IconDots as MoreHorizontal, IconTrash as Trash2, IconArrowBackUp as Undo, IconPencil as Pencil } from "@tabler/icons-react";
@@ -54,17 +53,9 @@ export function CategoryTable({ variant, categories, isLoading, error, searchTer
     return <div className="text-center p-8 text-destructive">Error: {error}</div>;
   }
 
-  const headerCheckboxRef = useRef<HTMLButtonElement>(null);
-
   const numSelected = selectedRowKeys.length;
   const rowCount = categories.length;
   const isIndeterminate = numSelected > 0 && numSelected < rowCount;
-
-  useEffect(() => {
-    if (headerCheckboxRef.current) {
-      headerCheckboxRef.current.dataset.state = isIndeterminate ? "indeterminate" : numSelected === rowCount && rowCount > 0 ? "checked" : "unchecked";
-    }
-  }, [isIndeterminate, numSelected, rowCount]);
 
   return (
     <Table>
@@ -72,8 +63,8 @@ export function CategoryTable({ variant, categories, isLoading, error, searchTer
         <TableRow className="border-b-0">
           <TableHead className="w-12">
             <Checkbox
-              ref={headerCheckboxRef} 
               checked={numSelected === rowCount && rowCount > 0}
+              indeterminate={isIndeterminate}
               onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
             />
           </TableHead>
@@ -95,11 +86,9 @@ export function CategoryTable({ variant, categories, isLoading, error, searchTer
               {variant === "trashed" && <TableCell className="text-muted-foreground py-4">{category.deletedAt ? new Date(category.deletedAt).toLocaleDateString("id-ID") : "–"}</TableCell>}
               <TableCell className="text-right py-4">
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button aria-haspopup="true" size="icon" variant="ghost">
-                      <MoreHorizontal className="h-4 w-4" />
-                      <span className="sr-only">Toggle menu</span>
-                    </Button>
+                  <DropdownMenuTrigger render={<Button aria-haspopup="true" size="icon" variant="ghost" />}>
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">Toggle menu</span>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-background/80 backdrop-blur-sm">
                     <DropdownMenuLabel>Aksi</DropdownMenuLabel>

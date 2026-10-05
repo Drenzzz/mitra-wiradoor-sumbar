@@ -91,11 +91,9 @@ export function ArticleCategoryManager({ onSuccess }: ArticleCategoryManagerProp
         if (open) fetchCategories();
       }}
     >
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="h-9">
-          <Plus className="mr-2 h-4 w-4" />
-          Kelola Kategori
-        </Button>
+      <DialogTrigger render={<Button variant="outline" size="sm" className="h-9" />}>
+        <Plus className="mr-2 h-4 w-4" />
+        Kelola Kategori
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

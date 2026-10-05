@@ -1,23 +1,6 @@
-import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import { getSessionCookie } from "better-auth/cookies";
 import type { NextRequest } from "next/server";
-
-const adminAuthMiddleware = withAuth(
-  function middleware(req) {
-    if (req.nextUrl.pathname.startsWith("/admin") && req.nextauth.token?.role !== "ADMIN" && req.nextauth.token?.role !== "STAF") {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
-    return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => !!token,
-    },
-    pages: {
-      signIn: "/login",
-    },
-  },
-);
 
 export async function middleware(req: NextRequest) {
   const response = NextResponse.next();
@@ -53,13 +36,10 @@ export async function middleware(req: NextRequest) {
   }
 
   if (req.nextUrl.pathname.startsWith("/admin")) {
-    const authRes = await (adminAuthMiddleware as any)(req);
-
-    if (isNewToken) {
-      authRes.cookies.set("csrf_token", csrfToken, { path: "/", httpOnly: false, sameSite: "lax" });
+    const sessionCookie = getSessionCookie(req);
+    if (!sessionCookie) {
+      return NextResponse.redirect(new URL("/login", req.url));
     }
-
-    return authRes;
   }
 
   return response;

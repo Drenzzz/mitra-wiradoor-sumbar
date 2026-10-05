@@ -91,12 +91,13 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
           <h2 className="text-xl font-bold">Langkah Terakhir</h2>
         </div>
         <p className="text-green-100 mb-6">Klik tombol di bawah untuk menghubungi admin via WhatsApp. Pesan akan terisi otomatis dengan detail pesanan Anda.</p>
-        <Button size="lg" asChild className="w-full sm:w-auto bg-white text-green-700 hover:bg-green-50 font-bold text-lg h-14 px-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-          <Link href={whatsappLink} target="_blank" rel="noopener noreferrer">
-            <MessageCircle className="mr-2 h-6 w-6" />
-            Konfirmasi via WhatsApp
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
+        <Button
+          size="lg"
+          className="w-full sm:w-auto bg-white text-green-700 hover:bg-green-50 font-bold text-lg h-14 px-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          render={<Link href={whatsappLink} target="_blank" rel="noopener noreferrer" />}
+          nativeButton={false}>
+          <MessageCircle className="mr-2 h-6 w-6" />Konfirmasi via WhatsApp
+                      <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
         <p className="text-xs text-green-200 mt-4">Admin kami akan segera merespons untuk konfirmasi harga dan jadwal pengerjaan</p>
       </div>
@@ -169,9 +170,7 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
       </Card>
 
       <div className="mt-8 text-center">
-        <Button variant="outline" asChild>
-          <Link href="/produk">Lanjut Belanja</Link>
-        </Button>
+        <Button variant="outline" render={<Link href="/produk" />} nativeButton={false}>Lanjut Belanja</Button>
       </div>
     </div>
   );

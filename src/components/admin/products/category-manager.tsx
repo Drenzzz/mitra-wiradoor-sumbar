@@ -104,10 +104,8 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="icon" title="Kelola Kategori">
-          <Settings2 className="h-4 w-4" />
-        </Button>
+      <DialogTrigger render={<Button variant="outline" size="icon" title="Kelola Kategori" />}>
+        <Settings2 className="h-4 w-4" />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

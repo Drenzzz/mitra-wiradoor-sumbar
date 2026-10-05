@@ -103,11 +103,12 @@ export function MainNav() {
           </Link>
 
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className={cn("md:hidden hover:bg-white/20 transition-colors z-50 relative", isScrolled ? "text-slate-900" : "text-white", isOpen && "text-slate-900 hover:bg-slate-100")}>
-                {isOpen ? <X className="h-6 w-6 animate-in spin-in-90 duration-300" /> : <Menu className="h-6 w-6 animate-in zoom-in duration-300" />}
-                <span className="sr-only">Toggle menu</span>
-              </Button>
+            <SheetTrigger render={<Button
+              variant="ghost"
+              size="icon"
+              className={cn("md:hidden hover:bg-white/20 transition-colors z-50 relative", isScrolled ? "text-slate-900" : "text-white", isOpen && "text-slate-900 hover:bg-slate-100")} />}>
+              {isOpen ? <X className="h-6 w-6 animate-in spin-in-90 duration-300" /> : <Menu className="h-6 w-6 animate-in zoom-in duration-300" />}
+              <span className="sr-only">Toggle menu</span>
             </SheetTrigger>
 
             <SheetContent side="top" className="w-full h-[100dvh] border-none bg-white/95 backdrop-blur-2xl p-0 flex flex-col items-center justify-center">

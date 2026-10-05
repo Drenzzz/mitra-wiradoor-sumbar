@@ -133,11 +133,9 @@ export function OrderTable({ orders, isLoading, onViewClick, onStatusChange, onP
 
               <TableCell className="text-right">
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button aria-haspopup="true" size="icon" variant="ghost" className="h-8 w-8">
-                      <MoreHorizontal className="h-4 w-4" />
-                      <span className="sr-only">Toggle menu</span>
-                    </Button>
+                  <DropdownMenuTrigger render={<Button aria-haspopup="true" size="icon" variant="ghost" className="h-8 w-8" />}>
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">Toggle menu</span>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-[160px]">
                     <DropdownMenuLabel>Aksi</DropdownMenuLabel>

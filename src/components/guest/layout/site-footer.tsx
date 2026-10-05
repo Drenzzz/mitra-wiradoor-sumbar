@@ -92,14 +92,16 @@ export function SiteFooter() {
             <h4 className="text-sm font-bold tracking-widest text-white uppercase">Proyek & Kerjasama</h4>
             <p className="text-slate-400 text-sm leading-relaxed">Butuh penawaran untuk proyek kontraktor atau pengadaan dalam jumlah besar?</p>
             <div className="flex flex-col gap-3">
-              <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white" asChild>
-                <Link href={`https://wa.me/${waNumber}`} target="_blank">
-                  Konsultasi via WhatsApp
-                </Link>
-              </Button>
-              <Button variant="outline" className="w-full border-slate-700 text-slate-200 hover:bg-slate-800 hover:text-white" asChild>
-                <Link href={`mailto:${email}`}>Kirim Penawaran Email</Link>
-              </Button>
+              <Button
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                render={<Link href={`https://wa.me/${waNumber}`} target="_blank" />}
+                nativeButton={false}>Konsultasi via WhatsApp
+                                </Button>
+              <Button
+                variant="outline"
+                className="w-full border-slate-700 text-slate-200 hover:bg-slate-800 hover:text-white"
+                render={<Link href={`mailto:${email}`} />}
+                nativeButton={false}>Kirim Penawaran Email</Button>
             </div>
           </div>
         </div>

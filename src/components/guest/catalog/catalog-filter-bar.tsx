@@ -52,12 +52,13 @@ export function CatalogFilterBar({ categories, selectedCategoryId, setSelectedCa
           </div>
 
           <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="sm" className={cn("h-10 rounded-full px-5 gap-2 border-slate-200 hover:border-primary hover:text-primary transition-all", isFiltering && "border-primary text-primary bg-primary/5")}>
-                <SlidersHorizontal className="h-4 w-4" />
-                <span className="hidden sm:inline">Filter & Sort</span>
-                {isFiltering && <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />}
-              </Button>
+            <SheetTrigger render={<Button
+              variant="outline"
+              size="sm"
+              className={cn("h-10 rounded-full px-5 gap-2 border-slate-200 hover:border-primary hover:text-primary transition-all", isFiltering && "border-primary text-primary bg-primary/5")} />}>
+              <SlidersHorizontal className="h-4 w-4" />
+              <span className="hidden sm:inline">Filter & Sort</span>
+              {isFiltering && <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />}
             </SheetTrigger>
             <SheetContent side="right" className="w-[340px] sm:w-[400px] flex flex-col h-full">
               <SheetHeader className="pb-6 border-b">
@@ -73,9 +74,7 @@ export function CatalogFilterBar({ categories, selectedCategoryId, setSelectedCa
                 <Button variant="outline" onClick={onReset} className="flex-1">
                   Reset
                 </Button>
-                <SheetClose asChild>
-                  <Button className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">Terapkan</Button>
-                </SheetClose>
+                <SheetClose render={<Button className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90" />}>Terapkan</SheetClose>
               </SheetFooter>
             </SheetContent>
           </Sheet>

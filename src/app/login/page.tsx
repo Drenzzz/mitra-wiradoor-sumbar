@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,15 +27,14 @@ export default function LoginPage() {
     setError("");
     setIsLoading(true);
 
-    const result = await signIn("credentials", {
-      redirect: false,
+    const { error } = await authClient.signIn.email({
       email,
       password,
     });
 
     setIsLoading(false);
 
-    if (result?.error) {
+    if (error) {
       setError("Email atau password salah. Silakan coba lagi.");
     } else {
       router.push("/admin");
@@ -81,9 +80,11 @@ export default function LoginPage() {
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
                     <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required className="bg-zinc-800/50 border-zinc-700 text-white focus:ring-offset-zinc-900" />
-                    <Button variant="link" asChild className="p-0 h-auto text-xs text-zinc-400">
-                      <Link href="/forgot-password">Lupa Password?</Link>
-                    </Button>
+                    <Button
+                      variant="link"
+                      className="p-0 h-auto text-xs text-zinc-400"
+                      render={<Link href="/forgot-password" />}
+                      nativeButton={false}>Lupa Password?</Button>
                   </div>
                   {error && <p className="text-sm text-red-500 text-center pt-2">{error}</p>}
                 </CardContent>
@@ -91,9 +92,11 @@ export default function LoginPage() {
                   <Button type="submit" className="w-full bg-white text-black hover:bg-zinc-200" disabled={isLoading}>
                     {isLoading ? "Memverifikasi..." : "Login"}
                   </Button>
-                  <Button variant="link" asChild className="text-zinc-400">
-                    <Link href="/">Kembali ke Halaman Utama</Link>
-                  </Button>
+                  <Button
+                    variant="link"
+                    className="text-zinc-400"
+                    render={<Link href="/" />}
+                    nativeButton={false}>Kembali ke Halaman Utama</Button>
                 </CardFooter>
               </form>
             </Card>

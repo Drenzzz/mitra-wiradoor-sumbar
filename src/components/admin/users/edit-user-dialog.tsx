@@ -124,7 +124,7 @@ export function EditUserDialog({ user, isOpen, onClose, onSuccess }: EditUserDia
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Role</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select items={{ STAF: "STAF", ADMIN: "ADMIN" }} onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue />

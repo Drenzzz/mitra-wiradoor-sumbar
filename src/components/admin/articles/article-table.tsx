@@ -51,7 +51,8 @@ export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditCl
         <TableRow>
           <TableHead className="w-12 pl-2">
             <Checkbox
-              checked={rowCount > 0 && numSelected === rowCount ? true : numSelected > 0 ? "indeterminate" : false}
+              checked={rowCount > 0 && numSelected === rowCount}
+              indeterminate={numSelected > 0 && numSelected < rowCount}
               onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
               aria-label="Select all"
               disabled={!can("article:delete") && variant === "active"}
@@ -86,10 +87,8 @@ export function ArticleTable({ variant, articles, isLoading, onRefresh, onEditCl
             <TableCell>{formatDate(variant === "trashed" ? article.deletedAt! : article.createdAt)}</TableCell>
             <TableCell className="text-right pr-4">
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="icon" variant="ghost">
-                    <MoreHorizontal className="h-4 w-4 ml-6" />
-                  </Button>
+                <DropdownMenuTrigger render={<Button size="icon" variant="ghost" />}>
+                  <MoreHorizontal className="h-4 w-4 ml-6" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Aksi</DropdownMenuLabel>

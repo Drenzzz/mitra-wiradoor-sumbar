@@ -99,7 +99,7 @@ export function ArticleListCard({
 
           <div className="flex w-full sm:w-auto flex-col sm:flex-row gap-2">
             <div className="flex w-full items-center gap-2">
-              <Select value={filterByCategory} onValueChange={(value) => setFilterByCategory(value === "all" ? "" : value)} disabled={variant === "trashed"}>
+              <Select items={{ all: "Semua Kategori", ...Object.fromEntries(articleCategories.map((category) => [category.id, category.name])) }} value={filterByCategory} onValueChange={(value) => setFilterByCategory(value === "all" ? "" : value ?? "")} disabled={variant === "trashed"}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Filter Kategori" />
                 </SelectTrigger>
@@ -112,7 +112,7 @@ export function ArticleListCard({
                   ))}
                 </SelectContent>
               </Select>
-              <Select value={filterByStatus} onValueChange={(value) => setFilterByStatus(value === "all" ? "" : value)} disabled={variant === "trashed"}>
+              <Select items={{ all: "Semua Status", PUBLISHED: "Published", DRAFT: "Draft" }} value={filterByStatus} onValueChange={(value) => setFilterByStatus(value === "all" ? "" : value ?? "")} disabled={variant === "trashed"}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Filter Status" />
                 </SelectTrigger>
@@ -123,7 +123,7 @@ export function ArticleListCard({
                 </SelectContent>
               </Select>
             </div>
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select items={{ "createdAt-desc": "Terbaru", "createdAt-asc": "Terlama", "title-asc": "Judul (A-Z)", "title-desc": "Judul (Z-A)" }} value={sortBy} onValueChange={(value) => setSortBy(value ?? "")}>
               <SelectTrigger className="w-full sm:w-auto">
                 <SelectValue placeholder="Urutkan berdasarkan" />
               </SelectTrigger>

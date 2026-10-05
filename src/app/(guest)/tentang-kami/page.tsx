@@ -104,12 +104,17 @@ export default function AboutPage() {
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">Siap Meningkatkan Kualitas Proyek Anda?</h2>
           <p className="text-slate-400 max-w-2xl mx-auto mb-10 text-lg">Diskusikan kebutuhan pintu untuk rumah pribadi, kantor, atau proyek pemerintahan Anda bersama konsultan ahli kami.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-orange-600 hover:bg-orange-700 text-white px-8 h-12 text-base" asChild>
-              <Link href="https://wa.me/6281234567890">Hubungi Kami via WhatsApp</Link>
-            </Button>
-            <Button size="lg" variant="outline" className="border-slate-700 text-slate-200 hover:bg-slate-800 hover:text-white px-8 h-12 text-base" asChild>
-              <Link href="/produk">Lihat Koleksi Pintu</Link>
-            </Button>
+            <Button
+              size="lg"
+              className="bg-orange-600 hover:bg-orange-700 text-white px-8 h-12 text-base"
+              render={<Link href="https://wa.me/6281234567890" />}
+              nativeButton={false}>Hubungi Kami via WhatsApp</Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-slate-700 text-slate-200 hover:bg-slate-800 hover:text-white px-8 h-12 text-base"
+              render={<Link href="/produk" />}
+              nativeButton={false}>Lihat Koleksi Pintu</Button>
           </div>
         </div>
       </section>
