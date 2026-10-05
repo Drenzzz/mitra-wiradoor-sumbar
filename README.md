@@ -64,14 +64,14 @@ Website Profil Perusahaan dan E-Katalog untuk **MR Konstruksi** sebagai distribu
 | Email            | Nodemailer + React Email                   |
 | Charts           | Recharts                                   |
 | Export           | jsPDF, xlsx                                |
-| Package Manager  | pnpm                                       |
+| Package Manager  | Bun                                       |
 
 ## Instalasi & Konfigurasi Lokal
 
 ### Prasyarat
 
 - Node.js v18+
-- pnpm
+- Bun
 - Git
 - PostgreSQL (local atau cloud seperti Supabase/Neon)
 - Akun Cloudinary (untuk upload media)
@@ -82,7 +82,7 @@ Website Profil Perusahaan dan E-Katalog untuk **MR Konstruksi** sebagai distribu
 git clone https://github.com/Drenzzz/mitra-wiradoor-sumbar.git
 cd mitra-wiradoor-sumbar
 
-pnpm install
+bun install
 
 cp .env.example .env
 ```
@@ -104,34 +104,34 @@ SMTP_PASS="your-password"
 ```
 
 ```bash
-pnpm db:push
+bun run db:push
 
-pnpm db:seed
+bun run db:seed
 
-pnpm dev
+bun run dev
 ```
 
 Buka `http://localhost:3000` untuk halaman publik dan `http://localhost:3000/login` untuk akses admin.
 
-## Skrip pnpm
+## Skrip Bun
 
 | Skrip              | Deskripsi                                  |
 | ------------------ | ------------------------------------------ |
-| `pnpm dev`         | Menjalankan development server (Turbopack) |
-| `pnpm build`       | Build produksi                             |
-| `pnpm start`       | Menjalankan hasil build                    |
-| `pnpm lint`        | Menjalankan ESLint                         |
-| `pnpm db:generate` | Generate migration Drizzle                 |
-| `pnpm db:migrate`  | Jalankan migration                         |
-| `pnpm db:push`     | Push schema ke database                    |
-| `pnpm db:studio`   | Buka Drizzle Studio                        |
-| `pnpm db:seed`     | Seed data awal (admin user)                |
-| `pnpm db:adduser`  | Tambah user baru via CLI                   |
+| `bun run dev`         | Menjalankan development server (Turbopack) |
+| `bun run build`       | Build produksi                             |
+| `bun run start`       | Menjalankan hasil build                    |
+| `bun run lint`        | Menjalankan ESLint                         |
+| `bun run db:generate` | Generate migration Drizzle                 |
+| `bun run db:migrate`  | Jalankan migration                         |
+| `bun run db:push`     | Push schema ke database                    |
+| `bun run db:studio`   | Buka Drizzle Studio                        |
+| `bun run db:seed`     | Seed data awal (admin user)                |
+| `bun run db:adduser`  | Tambah user baru via CLI                   |
 
 ### Contoh Menambah User
 
 ```bash
-pnpm db:adduser user@example.com "Nama Lengkap" password123 STAF
+bun run db:adduser user@example.com "Nama Lengkap" password123 STAF
 ```
 
 Role yang tersedia: `ADMIN` atau `STAF`
