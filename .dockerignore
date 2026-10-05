@@ -2,6 +2,8 @@ Dockerfile
 .dockerignore
 node_modules
 .next
+dist
+.vinext
 .git
 .gitignore
 *.md

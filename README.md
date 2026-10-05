@@ -1,6 +1,6 @@
 # Website Profil & E-Katalog Wiradoor Sumatera Barat
 
-![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white) ![React](https://img.shields.io/badge/React_19-61DAFB?style=for-the-badge&logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white) ![Drizzle](https://img.shields.io/badge/Drizzle_ORM-C5F74F?style=for-the-badge&logo=drizzle&logoColor=black)
+![vinext](https://img.shields.io/badge/vinext-Vite_8-646CFF?style=for-the-badge&logo=vite&logoColor=white) ![React](https://img.shields.io/badge/React_19-61DAFB?style=for-the-badge&logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white) ![Drizzle](https://img.shields.io/badge/Drizzle_ORM-C5F74F?style=for-the-badge&logo=drizzle&logoColor=black)
 
 Website Profil Perusahaan dan E-Katalog untuk **MR Konstruksi** sebagai distributor resmi **Wiradoor** di Sumatera Barat. Sistem ini menggabungkan _Digital Showroom_, _Inquiry System_, dan _Guest Checkout_ dengan konfirmasi pembayaran manual via WhatsApp.
 
@@ -48,7 +48,7 @@ Website Profil Perusahaan dan E-Katalog untuk **MR Konstruksi** sebagai distribu
 
 | Kategori         | Teknologi                                  |
 | ---------------- | ------------------------------------------ |
-| Framework        | Next.js 16 (App Router + Turbopack)        |
+| Framework        | vinext (Next.js API di atas Vite)          |
 | React            | React 19 + React Compiler                  |
 | Bahasa           | TypeScript (Strict Mode)                   |
 | Styling          | Tailwind CSS 4 + shadcn/ui                 |
@@ -117,10 +117,10 @@ Buka `http://localhost:3000` untuk halaman publik dan `http://localhost:3000/log
 
 | Skrip              | Deskripsi                                  |
 | ------------------ | ------------------------------------------ |
-| `bun run dev`         | Menjalankan development server (Turbopack) |
-| `bun run build`       | Build produksi                             |
-| `bun run start`       | Menjalankan hasil build                    |
-| `bun run lint`        | Menjalankan ESLint                         |
+| `bun run dev`         | Menjalankan development server (Vite, port 3000) |
+| `bun run build`       | Build produksi (vinext)                    |
+| `bun run start`       | Menjalankan hasil build (vinext)           |
+| `bun run lint`        | Menjalankan oxlint                         |
 | `bun run db:generate` | Generate migration Drizzle                 |
 | `bun run db:migrate`  | Jalankan migration                         |
 | `bun run db:push`     | Push schema ke database                    |
@@ -140,7 +140,7 @@ Role yang tersedia: `ADMIN` atau `STAF`
 
 ```
 src/
-├── app/                    # Next.js App Router
+├── app/                    # App Router (vinext)
 │   ├── (admin)/            # Admin route group
 │   ├── (guest)/            # Public route group
 │   └── api/                # API routes

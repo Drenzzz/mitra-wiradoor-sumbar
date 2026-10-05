@@ -2,8 +2,7 @@ module.exports = {
   apps: [
     {
       name: "wiradoor-sumbar",
-      script: "node_modules/.bin/next",
-      args: "start",
+      script: "dist/standalone/server.js",
       cwd: "/var/www/wiradoor-sumbar",
       instances: "max",
       exec_mode: "cluster",

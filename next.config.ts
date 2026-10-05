@@ -1,7 +1,7 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from "vinext";
 
 const nextConfig: NextConfig = {
-  // output: "standalone",
+  output: "standalone",
   reactCompiler: true,
   images: {
     remotePatterns: [
