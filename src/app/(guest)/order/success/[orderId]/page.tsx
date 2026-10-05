@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle, MessageCircle, ArrowRight, Phone, MapPin, FileText, Package } from "lucide-react";
+import { IconCircleCheck as CheckCircle, IconMessageCircle as MessageCircle, IconArrowRight as ArrowRight, IconPhone as Phone, IconMapPin as MapPin, IconFileText as FileText, IconPackage as Package } from "@tabler/icons-react";
 
 export const dynamic = "force-dynamic";
 

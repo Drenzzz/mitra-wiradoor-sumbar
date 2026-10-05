@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, Variants } from "framer-motion"; // Tambahkan Variants jika perlu, tapi casting cukup
 import { MagneticButton } from "@/components/ui/magnetic-button";
-import { ArrowRight } from "lucide-react";
+import { IconArrowRight as ArrowRight } from "@tabler/icons-react";
 import Link from "next/link";
 
 export function HeroSection() {

@@ -5,7 +5,7 @@ import { Sidebar } from "@/components/admin/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Menu, Package2, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { IconMenu2 as Menu, IconBoxSeam as Package2, IconChevronsLeft as ChevronsLeft, IconChevronsRight as ChevronsRight } from "@tabler/icons-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useSidebar } from "@/hooks/use-sidebar";
 import { useEffect, useState } from "react";

@@ -5,7 +5,7 @@ import { Product } from "@/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Package, Tag, Layers, Info } from "lucide-react";
+import { IconCalendar as Calendar, IconPackage as Package, IconTag as Tag, IconStack2 as Layers, IconInfoCircle as Info } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 
 interface ProductDetailDialogProps {

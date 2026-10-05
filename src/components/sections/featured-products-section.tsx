@@ -4,7 +4,7 @@ import { FeaturedProductCard } from "@/components/guest/product/featured-product
 import { motion } from "framer-motion";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { IconArrowRight as ArrowRight } from "@tabler/icons-react";
 
 import { Product } from "@/types";
 

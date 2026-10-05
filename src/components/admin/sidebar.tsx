@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Package, LineChart, Mail, CreditCard, Users, Briefcase, BarChart } from "lucide-react";
+import { IconHome as Home, IconPackage as Package, IconChartLine as LineChart, IconMail as Mail, IconCreditCard as CreditCard, IconUsers as Users, IconBriefcase as Briefcase, IconChartBar as BarChart } from "@tabler/icons-react";
 import { motion, Variants } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";

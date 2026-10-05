@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { FileQuestion, Home } from "lucide-react";
+import { IconFileUnknown as FileQuestion, IconHome as Home } from "@tabler/icons-react";
 import { MainNav } from "@/components/guest/layout/main-nav";
 import { SiteFooter } from "@/components/guest/layout/site-footer";
 import { ForceLightTheme } from "@/components/guest/layout/force-light-theme";

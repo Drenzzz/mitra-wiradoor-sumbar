@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { getPortfolioItemById } from "@/lib/services/portfolio.service";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar } from "lucide-react";
+import { IconArrowLeft as ArrowLeft, IconCalendar as Calendar } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";

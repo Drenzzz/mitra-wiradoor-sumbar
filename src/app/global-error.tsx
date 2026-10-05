@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, RefreshCw, Home } from "lucide-react";
+import { IconAlertTriangle as AlertTriangle, IconRefresh as RefreshCw, IconHome as Home } from "@tabler/icons-react";
 import Link from "next/link";
 
 interface GlobalErrorProps {

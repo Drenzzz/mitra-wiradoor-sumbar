@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useReportData } from "@/hooks/use-report-data";
 import { TransactionTable } from "@/components/admin/reports/transaction-table";
 import { ReportsSkeleton } from "@/components/admin/reports/reports-skeleton";
-import { DollarSign, ShoppingBag, XCircle, TrendingUp, FileSpreadsheet, FileText } from "lucide-react";
+import { IconCurrencyDollar as DollarSign, IconShoppingBag as ShoppingBag, IconCircleX as XCircle, IconTrendingUp as TrendingUp, IconFileSpreadsheet as FileSpreadsheet, IconFileText as FileText } from "@tabler/icons-react";
 import { exportToExcel, exportToPDF } from "@/lib/export-utils";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";

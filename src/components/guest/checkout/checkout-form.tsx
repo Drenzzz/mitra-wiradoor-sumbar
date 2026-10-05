@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ShoppingBag } from "lucide-react";
+import { IconShoppingBag as ShoppingBag } from "@tabler/icons-react";
 
 import { useCart, CartItem } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";

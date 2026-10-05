@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
-import { MessageCircle, ShoppingCart, Share2, ShieldCheck, Truck, Phone } from "lucide-react";
+import { IconMessageCircle as MessageCircle, IconShoppingCart as ShoppingCart, IconShare2 as Share2, IconShieldCheck as ShieldCheck, IconTruck as Truck, IconPhone as Phone } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { AddToCartButton } from "@/components/guest/product/add-to-cart-button";
 import { sanitizeRichTextHtml } from "@/lib/html-sanitizer";

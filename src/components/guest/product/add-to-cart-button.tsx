@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { Product } from "@/types";
-import { ShoppingCart } from "lucide-react";
+import { IconShoppingCart as ShoppingCart } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 

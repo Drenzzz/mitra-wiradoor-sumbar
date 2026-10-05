@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Tilt } from "@/components/ui/tilt";
-import { ArrowUpRight } from "lucide-react";
+import { IconArrowUpRight as ArrowUpRight } from "@tabler/icons-react";
 import { motion } from "framer-motion";
 
 interface FeaturedProductCardProps {

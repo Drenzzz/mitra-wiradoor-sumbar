@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
-import { Moon, Sun, Settings, User, LogOut } from "lucide-react";
+import { IconMoon as Moon, IconSun as Sun, IconSettings as Settings, IconUser as User, IconLogout as LogOut } from "@tabler/icons-react";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";

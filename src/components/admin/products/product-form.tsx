@@ -14,7 +14,7 @@ import { MultiImageUploader } from "./multi-image-uploader";
 import { CategoryManager } from "./category-manager";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import { Package, ImageIcon, Settings, FileText, CheckCircle, Clock } from "lucide-react";
+import { IconPackage as Package, IconPhoto as ImageIcon, IconSettings as Settings, IconFileText as FileText, IconCircleCheck as CheckCircle, IconClock as Clock } from "@tabler/icons-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 

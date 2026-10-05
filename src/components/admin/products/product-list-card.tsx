@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, Undo, LayoutGrid, List as ListIcon } from "lucide-react";
+import { IconTrash as Trash2, IconArrowBackUp as Undo, IconLayoutGrid as LayoutGrid, IconList as ListIcon } from "@tabler/icons-react";
 import { Product, Category } from "@/types";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Article } from "@/types";
-import { MoreHorizontal, Pencil, Trash2, Eye, Undo } from "lucide-react";
+import { IconDots as MoreHorizontal, IconPencil as Pencil, IconTrash as Trash2, IconEye as Eye, IconArrowBackUp as Undo } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";

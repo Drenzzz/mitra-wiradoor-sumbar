@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { InquiryStatus } from "@/db/schema";
 import { cn } from "@/lib/utils";
-import { MessageCircle, Mail, Phone, ExternalLink } from "lucide-react";
+import { IconMessageCircle as MessageCircle, IconMail as Mail, IconPhone as Phone, IconExternalLink as ExternalLink } from "@tabler/icons-react";
 
 const formatDate = (dateString: Date) =>
   new Date(dateString).toLocaleDateString("id-ID", {

@@ -2,7 +2,7 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { Award, Ruler, ThermometerSun, PenTool } from "lucide-react";
+import { IconAward as Award, IconRuler as Ruler, IconTemperatureSun as ThermometerSun, IconPencil as PenTool } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 
 const features = [

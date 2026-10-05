@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductCard } from "@/components/guest/product/product-card";
-import { ChevronRight, Home } from "lucide-react";
+import { IconChevronRight as ChevronRight, IconHome as Home } from "@tabler/icons-react";
 import type { Product } from "@/types";
 import { ProductGallery } from "@/components/guest/product/product-gallery";
 import { ProductInfo } from "@/components/guest/product/product-info";

@@ -6,7 +6,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import { Toggle } from "@/components/ui/toggle";
-import { Bold, Italic, List, ListOrdered, Heading1, Heading2, Quote, Link as LinkIcon, Undo, Redo, Image as ImageIcon, Loader2 } from "lucide-react";
+import { IconBold as Bold, IconItalic as Italic, IconList as List, IconListNumbers as ListOrdered, IconH1 as Heading1, IconH2 as Heading2, IconQuote as Quote, IconLink as LinkIcon, IconArrowBackUp as Undo, IconArrowForwardUp as Redo, IconPhoto as ImageIcon, IconLoader2 as Loader2 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";

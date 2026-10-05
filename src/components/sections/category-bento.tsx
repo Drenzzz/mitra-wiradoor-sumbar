@@ -2,7 +2,7 @@
 
 import React from "react";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
-import { DoorOpen, Ruler, Hammer, PaintBucket, ShieldCheck } from "lucide-react";
+import { IconDoor as DoorOpen, IconRuler as Ruler, IconHammer as Hammer, IconBucketDroplet as PaintBucket, IconShieldCheck as ShieldCheck } from "@tabler/icons-react";
 import Image from "next/image";
 
 export function CategoryBento() {

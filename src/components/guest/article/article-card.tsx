@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { memo } from "react";
-import { Calendar, User, ArrowUpRight } from "lucide-react";
+import { IconCalendar as Calendar, IconUser as User, IconArrowUpRight as ArrowUpRight } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { cn, formatDate } from "@/lib/utils";
 

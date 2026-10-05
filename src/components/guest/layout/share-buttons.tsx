@@ -1,8 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Link as LinkIcon, Check } from "lucide-react";
-import { FaFacebookF, FaTwitter, FaLinkedinIn } from "react-icons/fa";
+import { IconLink as LinkIcon, IconCheck as Check } from "@tabler/icons-react";
+import { IconBrandFacebook as FaFacebookF, IconBrandTwitter as FaTwitter, IconBrandLinkedin as FaLinkedinIn } from "@tabler/icons-react";
 import { useState } from "react";
 import { toast } from "sonner";
 

@@ -3,7 +3,7 @@
 import { Order } from "@/types";
 import type { OrderStatus } from "@/db/schema";
 import { motion } from "framer-motion";
-import { MoreHorizontal, Eye, CheckCircle, XCircle, Truck, PackageCheck, Banknote } from "lucide-react";
+import { IconDots as MoreHorizontal, IconEye as Eye, IconCircleCheck as CheckCircle, IconCircleX as XCircle, IconTruck as Truck, IconPackageExport as PackageCheck, IconCashBanknote as Banknote } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";

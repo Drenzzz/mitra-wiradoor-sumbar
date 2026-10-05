@@ -4,7 +4,7 @@ import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { UploadCloud, X } from "lucide-react";
+import { IconCloudUpload as UploadCloud, IconX as X } from "@tabler/icons-react";
 
 interface ImageUploaderProps {
   onUploadSuccess: (url: string) => void;

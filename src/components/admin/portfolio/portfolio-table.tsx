@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { PortfolioItem } from "@/types";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { IconDots as MoreHorizontal, IconPencil as Pencil, IconTrash as Trash2 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";

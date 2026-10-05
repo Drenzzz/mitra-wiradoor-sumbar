@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { memo } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { IconArrowRight as ArrowRight } from "@tabler/icons-react";
 
 interface CatalogCardProps {
   id: string;

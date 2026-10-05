@@ -4,7 +4,7 @@ import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Plus, CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
+import { IconLoader2 as Loader2, IconPlus as Plus, IconCalendar as CalendarIcon, IconCheck as Check, IconSelector as ChevronsUpDown } from "@tabler/icons-react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 

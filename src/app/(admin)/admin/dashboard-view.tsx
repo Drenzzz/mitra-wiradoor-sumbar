@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Package, LineChart, Mail, DollarSign, TrendingUp, Activity } from "lucide-react";
+import { IconPackage as Package, IconChartLine as LineChart, IconMail as Mail, IconCurrencyDollar as DollarSign, IconTrendingUp as TrendingUp, IconActivity as Activity } from "@tabler/icons-react";
 
 // Lazy load Recharts components
 const BarChart = dynamic(() => import("recharts").then((mod) => mod.BarChart), { ssr: false });

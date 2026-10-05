@@ -4,7 +4,7 @@ import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { UploadCloud, X, Plus, Image as ImageIcon } from "lucide-react";
+import { IconCloudUpload as UploadCloud, IconX as X, IconPlus as Plus, IconPhoto as ImageIcon } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 
 interface MultiImageUploaderProps {

@@ -14,7 +14,7 @@ import { usePermission } from "@/hooks/use-permission";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { ArticleCategoryManager } from "@/components/admin/articles/article-category-manager";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Settings, ImageIcon } from "lucide-react";
+import { IconFileText as FileText, IconSettings as Settings, IconPhoto as ImageIcon } from "@tabler/icons-react";
 
 export const formSchema = z.object({
   title: z.string().min(5, { message: "Judul artikel minimal 5 karakter." }),

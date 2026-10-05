@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { motion, Variants } from "framer-motion";
 import { Product } from "@/types";
-import { MoreHorizontal, Pencil, Trash2, Eye, Undo } from "lucide-react";
+import { IconDots as MoreHorizontal, IconPencil as Pencil, IconTrash as Trash2, IconEye as Eye, IconArrowBackUp as Undo } from "@tabler/icons-react";
 
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";

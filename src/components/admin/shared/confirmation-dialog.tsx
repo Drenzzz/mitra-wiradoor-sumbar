@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Trash2, Undo2, AlertTriangle } from "lucide-react";
+import { IconTrash as Trash2, IconArrowBackUp as Undo2, IconAlertTriangle as AlertTriangle } from "@tabler/icons-react";
 
 interface ConfirmationDialogProps {
   isOpen: boolean;

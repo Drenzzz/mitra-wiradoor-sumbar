@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, RefreshCw, ArrowLeft } from "lucide-react";
+import { IconAlertTriangle as AlertTriangle, IconRefresh as RefreshCw, IconArrowLeft as ArrowLeft } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { MainNav } from "@/components/guest/layout/main-nav";
 import { SiteFooter } from "@/components/guest/layout/site-footer";

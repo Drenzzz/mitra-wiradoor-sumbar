@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import { IconPlus as Plus } from "@tabler/icons-react";
 
 const formSchema = z.object({
   name: z.string().min(3, { message: "Nama kategori minimal 3 karakter." }),

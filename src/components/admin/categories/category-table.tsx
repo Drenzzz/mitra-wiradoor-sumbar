@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { motion, Variants } from "framer-motion";
 import { Category } from "@/types";
-import { MoreHorizontal, Trash2, Undo, Pencil } from "lucide-react";
+import { IconDots as MoreHorizontal, IconTrash as Trash2, IconArrowBackUp as Undo, IconPencil as Pencil } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";

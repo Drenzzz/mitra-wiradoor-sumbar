@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { MessageCircle } from "lucide-react";
+import { IconMessageCircle as MessageCircle } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 
 export function FloatingWhatsAppButton() {

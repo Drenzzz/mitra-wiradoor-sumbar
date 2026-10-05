@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { MailCheck } from "lucide-react";
+import { IconMailCheck as MailCheck } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 
 export default function ForgotPasswordPage() {

@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
-import { Loader2, Send } from "lucide-react";
+import { IconLoader2 as Loader2, IconSend as Send } from "@tabler/icons-react";
 
 export function InquiryForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);

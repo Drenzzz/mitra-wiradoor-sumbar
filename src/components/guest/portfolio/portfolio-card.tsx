@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { memo } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, MapPin } from "lucide-react";
+import { IconArrowUpRight as ArrowUpRight, IconMapPin as MapPin } from "@tabler/icons-react";
 
 interface PortfolioCardProps {
   id: string;

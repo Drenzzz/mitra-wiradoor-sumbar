@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Trash2, ShieldCheck, ArrowRight, Loader2 } from "lucide-react";
+import { IconTrash as Trash2, IconShieldCheck as ShieldCheck, IconArrowRight as ArrowRight, IconLoader2 as Loader2 } from "@tabler/icons-react";
 import type { CartItem } from "@/hooks/use-cart";
 
 interface CheckoutOrderSummaryProps {

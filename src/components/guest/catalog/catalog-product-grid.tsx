@@ -4,7 +4,7 @@ import { forwardRef } from "react";
 import { CatalogCard } from "@/components/guest/catalog/catalog-card";
 import { ProductCardSkeleton } from "@/components/guest/product/product-card-skeleton";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { IconLoader2 as Loader2 } from "@tabler/icons-react";
 import type { Product } from "@/types";
 import { cn } from "@/lib/utils";
 

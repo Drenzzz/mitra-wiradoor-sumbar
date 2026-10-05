@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetClose } from "@/components/ui/sheet";
 import { CatalogFilters } from "@/components/guest/catalog/catalog-filters";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { IconSearch as Search, IconAdjustments as SlidersHorizontal } from "@tabler/icons-react";
 import type { Category } from "@/types";
 import { cn } from "@/lib/utils";
 

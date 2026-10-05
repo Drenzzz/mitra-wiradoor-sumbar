@@ -1,7 +1,7 @@
 import { InquiryForm } from "@/components/guest/contact/inquiry-form";
 import { Metadata } from "next";
-import { MapPin, Phone, Mail, Clock, ArrowUpRight } from "lucide-react";
-import { FaInstagram, FaFacebookF } from "react-icons/fa";
+import { IconMapPin as MapPin, IconPhone as Phone, IconMail as Mail, IconClock as Clock, IconArrowUpRight as ArrowUpRight } from "@tabler/icons-react";
+import { IconBrandInstagram as FaInstagram, IconBrandFacebook as FaFacebookF } from "@tabler/icons-react";
 import { DotPattern } from "@/components/ui/dot-pattern";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";

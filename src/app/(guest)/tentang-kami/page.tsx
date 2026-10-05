@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import Link from "next/link";
-import { ShieldCheck, MapPin, Users, Truck, Building2 } from "lucide-react";
+import { IconShieldCheck as ShieldCheck, IconMapPin as MapPin, IconUsers as Users, IconTruck as Truck, IconBuilding as Building2 } from "@tabler/icons-react";
 import { DotPattern } from "@/components/ui/dot-pattern";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import { Button } from "@/components/ui/button";

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { MapPin, Phone, Clock, FileText, ArrowRight, ShieldCheck, Mail } from "lucide-react";
-import { FaInstagram, FaFacebookF } from "react-icons/fa";
+import { IconMapPin as MapPin, IconPhone as Phone, IconClock as Clock, IconFileText as FileText, IconArrowRight as ArrowRight, IconShieldCheck as ShieldCheck, IconMail as Mail } from "@tabler/icons-react";
+import { IconBrandInstagram as FaInstagram, IconBrandFacebook as FaFacebookF } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";

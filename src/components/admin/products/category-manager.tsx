@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { Plus, Trash2, Loader2, Settings2 } from "lucide-react";
+import { IconPlus as Plus, IconTrash as Trash2, IconLoader2 as Loader2, IconAdjustmentsHorizontal as Settings2 } from "@tabler/icons-react";
 import { Category } from "@/types";
 
 import { Button } from "@/components/ui/button";

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Calendar, User, ArrowLeft, ChevronRight } from "lucide-react";
+import { IconCalendar as Calendar, IconUser as User, IconArrowLeft as ArrowLeft, IconChevronRight as ChevronRight } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArticleCard } from "@/components/guest/article/article-card";

@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { ClipboardList, Menu, X } from "lucide-react";
+import { IconClipboardList as ClipboardList, IconMenu2 as Menu, IconX as X } from "@tabler/icons-react";
 import wiradoorLogo from "@/assets/wiradoor.png";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/hooks/use-cart";

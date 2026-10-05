@@ -2,7 +2,7 @@
 
 import { ClientUser } from "@/types";
 import { motion } from "framer-motion";
-import { MoreHorizontal, Pencil, Trash2, CheckCircle, XCircle } from "lucide-react";
+import { IconDots as MoreHorizontal, IconPencil as Pencil, IconTrash as Trash2, IconCircleCheck as CheckCircle, IconCircleX as XCircle } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";

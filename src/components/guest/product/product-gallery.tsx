@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Maximize2 } from "lucide-react";
+import { IconArrowsMaximize as Maximize2 } from "@tabler/icons-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 interface ProductGalleryProps {

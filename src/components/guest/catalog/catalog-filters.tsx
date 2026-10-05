@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Category } from "@/types";
-import { Check } from "lucide-react";
+import { IconCheck as Check } from "@tabler/icons-react";
 
 interface CatalogFiltersProps {
   categories: Category[];

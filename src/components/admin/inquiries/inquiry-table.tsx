@@ -3,7 +3,7 @@
 import { Inquiry } from "@/types";
 import type { InquiryStatus } from "@/db/schema";
 import { motion } from "framer-motion";
-import { MoreHorizontal, Eye, CheckCheck, Send } from "lucide-react";
+import { IconDots as MoreHorizontal, IconEye as Eye, IconChecks as CheckCheck, IconSend as Send } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";

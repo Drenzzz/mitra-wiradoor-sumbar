@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { IconPlus as Plus } from "@tabler/icons-react";
 import { PageWrapper } from "@/components/admin/page-wrapper";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

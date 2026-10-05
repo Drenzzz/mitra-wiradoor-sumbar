@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Undo, Trash2 } from "lucide-react";
+import { IconArrowBackUp as Undo, IconTrash as Trash2 } from "@tabler/icons-react";
 import { ArticleTable } from "@/components/admin/articles/article-table";
 import type { Article, ArticleCategory } from "@/types";
 
